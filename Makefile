@@ -8,7 +8,7 @@ WD=$(shell pwd)
 DESTDIR=
 RM=rm
 
-SYSDIRS= pa_hashcons
+SYSDIRS= pa_q_ast
 
 TESTDIRS= tests
 
@@ -32,11 +32,11 @@ test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
 
 install: sys
-	$(OCAMLFIND) remove pa_ppx_hashcons || true
-	$(OCAMLFIND) install pa_ppx_hashcons local-install/lib/pa_ppx_hashcons/*
+	$(OCAMLFIND) remove pa_ppx_q_ast || true
+	$(OCAMLFIND) install pa_ppx_q_ast local-install/lib/pa_ppx_q_ast/*
 
 uninstall:
-	$(OCAMLFIND) remove pa_ppx_hashcons || true
+	$(OCAMLFIND) remove pa_ppx_q_ast || true
 
 clean::
 	set -e; for i in $(SYSDIRS) $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ..; done
