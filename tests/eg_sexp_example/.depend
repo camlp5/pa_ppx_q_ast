@@ -1,4 +1,4 @@
-eg_parsing.cmo eg_q_ast.cmo eg_parsing.cmi eg_q_ast.cmi eg_parsing.cmx eg_q_ast.cmx: /home/chet/Hack/Ocaml/GENERIC/4.10.0/lib/fmt/META
+eg_parsing.cmo eg_q_ast.cmo eg_parsing.cmi eg_q_ast.cmi eg_parsing.cmx eg_q_ast.cmx: 
 eg_parsing.cmo :
 eg_parsing.cmx :
 eg_q_ast.cmo :

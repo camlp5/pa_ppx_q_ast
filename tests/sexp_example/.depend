@@ -1,4 +1,4 @@
-sexp.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx q_ast_sexp.cmx pa_sexp.cmx: /home/chet/Hack/Ocaml/GENERIC/4.10.0/lib/camlp5/META /home/chet/Hack/Ocaml/GENERIC/4.10.0/lib/fmt/META
+sexp.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx q_ast_sexp.cmx pa_sexp.cmx: 
 q_ast_sexp.cmo : \
     pa_sexp.cmo
 q_ast_sexp.cmx : \
