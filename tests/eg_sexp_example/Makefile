@@ -6,7 +6,7 @@ include Makefile.include
 PACKAGES := $(PACKAGES),fmt
 
 ML=\
-	eg_parsing.ml eg_q_ast.cmo \
+	eg_parsing.ml eg_q_ast.ml \
 
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
@@ -34,7 +34,7 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax $(SYNTAX) *.ml *.mli >> .depend.NEW \
+	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5,camlp5.quotations,sexp_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
 		&& mv .depend.NEW .depend
 
 -include .depend

@@ -111,10 +111,32 @@ open Asttypes ;;
 open Parsetree ;;
 open Longident ;;
 
+let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty));;
+let pp_expr ty = Fmt.(pf stdout "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty));;
+(*
+let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %a >>" Pa_ppx_base.Pp_MLast.pp_ctyp ty);;
+let pp_expr ty = Fmt.(pf stdout "#<expr< %a >>" Pa_ppx_base.Pp_MLast.pp_expr ty);;
+*)
+#install_printer pp_ctyp ;;
+#install_printer pp_expr ;;
+
 print_string "================ START ================\n";; flush stdout ;;
 
-#require "pa_ppx.deriving";;
-#require "pa_ppx_sexp";;
+#require "pa_ppx.import";;
+#require "pa_ppx_q_ast";;
+#directory "../../pa_q_ast";;
+
+Pa_ppx_base.Pa_passthru.debug := true ;;
+Pa_import.add_include "." ;;
+Pa_import.add_package "camlp5" ;;
+
+#trace Pa_deriving_q_ast.QAST.generate_converter ;;
+#trace Pa_deriving_base.monomorphize_ctyp ;;
+
+"q_ast_camlp5.ml" |> Fpath.v |> Bos.OS.File.read
+  |> Rresult.R.get_ok |> PAPR.Implem.pa1
+  |> PAPR.Implem.pr |> print_string ;;
+
 
 (*
 ;;; Local Variables: ***

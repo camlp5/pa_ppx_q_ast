@@ -8,3 +8,6 @@ all:
 
 clean:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ..; done
+
+depend:
+	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) depend; cd ..; done
