@@ -75,19 +75,41 @@ value generate_conversion arg rc rho t =
         ]) branches in
       <:expr< fun [ $list:branches$ ] >>
 
-    | <:ctyp:< vala $ty$ >> | <:ctyp:< Ploc.vala $ty$ >> | <:ctyp:< Pcaml.t $ty$ >> ->
-      <:expr< C.vala $genrec ty$ >>
+  | <:ctyp:< { $list:ltl$ } >> ->
+      let argvars = List.map (fun (_, id, _, ty, _) -> (id, ty)) ltl in
+      let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
+      let argpat = <:patt< { $list:lpl$ } >> in
+      let members = List.map (fun (id, ty) ->
+          let label = <:patt< $longid:rc.source_module_longid$ . $lid:id$ >> in
+          <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
+      let reclist = List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) members <:expr< [] >> in
+      <:expr< fun $argpat$ -> C.record $reclist$ >>
 
-    | <:ctyp:< $_$ $_$ >> as ty ->
-      let (ty, argtys) = Ctyp.unapplist ty in
-      Expr.applist (genrec ty) (List.map genrec argtys)
+  | <:ctyp:< ( $list:l$ ) >> ->
+      let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
+      let argpat = <:patt< ( $list:List.map (to_patt loc) argvars$ ) >> in
+      let members = List.map (fun (v,ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
+      let tuplist = List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) members <:expr< [] >> in
+      <:expr< fun $argpat$ -> C.tuple $tuplist$ >>
 
-    | <:ctyp:< string >> -> <:expr< C.string >>
+  | <:ctyp:< vala $ty$ >> | <:ctyp:< Ploc.vala $ty$ >> | <:ctyp:< Pcaml.t $ty$ >> ->
+    <:expr< C.vala $genrec ty$ >>
 
-    | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ >>
-    | <:ctyp:< ' $id$ >> when List.mem_assoc id rho ->
-      <:expr< $lid:List.assoc id rho$ >>
-    | ty -> Ploc.raise (loc_of_ctyp ty)
+  | <:ctyp:< bool >> -> <:expr< C.bool >>
+  | <:ctyp:< list >> -> <:expr< C.list >>
+  | <:ctyp:< option >> -> <:expr< C.option >>
+  | <:ctyp:< Ploc.t >> | <:ctyp:< loc >> -> <:expr< fun _ -> C.loc_v () >>
+
+  | <:ctyp:< $_$ $_$ >> as ty ->
+    let (ty, argtys) = Ctyp.unapplist ty in
+    Expr.applist (genrec ty) (List.map genrec argtys)
+
+  | <:ctyp:< string >> -> <:expr< C.string >>
+
+  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ >>
+  | <:ctyp:< ' $id$ >> when List.mem_assoc id rho ->
+    <:expr< $lid:List.assoc id rho$ >>
+  | ty -> Ploc.raise (loc_of_ctyp ty)
       (Failure Fmt.(str "generate_conversion: unhandled ctyp %a"
                       Pp_MLast.pp_ctyp ty))
   ] in
@@ -107,12 +129,15 @@ value generate_meta_e_binding arg rc (_, td) =
       ]) tyvars in
   let body = generate_conversion arg rc rho td.tdDef in
   let fbody = List.fold_right (fun (_, fname) rhs -> <:expr< fun $lid:fname$ -> $rhs$ >>) rho body in
+  (<:patt< $lid:name$ >>, fbody, <:vala< [] >>)
+;
+
+value generate_meta_e_bindings loc arg rc tdl =
+  let l = List.map (generate_meta_e_binding arg rc) tdl in
   let prefix = Q_ast.Meta_E.expr rc.source_module_expr in
-  (<:patt< $lid:name$ >>,
-   <:expr< let prefix = let loc = Ploc.dummy in $prefix$ in
-           let open Q_ast.Meta_E in
-           $fbody$ >>,
-   <:vala< [] >>)
+  l @ [
+    (<:patt< prefix >>, <:expr< let loc = Ploc.dummy in $prefix$ >>, <:vala< [] >>)
+  ]
 ;
 
 value generate_meta_p_binding arg rc (_, td) =
@@ -128,12 +153,15 @@ value generate_meta_p_binding arg rc (_, td) =
       ]) tyvars in
   let body = generate_conversion arg rc rho td.tdDef in
   let fbody = List.fold_right (fun (_, fname) rhs -> <:expr< fun $lid:fname$ -> $rhs$ >>) rho body in
+  (<:patt< $lid:name$ >>, fbody, <:vala< [] >>)
+;
+
+value generate_meta_p_bindings loc arg rc tdl =
+  let l = List.map (generate_meta_p_binding arg rc) tdl in
   let prefix = Q_ast.Meta_E.longid rc.source_module_longid in
-  (<:patt< $lid:name$ >>,
-   <:expr< let prefix = let loc = Ploc.dummy in $prefix$ in
-           let open Q_ast.Meta_P in
-           $fbody$ >>,
-   <:vala< [] >>)
+  l @ [
+    (<:patt< prefix >>, <:expr< let loc = Ploc.dummy in $prefix$ >>, <:vala< [] >>)
+  ]
 ;
 
 end
@@ -142,12 +170,14 @@ end
 value str_item_gen_q_ast name arg = fun [
   <:str_item:< type $_flag:_$ $list:tdl$ >> ->
     let rc = QAST.build_context loc arg tdl in
-    let meta_e_bindings = List.map (QAST.generate_meta_e_binding arg rc) rc.QAST.type_decls in
-    let meta_p_bindings = List.map (QAST.generate_meta_p_binding arg rc) rc.QAST.type_decls in
+    let meta_e_bindings = QAST.generate_meta_e_bindings loc arg rc rc.QAST.type_decls in
+    let meta_p_bindings = QAST.generate_meta_p_bindings loc arg rc rc.QAST.type_decls in
     <:str_item< declare module E = struct
+                open Q_ast.Meta_E ;
                 value rec $list:meta_e_bindings$ ;
                 end ;
                 module P = struct
+                open Q_ast.Meta_P ;
                 value rec $list:meta_p_bindings$ ;
                 end ;
                 end >>
