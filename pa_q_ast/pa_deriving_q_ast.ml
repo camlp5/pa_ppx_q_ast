@@ -107,7 +107,7 @@ value generate_conversion arg rc rho t =
   | <:ctyp:< string >> -> <:expr< C.string >>
 
   | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ >>
-  | <:ctyp:< ' $id$ >> when List.mem_assoc id rho ->
+  | <:ctyp:< $lid:id$ >> when List.mem_assoc id rho ->
     <:expr< $lid:List.assoc id rho$ >>
   | ty -> Ploc.raise (loc_of_ctyp ty)
       (Failure Fmt.(str "generate_conversion: unhandled ctyp %a"
@@ -116,48 +116,44 @@ value generate_conversion arg rc rho t =
   genrec t
 ;
 
-value generate_meta_e_binding arg rc (_, td) =
+value generate_converter arg rc (_, td) =
   let loc = loc_of_type_decl td in
   let name = td.tdNam |> uv |> snd |> uv in
   let rho =
     let tyvars = td.tdPrm |> uv in
     List.mapi (fun i -> fun [
         (<:vala< None >>, _) ->
-        Ploc.raise loc (Failure Fmt.(str "generate_meta_e_binding: %s: formal type-vars must all be named"
+        Ploc.raise loc (Failure Fmt.(str "generate_converter: %s: formal type-vars must all be named"
                                        name))
       | (<:vala< Some id >>, _) -> (id, Printf.sprintf "sub_%d" i)
       ]) tyvars in
-  let body = generate_conversion arg rc rho td.tdDef in
-  let fbody = List.fold_right (fun (_, fname) rhs -> <:expr< fun $lid:fname$ -> $rhs$ >>) rho body in
-  (<:patt< $lid:name$ >>, fbody, <:vala< [] >>)
+  let body = generate_conversion arg rc rho (monomorphize_ctyp td.tdDef) in
+  let body = match td.tdDef with [
+    <:ctyp< $_$ $_$ >> -> <:expr< fun x -> $body$ x >>
+  | _ -> body
+  ] in
+  let fbody = List.fold_right (fun (id, fname) rhs -> <:expr< fun ( $lid:fname$ : $lid:id$ -> C.t) -> $rhs$ >>) rho body in
+  let fbody = List.fold_right (fun (id, _) rhs -> <:expr< fun (type $lid:id$) -> $rhs$ >>) rho fbody in
+  let ftype =
+    if rho = [] then
+      <:ctyp< $lid:name$ -> C.t >>
+    else
+      let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
+      let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
+      <:ctyp< ! $list:List.map fst rho$ . $rhsty$ >> in
+  (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
 value generate_meta_e_bindings loc arg rc tdl =
-  let l = List.map (generate_meta_e_binding arg rc) tdl in
+  let l = List.map (generate_converter arg rc) tdl in
   let prefix = Q_ast.Meta_E.expr rc.source_module_expr in
   l @ [
     (<:patt< prefix >>, <:expr< let loc = Ploc.dummy in $prefix$ >>, <:vala< [] >>)
   ]
 ;
 
-value generate_meta_p_binding arg rc (_, td) =
-  let loc = loc_of_type_decl td in
-  let name = td.tdNam |> uv |> snd |> uv in
-  let rho =
-    let tyvars = td.tdPrm |> uv in
-    List.mapi (fun i -> fun [
-        (<:vala< None >>, _) ->
-        Ploc.raise loc (Failure Fmt.(str "generate_meta_p_binding: %s: formal type-vars must all be named"
-                                       name))
-      | (<:vala< Some id >>, _) -> (id, Printf.sprintf "sub_%d" i)
-      ]) tyvars in
-  let body = generate_conversion arg rc rho td.tdDef in
-  let fbody = List.fold_right (fun (_, fname) rhs -> <:expr< fun $lid:fname$ -> $rhs$ >>) rho body in
-  (<:patt< $lid:name$ >>, fbody, <:vala< [] >>)
-;
-
 value generate_meta_p_bindings loc arg rc tdl =
-  let l = List.map (generate_meta_p_binding arg rc) tdl in
+  let l = List.map (generate_converter arg rc) tdl in
   let prefix = Q_ast.Meta_E.longid rc.source_module_longid in
   l @ [
     (<:patt< prefix >>, <:expr< let loc = Ploc.dummy in $prefix$ >>, <:vala< [] >>)
