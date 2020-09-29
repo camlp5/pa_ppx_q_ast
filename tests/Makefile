@@ -3,7 +3,7 @@
 
 TESTDIRS = sexp_example eg_sexp_example camlp5_example
 
-all:
+all test:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 clean:

@@ -9,11 +9,11 @@ hand-written, when using Camlp5's Q_ast.
 opam-version: "2.0"
 maintainer: "Chet Murthy <chetsky@gmail.com>"
 authors: ["Chet Murthy"]
-homepage: "https://github.com/chetmurthy/pa_ppx_q_ast"
+homepage: "https://github.com/camlp5/pa_ppx_q_ast"
 license: "BSD-3-Clause"
-bug-reports: "https://github.com/chetmurthy/pa_ppx_q_ast/issues"
-dev-repo: "git+https://github.com/chetmurthy/pa_ppx_q_ast.git"
-doc: "https://github.com/chetmurthy/pa_ppx_q_ast/doc"
+bug-reports: "https://github.com/camlp5/pa_ppx_q_ast/issues"
+dev-repo: "git+https://github.com/camlp5/pa_ppx_q_ast.git"
+doc: "https://github.com/camlp5/pa_ppx_q_ast/doc"
 
 depends: [
   "ocaml"       { >= "4.10.0" & < "4.12.0" }
