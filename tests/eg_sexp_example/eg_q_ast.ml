@@ -5,8 +5,6 @@
 open Fmt ;;
 
 let loc = Ploc.dummy ;;
-let one = <:expr< 1 >> ;;
-let nil = <:expr< SEXP () >> ;;
 
 let rec pp pps = function
     <:sexp< () >> -> Fmt.(pf pps "()")

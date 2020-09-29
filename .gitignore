@@ -20,3 +20,6 @@ docs
 .merlin
 */.merlin
 */*/.merlin
+*/.depend.NEW
+*/*/.depend.NEW
+*/*/*/.depend.NEW
