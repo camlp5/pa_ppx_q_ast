@@ -113,7 +113,7 @@ value build_context loc ctxt tdl =
 value to_patt loc (v, ty) = <:patt< ($lid:v$ : $ty$) >> ;
 value to_expr loc (v, ty) = <:expr< ($lid:v$ : $ty$) >> ;
 
-value generate_conversion arg rc rho t =
+value generate_conversion arg rc rho in_patt (name, t) =
   let rec genrec = fun [
     <:ctyp< $_$ == $ty$ >> -> genrec ty
   | <:ctyp:< [ $list:branches$ ] >> ->
@@ -152,10 +152,6 @@ value generate_conversion arg rc rho t =
   | <:ctyp:< option >> -> <:expr< C.option >>
   | <:ctyp:< Ploc.t >> | <:ctyp:< loc >> -> <:expr< fun _ -> C.loc_v () >>
 
-  | <:ctyp:< Hashcons.hash_consed $t$ >> | <:ctyp:< hash_consed $t$ >> when rc.hashconsed ->
-    let node_label = <:patt< Hashcons . node >> in
-    <:expr< fun x -> C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Hashcons.node) ] >>
-
   | <:ctyp:< $_$ $_$ >> as ty ->
     let (ty, argtys) = Ctyp.unapplist ty in
     Expr.applist (genrec ty) (List.map genrec argtys)
@@ -169,10 +165,19 @@ value generate_conversion arg rc rho t =
       (Failure Fmt.(str "generate_conversion: unhandled ctyp %a"
                       Pp_MLast.pp_ctyp ty))
   ] in
-  genrec t
+  match t with [
+    <:ctyp:< Hashcons.hash_consed $t$ >> | <:ctyp:< hash_consed $t$ >> when rc.hashconsed ->
+    if in_patt then
+      let node_label = <:patt< Hashcons . node >> in
+      <:expr< fun x -> C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Hashcons.node) ] >>
+    else 
+      <:expr< fun x -> C.app_no_loc ~{prefix=data_prefix} $str:name$ [ $genrec t$ x.Hashcons.node ] >>
+
+  | _ -> genrec t
+  ]
 ;
 
-value generate_converter arg rc (_, td) =
+value generate_converter arg rc in_patt (_, td) =
   let loc = loc_of_type_decl td in
   let name = td.tdNam |> uv |> snd |> uv in
   let rho =
@@ -183,7 +188,7 @@ value generate_converter arg rc (_, td) =
                                        name))
       | (<:vala< Some id >>, _) -> (id, Printf.sprintf "sub_%d" i)
       ]) tyvars in
-  let body = generate_conversion arg rc rho (monomorphize_ctyp td.tdDef) in
+  let body = generate_conversion arg rc rho in_patt (name, monomorphize_ctyp td.tdDef) in
   let body = match td.tdDef with [
     <:ctyp< $_$ $_$ >> -> <:expr< fun x -> $body$ x >>
   | _ -> body
@@ -200,14 +205,14 @@ value generate_converter arg rc (_, td) =
   (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
-value generate_meta_e_bindings loc arg rc tdl =
-  let l = List.map (generate_converter arg rc) tdl in
+value generate_meta_e_bindings loc arg rc in_patt tdl =
+  let l = List.map (generate_converter arg rc in_patt) tdl in
   let data_prefix = Q_ast.Meta_E.expr rc.data_source_module_expr in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l)
 ;
 
-value generate_meta_p_bindings loc arg rc tdl =
-  let l = List.map (generate_converter arg rc) tdl in
+value generate_meta_p_bindings loc arg rc in_patt tdl =
+  let l = List.map (generate_converter arg rc in_patt) tdl in
   let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l)
 ;
@@ -218,8 +223,8 @@ end
 value str_item_gen_q_ast name arg = fun [
   <:str_item:< type $_flag:_$ $list:tdl$ >> ->
     let rc = QAST.build_context loc arg tdl in
-    let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc rc.QAST.type_decls in
-    let (meta_p_data_prefix_bindings, meta_p_bindings) = QAST.generate_meta_p_bindings loc arg rc rc.QAST.type_decls in
+    let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc False rc.QAST.type_decls in
+    let (meta_p_data_prefix_bindings, meta_p_bindings) = QAST.generate_meta_p_bindings loc arg rc True rc.QAST.type_decls in
     <:str_item< declare module E = struct
                 module C = $module_expr_of_longident rc.expr_meta_module_longid$ ;
                 value $list:meta_e_data_prefix_bindings$ ;
