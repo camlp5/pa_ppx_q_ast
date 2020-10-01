@@ -35,6 +35,10 @@ and lam = lam_node
       }
     }
 ]
+
+let dt = make_dt ()
+let inject x = dt.migrate_lam dt x
+
 end
 
 module Project = struct
@@ -68,5 +72,9 @@ let migration_error feature =
       }
     }
 ]
+
+let dt = make_dt ()
+let inject x = dt.migrate_lam dt x
+
 end
 

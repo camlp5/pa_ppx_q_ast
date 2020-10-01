@@ -8,9 +8,10 @@ open Pcaml;
 open Lam;
 
 value lam_eoi = Grammar.Entry.create gram "lam_eoi";
+value lam_hashcons_eoi = Grammar.Entry.create gram "lam_hashcons_eoi";
 
 EXTEND
-  GLOBAL: lam_eoi;
+  GLOBAL: lam_eoi lam_hashcons_eoi;
 
   lam: [
     "apply" LEFTA
@@ -25,5 +26,6 @@ EXTEND
   ;
 
   lam_eoi: [ [ x = lam; EOI -> x ] ];
+  lam_hashcons_eoi: [ [ x = lam; EOI -> Lam_migrate.Inject.inject x ] ];
 
 END;

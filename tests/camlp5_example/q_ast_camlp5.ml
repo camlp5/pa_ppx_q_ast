@@ -19,4 +19,4 @@ end
     [@add [%%import: 'a Ploc.vala]]
     [@with Ploc.vala := vala]
 ]
-[@@deriving q_ast { source_module = MLast }]
+[@@deriving q_ast { data_source_module = MLast }]
