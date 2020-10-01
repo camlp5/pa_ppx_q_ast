@@ -1,4 +1,4 @@
-lam.cmo q_ast_lam.cmo pa_lam.cmo lam.cmi q_ast_lam.cmi pa_lam.cmi lam.cmx q_ast_lam.cmx pa_lam.cmx: 
+lam.cmo lam_hashcons.cmo lam_migrate.cmo q_ast_lam.cmo pa_lam.cmo lam.cmi lam_hashcons.cmi lam_migrate.cmi q_ast_lam.cmi pa_lam.cmi lam.cmx lam_hashcons.cmx lam_migrate.cmx q_ast_lam.cmx pa_lam.cmx: 
 lam.cmo :
 lam.cmx :
 q_ast_lam.cmo : \
@@ -6,6 +6,8 @@ q_ast_lam.cmo : \
 q_ast_lam.cmx : \
     pa_lam.cmx
 pa_lam.cmo : \
+    lam_migrate.cmo \
     lam.cmo
 pa_lam.cmx : \
+    lam_migrate.cmx \
     lam.cmx

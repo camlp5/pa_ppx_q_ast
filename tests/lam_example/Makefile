@@ -87,8 +87,8 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax $(SYNTAX) lam.ml q_ast_lam.ml >> .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5.extend,camlp5.quotations -syntax camlp5r pa_lam.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5.phony_quotations -syntax $(SYNTAX) lam.ml q_ast_lam.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5.extend,camlp5.phony_quotations -syntax camlp5r pa_lam.ml >> .depend.NEW
 	mv .depend.NEW .depend
 
 -include .depend

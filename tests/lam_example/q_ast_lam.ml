@@ -17,6 +17,14 @@ Quotation.add "lam"
   (apply_entry Pa_lam.lam_eoi E.lam P.lam)
 end
 
+module OK = struct
+[%%import: Lam_hashcons.OK.lam]
+[@@deriving q_ast { data_source_module = Lam_hashcons.OK }]
+
+Quotation.add "oklam"
+  (apply_entry Pa_lam.lam_eoi E.lam P.lam)
+end
+
 module Hashcons = struct
 
 module MetaE = struct

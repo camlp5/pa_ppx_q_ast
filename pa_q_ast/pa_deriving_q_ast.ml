@@ -189,6 +189,10 @@ value generate_converter arg rc in_patt (_, td) =
       | (<:vala< Some id >>, _) -> (id, Printf.sprintf "sub_%d" i)
       ]) tyvars in
   let body = generate_conversion arg rc rho in_patt (name, monomorphize_ctyp td.tdDef) in
+  let body = match body with [
+    <:expr< fun [ $list:_$ ] >> -> body
+  | _ -> <:expr< fun x -> $body$ x >>
+  ] in
   let body = match td.tdDef with [
     <:ctyp< $_$ $_$ >> -> <:expr< fun x -> $body$ x >>
   | _ -> body
