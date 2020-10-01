@@ -3,7 +3,8 @@
 
 [%%import: Lam.lam]
 [@@hashcons_module Lam][@@hashcons_constructor lam]
-[@@deriving hashcons { module_name = HC
+[@@deriving hashcons { hashconsed_module_name = HC
+                     ; normal_module_name = OK
                      ; memo = {
                          memo_lam = [%typ: lam]
                        ; memo_int_lam = [%typ: int * lam]

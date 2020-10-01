@@ -9,8 +9,7 @@ exception Migration_error of string
 let migration_error feature =
   raise (Migration_error feature)
 
-type lam_node = [%import: Lam_hashcons.lam]
-and lam = lam_node
+[%%import: Lam_hashcons.OK.lam]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -60,11 +59,11 @@ let migration_error feature =
         }
       ; migrate_lam_node = {
           srctype = [%typ: lam_node]
-        ; dsttype = [%typ: Lam_hashcons.lam]
+        ; dsttype = [%typ: Lam_hashcons.OK.lam_node]
         }
       ; migrate_lam = {
           srctype = [%typ: lam]
-        ; dsttype = [%typ: Lam_hashcons.lam]
+        ; dsttype = [%typ: Lam_hashcons.OK.lam]
         ; code = (fun __dt__ x ->
             __dt__.migrate_lam_node __dt__ x.Hashcons.node
           )
