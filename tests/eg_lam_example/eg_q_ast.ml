@@ -8,6 +8,9 @@ let loc = Ploc.dummy ;;
 
 module Regular = struct
 
+let v0 = <:lam< x >>
+let v1 = <:lam< [x][y]x >>
+
 let rec pp0 pps = function
     <:lam< $var:x$ >> -> Fmt.(pf pps "%s" x)
   | x -> Fmt.(pf pps "(%a)" pp x)
@@ -28,6 +31,10 @@ let rec copy = function
 end ;;
 
 module OK = struct
+
+let v0 = <:oklam< x >>
+let v1 = <:oklam< [x][y]x >>
+
 let rec pp0 pps = function
     <:oklam< $var:x$ >> -> Fmt.(pf pps "%s" x)
   | x -> Fmt.(pf pps "(%a)" pp x)
@@ -48,6 +55,10 @@ end
 ;;  
 
 module HC = struct
+
+let v0 = <:hclam< x >>
+let v1 = <:hclam< [x][y]x >>
+
 let rec pp0 pps = function
     <:hclam< $var:x$ >> -> Fmt.(pf pps "%s" x)
   | x -> Fmt.(pf pps "(%a)" pp x)

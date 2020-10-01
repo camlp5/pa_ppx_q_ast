@@ -14,7 +14,7 @@ CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
-all: $(CMO) $(CMX)
+all test: $(CMO) $(CMX)
 
 doc: $(CMT) $(CMTI)
 

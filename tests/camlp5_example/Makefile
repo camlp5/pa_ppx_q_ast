@@ -27,7 +27,7 @@ CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
-all: $(CMO) $(CMX) local-install
+all test: $(CMO) $(CMX) local-install
 
 q_ast_camlp5.cmo: q_ast_camlp5.ml
 	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml

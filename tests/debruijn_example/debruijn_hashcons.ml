@@ -1,12 +1,13 @@
 (* camlp5o *)
 (* hCLam.ml *)
 
-[%%import: Lam.lam]
+[%%import: Debruijn.term]
 [@@deriving hashcons { hashconsed_module_name = HC
                      ; normal_module_name = OK
                      ; memo = {
-                         memo_lam = [%typ: lam]
-                       ; memo_int_lam = [%typ: int * lam]
+                         memo_term = [%typ: term]
+                       ; memo2_int_term = [%typ: int * term]
+                       ; memo2_term_term = [%typ: term * term]
                        ; memo_int = [%typ: int]
                        }
                      ; external_types = {
@@ -26,9 +27,9 @@
                          }
                        }
                      ; pertype_customization = {
-                         lam = {
-                           hashcons_module = Lam
-                         ; hashcons_constructor = lam
+                         term = {
+                           hashcons_module = Term
+                         ; hashcons_constructor = term
                          }
                        }
                      }]

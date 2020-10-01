@@ -27,7 +27,7 @@ CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
-all: $(CMO) $(CMX) local-install
+all test: $(CMO) $(CMX) local-install
 
 lam_migrate.cmo: lam_migrate.ml lam.cmi
 	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.quotations,camlp5.pr_o,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate -syntax camlp5o $< > $@.ppo.ml
