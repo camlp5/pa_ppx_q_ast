@@ -30,12 +30,12 @@ CMTI := $(MLI:.mli=.cmti)
 all test: $(CMO) $(CMX) local-install
 
 pa_sexp.cmo: pa_sexp.ml
-	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.quotations,camlp5.extend_m,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.quotations,camlp5.extend_m -syntax camlp5r -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.quotations,camlp5.extend_m -syntax camlp5r -c $<
+	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
 
 pa_sexp.cmx: pa_sexp.ml
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.quotations,camlp5.extend_m -syntax camlp5r -c $<
+	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
 
 q_ast_sexp.cmo: q_ast_sexp.ml
 	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
@@ -71,8 +71,8 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax $(SYNTAX) sexp.ml q_ast_sexp.ml >> .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5.extend,camlp5.quotations -syntax camlp5r pa_sexp.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep -package $(PACKAGES) -syntax $(SYNTAX) sexp.ml q_ast_sexp.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep -package $(PACKAGES),camlp5.extend,camlp5.parser_quotations -syntax camlp5r pa_sexp.ml >> .depend.NEW
 	mv .depend.NEW .depend
 
 -include .depend

@@ -34,7 +34,7 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5,camlp5.quotations,sexp_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
+	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5,sexp_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
 		&& mv .depend.NEW .depend
 
 -include .depend

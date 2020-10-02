@@ -19,7 +19,7 @@ all test: $(CMO) $(CMX)
 doc: $(CMT) $(CMTI)
 
 eg_parsing.cmo: eg_parsing.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5.quotations,lam_example.parser" $@
+	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5.parser_quotations,lam_example.parser" $@
 
 eg_q_ast.cmo: eg_q_ast.ml
 	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),lam_example.parser_quotations" $@
@@ -34,7 +34,7 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES),camlp5,camlp5.quotations,lam_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
+	$(OCAMLFIND) ocamldep -package $(PACKAGES),camlp5,lam_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
 		&& mv .depend.NEW .depend
 
 -include .depend
