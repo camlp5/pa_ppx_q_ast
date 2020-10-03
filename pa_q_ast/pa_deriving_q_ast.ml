@@ -10,22 +10,24 @@ open Ppxutil ;
 open Surveil ;
 open Pa_deriving_base ;
 open Pa_ppx_utils ;
+open Pa_ppx_params.Runtime ;
 
 value debug = Pa_passthru.debug ;
 
 value canon_ctyp ty = Reloc.ctyp (fun _ -> Ploc.dummy) 0 ty ;
 
-value string_list_of_expr e =
-  let rec lrec = fun [
-    <:expr< $uid:uid$ >> -> [uid]
-  | <:expr< $e1$ . $e2$ >> -> (lrec e1)@(lrec e2)
-  | e -> Ploc.raise (loc_of_expr e) (Failure "string_list_of_expr: unexpected expr")
-  ] in
-  lrec e
+module Params = struct
+type t = {
+  data_source_module : expr
+; quotation_source_module : option expr
+; expr_meta_module : expr
+; patt_meta_module : expr
+; external_types : (alist ctyp expr) [@default [];]
+; hashconsed : bool [@default False;]
+} [@@deriving params;]
 ;
-value longid_of_expr e =
-  let l = string_list_of_expr e in
-  Asttools.longident_of_string_list (loc_of_expr e) l
+
+end
 ;
 
 module QAST = struct
@@ -46,51 +48,27 @@ value build_context loc ctxt tdl =
   let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
       (tdNam |> uv |> snd |> uv, td)
     ) tdl in
+  let optarg =
+    let l = List.map (fun (k, e) -> (<:patt< $lid:k$ >>, e)) (Ctxt.options ctxt) in
+    <:expr< { $list:l$ } >> in
+  let rc0 = Params.params optarg in
+  let data_source_module_expr = rc0.Params.data_source_module in
   let open Ctxt in
-  let data_source_module_expr = match option ctxt "data_source_module" with [
-    x -> x
-  | exception Failure _ ->
-  Ploc.raise loc (Failure "pa_deriving_q_ast: option data_source_module must be specified")
-  ] in
   let data_source_module_longid = longid_of_expr data_source_module_expr in
-  let quotation_source_module_expr = match option ctxt "quotation_source_module" with [
-    <:expr< () >> -> data_source_module_expr
-  | x -> x
-  | exception Failure _ ->
-  Ploc.raise loc (Failure "pa_deriving_q_ast: option quotation_source_module must be specified")
+  let quotation_source_module_expr = match rc0.Params.quotation_source_module with [
+    None -> data_source_module_expr
+  | Some x -> x
   ] in
   let quotation_source_module_longid = longid_of_expr quotation_source_module_expr in
-  let expr_meta_module_expr = match option ctxt "expr_meta_module" with [
-    x -> x
-  | exception Failure _ ->
-  Ploc.raise loc (Failure "pa_deriving_q_ast: option expr_meta_module must be specified")
-  ] in
+  let expr_meta_module_expr = rc0.Params.expr_meta_module in
+  let open Ctxt in
   let expr_meta_module_longid = longid_of_expr expr_meta_module_expr in
-  let patt_meta_module_expr = match option ctxt "patt_meta_module" with [
-    x -> x
-  | exception Failure _ ->
-  Ploc.raise loc (Failure "pa_deriving_q_ast: option patt_meta_module must be specified")
-  ] in
+
+  let patt_meta_module_expr = rc0.Params.patt_meta_module in
+  let open Ctxt in
   let patt_meta_module_longid = longid_of_expr patt_meta_module_expr in
-  let external_types = match option ctxt "external_types" with [
-      <:expr:< { $list:lel$ } >> ->
-        List.map (fun (p, e) ->
-            let ty = match p with [
-              <:patt:< $lid:lid$ >> -> canon_ctyp <:ctyp< $lid:lid$ >>
-            | <:patt:< $longid:li$ . $lid:lid$ >> -> canon_ctyp <:ctyp< $longid:li$ . $lid:lid$ >>
-            | p -> Ploc.raise (loc_of_patt p)
-                (Failure Fmt.(str "pa_deriving_hashcons: key in external_types not a type:@ %a"
-                                Pp_MLast.pp_patt p))
-            ] in (ty, e)
-          ) lel
-    | <:expr< () >> -> []
-    | _ -> Ploc.raise loc (Failure "pa_deriving_hashcons: malformed option external_types")
-  ] in
-  let hashconsed = match option ctxt "hashconsed" with [
-    <:expr< True >> -> True
-  | <:expr< False >> -> False
-  | _ -> Ploc.raise loc (Failure "pa_deriving_hashcons: malformed option hashconsed")
-  ] in
+  let external_types = rc0.Params.external_types in
+  let hashconsed = rc0.Params.hashconsed in
   {
     data_source_module_expr = data_source_module_expr
   ; data_source_module_longid = data_source_module_longid
