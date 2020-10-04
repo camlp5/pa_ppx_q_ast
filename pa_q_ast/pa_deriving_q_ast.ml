@@ -16,32 +16,32 @@ value debug = Pa_passthru.debug ;
 
 value canon_ctyp ty = Reloc.ctyp (fun _ -> Ploc.dummy) 0 ty ;
 
-module Params = struct
-type t = {
-  data_source_module : expr
-; quotation_source_module : option expr
-; expr_meta_module : expr
-; patt_meta_module : expr
-; external_types : (alist ctyp expr) [@default [];]
-; hashconsed : bool [@default False;]
-} [@@deriving params;]
-;
-
-end
-;
-
 module QAST = struct
 type t = {
-  data_source_module_expr : MLast.expr
-; data_source_module_longid : MLast.longid
-; quotation_source_module_expr : MLast.expr
-; quotation_source_module_longid : MLast.longid
-; expr_meta_module_longid : MLast.longid
-; patt_meta_module_longid : MLast.longid
-; type_decls : list (string * MLast.type_decl)
-; external_types : list (MLast.ctyp * MLast.expr)
-; hashconsed : bool
-}
+  data_source_module_expr : expr [@name data_source_module;]
+; data_source_module_longid : longid [@computed longid_of_expr data_source_module_expr;]
+; raw_quotation_source_module : option expr [@name quotation_source_module;]
+; quotation_source_module_expr : expr
+      [@computed (match raw_quotation_source_module with [
+          None -> data_source_module_expr
+        | Some x -> x
+        ]);]
+; quotation_source_module_longid : longid [@computed longid_of_expr quotation_source_module_expr;]
+
+; expr_meta_module_expr : expr [@name expr_meta_module;]
+; expr_meta_module_longid : longid [@computed longid_of_expr expr_meta_module_expr;]
+
+; patt_meta_module_expr : expr [@name patt_meta_module;]
+; patt_meta_module_longid : longid [@computed longid_of_expr patt_meta_module_expr;]
+
+; external_types : (alist ctyp expr) [@default [];]
+; hashconsed : bool [@default False;]
+; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
+} [@@deriving params {
+    formal_args = {
+      t = [ type_decls ]
+    }
+  };]
 ;
 
 value build_context loc ctxt tdl =
@@ -51,35 +51,7 @@ value build_context loc ctxt tdl =
   let optarg =
     let l = List.map (fun (k, e) -> (<:patt< $lid:k$ >>, e)) (Ctxt.options ctxt) in
     <:expr< { $list:l$ } >> in
-  let rc0 = Params.params optarg in
-  let data_source_module_expr = rc0.Params.data_source_module in
-  let open Ctxt in
-  let data_source_module_longid = longid_of_expr data_source_module_expr in
-  let quotation_source_module_expr = match rc0.Params.quotation_source_module with [
-    None -> data_source_module_expr
-  | Some x -> x
-  ] in
-  let quotation_source_module_longid = longid_of_expr quotation_source_module_expr in
-  let expr_meta_module_expr = rc0.Params.expr_meta_module in
-  let open Ctxt in
-  let expr_meta_module_longid = longid_of_expr expr_meta_module_expr in
-
-  let patt_meta_module_expr = rc0.Params.patt_meta_module in
-  let open Ctxt in
-  let patt_meta_module_longid = longid_of_expr patt_meta_module_expr in
-  let external_types = rc0.Params.external_types in
-  let hashconsed = rc0.Params.hashconsed in
-  {
-    data_source_module_expr = data_source_module_expr
-  ; data_source_module_longid = data_source_module_longid
-  ; quotation_source_module_expr = quotation_source_module_expr
-  ; quotation_source_module_longid = quotation_source_module_longid
-  ; expr_meta_module_longid = expr_meta_module_longid
-  ; patt_meta_module_longid = patt_meta_module_longid
-  ; type_decls = type_decls
-  ; external_types = external_types
-  ; hashconsed = hashconsed
-  }
+  params type_decls optarg
 ;
 
 value to_patt loc (v, ty) = <:patt< ($lid:v$ : $ty$) >> ;

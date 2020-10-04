@@ -14,7 +14,7 @@ TESTDIRS= tests
 
 PACKAGES := pa_ppx.utils,pa_ppx.base,pa_ppx.import,pa_ppx.deriving
 
-all: sys
+all test: sys
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 sys: plugins
@@ -27,9 +27,6 @@ doc: all
 	rm -rf docs
 	tools/make-docs pa_ppx docs
 	make -C doc html
-
-test: all
-	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
 
 install: sys
 	$(OCAMLFIND) remove pa_ppx_q_ast || true
