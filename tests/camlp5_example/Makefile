@@ -11,14 +11,15 @@ LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=$(LAUNCH) ocamlfind
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
-PACKAGES := camlp5,fmt
+PACKAGES := camlp5,pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate
 SYNTAX = camlp5o
-IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
+OCAMLCFLAGS += -ppopt -pa_passthru-debug 
+OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
+OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	q_ast_camlp5.ml \
+	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml q_ast_camlp5.ml \
 
 MLI=
 CMO := $(ML:.ml=.cmo)
@@ -30,12 +31,26 @@ CMTI := $(MLI:.mli=.cmti)
 all test: $(CMO) $(CMX) local-install
 
 q_ast_camlp5.cmo: q_ast_camlp5.ml
-	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $<
 
 q_ast_camlp5.cmx: q_ast_camlp5.ml
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $<
+
+HCTYPES=attribute_body case_branch \
+	class_expr class_sig_item class_str_item class_type \
+	ctyp expr extension_constructor generic_constructor \
+	longid module_expr module_type patt payload poly_variant \
+	sig_item str_item type_decl type_extension type_var with_constr
+
+SKIPTYPES=longid_lident attribute attributes_no_anti attributes
+camlp5_migrate.ml: camlp5_migrate.ml.TMPL make-migrate Makefile
+	./make-migrate inject $(HCTYPES) > inject_nodes.tmp
+	./make-migrate inject_skip $(SKIPTYPES) > inject_skip_nodes.tmp
+	./make-migrate project $(HCTYPES) > project_nodes.tmp
+	./make-migrate project_skip $(SKIPTYPES) > project_skip_nodes.tmp
+	cppo -n camlp5_migrate.ml.TMPL > camlp5_migrate.ml
 
 doc: $(CMT) $(CMTI)
 
@@ -54,9 +69,10 @@ local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
+.PRECIOUS: camlp5_migrate.ml.TMPL
 
 clean::
-	rm -rf META *.cm* *.o *.a
+	rm -rf META *.cm* *.o *.a *.tmp camlp5_migrate.ml
 
 EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
 $(CMO) $(CMI) $(CMX): $(EXTERNAL)

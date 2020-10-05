@@ -16,7 +16,4 @@ end
 [%%import: MLast.expr
     [@add [%%import: MLast.loc]]
     [@add [%%import: MLast.type_var]]
-    [@add [%%import: 'a Ploc.vala]]
-    [@with Ploc.vala := vala]
 ]
-[@@deriving q_ast { data_source_module = MLast }]

@@ -1,0 +1,66 @@
+#!/usr/bin/env perl
+
+use strict ;
+
+{
+  my $mode = shift @ARGV ;
+  my @l = sort @ARGV ;
+
+  foreach my $t (@l) {
+    if ($mode eq 'inject') {
+
+      print <<"EOF";
+      ; migrate_${t}_node = {
+          srctype = [%typ: ${t}_node]
+        ; dsttype = [%typ: Camlp5_hashcons.HC.${t}_node]
+        }
+      ; migrate_${t} = {
+          srctype = [%typ: ${t}]
+        ; dsttype = [%typ: Camlp5_hashcons.HC.${t}]
+        ; code = (fun __dt__ x ->
+            Camlp5_hashcons.HC.make_${t} (__dt__.migrate_${t}_node __dt__ x)
+          )
+        }
+EOF
+    }
+    elsif ($mode eq 'inject_skip') {
+
+      print <<"EOF";
+      ; migrate_${t}_node = {
+          srctype = [%typ: ${t}_node]
+        ; dsttype = [%typ: Camlp5_hashcons.HC.${t}_node]
+        }
+      ; migrate_${t} = {
+          srctype = [%typ: ${t}]
+        ; dsttype = [%typ: Camlp5_hashcons.HC.${t}]
+        }
+EOF
+    }
+    elsif ($mode eq 'project') {
+      print <<"EOF";
+      ; migrate_${t}_node = {
+          srctype = [%typ: ${t}_node]
+        ; dsttype = [%typ: Camlp5_hashcons.OK.${t}_node]
+        }
+      ; migrate_${t} = {
+          srctype = [%typ: ${t}]
+        ; dsttype = [%typ: Camlp5_hashcons.OK.${t}]
+        ; code = (fun __dt__ x ->
+            __dt__.migrate_${t}_node __dt__ x.Hashcons.node
+          )
+        }
+EOF
+    }    elsif ($mode eq 'project_skip') {
+      print <<"EOF";
+      ; migrate_${t}_node = {
+          srctype = [%typ: ${t}_node]
+        ; dsttype = [%typ: Camlp5_hashcons.OK.${t}_node]
+        }
+      ; migrate_${t} = {
+          srctype = [%typ: ${t}]
+        ; dsttype = [%typ: Camlp5_hashcons.OK.${t}]
+        }
+EOF
+    }
+  }
+}

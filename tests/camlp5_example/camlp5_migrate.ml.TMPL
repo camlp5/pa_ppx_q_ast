@@ -1,0 +1,122 @@
+
+exception Migration_error of string
+
+let migration_error feature =
+  raise (Migration_error feature)
+
+let _migrate_list subrw0 __dt__ l =
+  List.map (subrw0 __dt__) l
+
+let _migrate_option subrw __dt__ x = Option.map (subrw __dt__) x
+
+let _migrate_vala __subrw_0 __dt__ = function
+    Ploc.VaAnt v_0 -> Ploc.VaAnt v_0
+  | Ploc.VaVal v_0 -> Ploc.VaVal (__subrw_0 __dt__ v_0)
+
+module Inject = struct
+exception Migration_error of string
+
+let migration_error feature =
+  raise (Migration_error feature)
+
+[%%import: Camlp5_hashcons.OK.expr]
+[@@deriving migrate
+    { dispatch_type = dispatch_table_t
+    ; dispatch_table_constructor = make_dt
+    ; dispatchers = {
+        migrate_vala = {
+          srctype = [%typ: 'a Ploc.vala]
+        ; dsttype = [%typ: 'b Ploc.vala]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        ; code = _migrate_vala
+        }
+
+      ; migrate_class_infos = {
+          srctype = [%typ: 'a class_infos]
+        ; dsttype = [%typ: 'b Camlp5_hashcons.HC.class_infos]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        }
+
+#include "inject_nodes.tmp"
+#include "inject_skip_nodes.tmp"
+
+      ; migrate_list = {
+          srctype = [%typ: 'a list]
+        ; dsttype = [%typ: 'b list]
+        ; code = _migrate_list
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        }
+      ; migrate_option = {
+          srctype = [%typ: 'a option]
+        ; dsttype = [%typ: 'b option]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        ; code = (fun subrw __dt__ x -> Option.map (subrw __dt__) x)
+        }
+      ; migrate_loc = {
+          srctype = [%typ: loc]
+        ; dsttype = [%typ: Camlp5_hashcons.HC.loc]
+        ; code = fun __dt__ x -> x
+        }
+      }
+    }
+]
+
+let dt = make_dt ()
+let inject x = dt.migrate_expr dt x
+
+end
+
+module Project = struct
+exception Migration_error of string
+
+let migration_error feature =
+  raise (Migration_error feature)
+
+[%%import: Camlp5_hashcons.HC.expr]
+[@@deriving migrate
+    { dispatch_type = dispatch_table_t
+    ; dispatch_table_constructor = make_dt
+    ; dispatchers = {
+        migrate_vala = {
+          srctype = [%typ: 'a Ploc.vala]
+        ; dsttype = [%typ: 'b Ploc.vala]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        ; code = _migrate_vala
+        }
+        ; migrate_list = {
+          srctype = [%typ: 'a list]
+        ; dsttype = [%typ: 'b list]
+        ; code = _migrate_list
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        }
+
+
+#include "project_nodes.tmp"
+#include "project_skip_nodes.tmp"
+
+        ; migrate_class_infos = {
+          srctype = [%typ: 'a class_infos]
+        ; dsttype = [%typ: 'b Camlp5_hashcons.OK.class_infos]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        }
+      ; migrate_option = {
+          srctype = [%typ: 'a option]
+        ; dsttype = [%typ: 'b option]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        ; code = (fun subrw __dt__ x -> Option.map (subrw __dt__) x)
+        }
+      ; migrate_loc = {
+          srctype = [%typ: loc]
+        ; dsttype = [%typ: Camlp5_hashcons.OK.loc]
+        ; code = fun __dt__ x -> x
+        }
+
+      }
+    }
+]
+
+let dt = make_dt ()
+let inject x = dt.migrate_expr dt x
+
+end
+
