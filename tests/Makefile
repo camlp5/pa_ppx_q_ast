@@ -4,7 +4,7 @@
 TESTDIRS = sexp_example eg_sexp_example \
 	lam_example eg_lam_example \
 	debruijn_example eg_debruijn_example \
-	 camlp5_example
+	 camlp5_example eg_camlp5_example
 
 all test:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
