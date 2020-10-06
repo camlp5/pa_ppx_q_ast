@@ -2,3 +2,5 @@
 *.o
 calc
 calc.opt
+*.tmp
+camlp5_migrate.ml

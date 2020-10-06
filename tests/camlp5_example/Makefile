@@ -19,7 +19,7 @@ OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml q_ast_camlp5.ml \
+	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml pa_camlp5.ml q_ast_camlp5.ml \
 
 MLI=
 CMO := $(ML:.ml=.cmo)
@@ -37,6 +37,14 @@ q_ast_camlp5.cmo: q_ast_camlp5.ml
 
 q_ast_camlp5.cmx: q_ast_camlp5.ml
 	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $<
+
+pa_camlp5.cmo: pa_camlp5.ml
+	$(NOT_OCAMLFIND) preprocess -package camlp5.extend,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc -package camlp5.extend -syntax camlp5r -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc -package camlp5.extend -syntax camlp5r -c $<
+
+pa_camlp5.cmx: pa_camlp5.ml
+	$(OCAMLFIND) ocamlopt -package camlp5.extend -syntax camlp5r -c $<
 
 HCTYPES=attribute_body case_branch \
 	class_expr class_sig_item class_str_item class_type \
