@@ -1,0 +1,24 @@
+#!/usr/bin/env perl
+
+use strict ;
+
+{
+  my $mode = shift @ARGV ;
+  my @l = sort @ARGV ;
+
+  foreach my $t (@l) {
+    my ($ty, $pa) = split(/:/, $t) ;
+    $pa ||= $ty ;
+
+    if ($mode eq 'ok') {
+      print <<"EOF";
+("ok${pa}",apply_entry Pa_camlp5.${pa}_eoi E.${ty} P.${ty});
+EOF
+    }
+    elsif ($mode eq 'hc') {
+      print <<"EOF";
+("hc${pa}",apply_entry Pa_camlp5.${pa}_hashcons_eoi E.${ty} P.${ty});
+EOF
+    }
+  }
+}

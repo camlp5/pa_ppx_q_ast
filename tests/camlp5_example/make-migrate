@@ -50,7 +50,8 @@ EOF
           )
         }
 EOF
-    }    elsif ($mode eq 'project_skip') {
+    }
+    elsif ($mode eq 'project_skip') {
       print <<"EOF";
       ; migrate_${t}_node = {
           srctype = [%typ: ${t}_node]
@@ -60,6 +61,12 @@ EOF
           srctype = [%typ: ${t}]
         ; dsttype = [%typ: Camlp5_hashcons.OK.${t}]
         }
+EOF
+    }
+    elsif ($mode eq 'binding') {
+      print <<"EOF";
+let inject_${t} x = Inject.dt.migrate_${t} Inject.dt x
+let project_${t} x = Project.dt.migrate_${t} Project.dt x
 EOF
     }
   }

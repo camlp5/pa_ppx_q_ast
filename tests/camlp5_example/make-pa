@@ -1,0 +1,27 @@
+#!/usr/bin/env perl
+
+use strict ;
+
+{
+  my $mode = shift @ARGV ;
+  my @l = sort @ARGV ;
+
+  foreach my $t (@l) {
+    my ($ty, $pa) = split(/:/, $t) ;
+    $pa ||= $ty ;
+
+    if ($mode eq 'pa') {
+      print <<"EOF";
+value ${pa}_eoi = Q_ast.${pa}_eoi ;
+value ${pa}_hashcons_eoi = Grammar.Entry.create gram "${pa}_hashcons_eoi";
+
+EXTEND
+  GLOBAL: 
+    ${pa}_eoi ${pa}_hashcons_eoi;
+
+  ${pa}_hashcons_eoi: [ [ x = ${pa}_eoi -> Camlp5_migrate.inject_${ty} x ] ];
+END;
+EOF
+    }
+  }
+}

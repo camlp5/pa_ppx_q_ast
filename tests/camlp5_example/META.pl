@@ -16,18 +16,18 @@ package "runtime" (
 )
 
 package "parser" (
-  requires(toploop) = "camlp5,camlp5_example.runtime"
+  requires(toploop) = "camlp5,camlp5_example.runtime,camlp5.parser_quotations"
   archive(toploop) = "pa_camlp5.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,fmt,camlp5_example.runtime"
+    requires(syntax,preprocessor) = "camlp5,fmt,camlp5_example.runtime,camlp5.parser_quotations"
     archive(syntax,preprocessor,-native) = "pa_camlp5.cmo"
     archive(syntax,preprocessor,native) = "pa_camlp5.cmx"
 
   package "link" (
-  requires(byte) = "camlp5,fmt,camlp5_example.runtime"
+  requires(byte) = "camlp5,fmt,camlp5_example.runtime,camlp5.parser_quotations.link"
   archive(byte) = "pa_camlp5.cmo"
   )
-  requires = "camlp5,fmt,camlp5_example.runtime"
+  requires = "camlp5,fmt,camlp5_example.runtime,camlp5.parser_quotations"
 )
 
 package "parser_quotations" (

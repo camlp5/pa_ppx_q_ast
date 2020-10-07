@@ -39,10 +39,18 @@ module MetaP = Regular.MetaP
     data_source_module = Camlp5_hashcons.OK
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
+  ; pertype = {
+      expr_node = {
+        custom_branches_code = function
+          | ExXtr(loc, s, _) → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s
+      }
+    }
   }]
 
-Quotation.add "okexpr"
-  (apply_entry Pa_camlp5.expr_eoi E.expr P.expr)
+List.map (fun (n,f) -> Quotation.add n f)
+[
+#include "ok_quotations.tmp"
+]
 end
 
 module Hashcons = struct
@@ -66,9 +74,22 @@ end
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
   ; hashconsed = true
+  ; pertype = {
+      expr_node = {
+        custom_branches_code = function
+          | ExXtr(loc, s, _) → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s
+      }
+    ; expr = {
+        add_branches_patt_code = function
+          | {Hashcons.node=ExXtr(loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s
+      }
+    }
   }]
 
-Quotation.add "hcexpr"
-  (apply_entry Pa_camlp5.expr_hashcons_eoi E.expr P.expr)
+List.map (fun (n,f) -> Quotation.add n f)
+[
+#include "hc_quotations.tmp"
+]
+
 end
 

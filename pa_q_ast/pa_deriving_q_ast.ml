@@ -17,7 +17,33 @@ value debug = Pa_passthru.debug ;
 value canon_ctyp ty = Reloc.ctyp (fun _ -> Ploc.dummy) 0 ty ;
 
 module QAST = struct
-type t = {
+
+value extract_case_branches = fun [
+  None -> []
+| Some <:expr< fun [ $list:l$ ] >> ->
+  List.map (fun (p,wheno,e) ->
+      match Patt.unapplist p with [
+        (<:patt< $uid:uid$ >>, _) -> (uid, (p, wheno, e))
+      | _ -> Ploc.raise (loc_of_patt p) (Failure "extract_case_branches: case-branches must start with a UIDENT")
+      ]) l
+]
+;
+
+value extract_branches = fun [
+  None -> []
+| Some <:expr< fun [ $list:l$ ] >> -> l
+]
+;
+
+type pertype_t = {
+  custom_branches_code : option expr 
+; custom_branches : (alist lident case_branch) [@computed extract_case_branches custom_branches_code;]
+; add_branches_patt_code : option expr 
+; add_branches_patt : (list case_branch) [@computed extract_branches add_branches_patt_code;]
+; add_branches_expr_code : option expr 
+; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
+}
+and t = {
   data_source_module_expr : expr [@name data_source_module;]
 ; data_source_module_longid : longid [@computed longid_of_expr data_source_module_expr;]
 ; raw_quotation_source_module : option expr [@name quotation_source_module;]
@@ -36,6 +62,7 @@ type t = {
 
 ; external_types : (alist ctyp expr) [@default [];]
 ; hashconsed : bool [@default False;]
+; pertype : (alist lident pertype_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
 } [@@deriving params {
     formal_args = {
@@ -58,6 +85,15 @@ value to_patt loc (v, ty) = <:patt< ($lid:v$ : $ty$) >> ;
 value to_expr loc (v, ty) = <:expr< ($lid:v$ : $ty$) >> ;
 
 value generate_conversion arg rc rho in_patt (name, t) =
+  let custom_branches = match AList.assoc name rc.pertype with [
+    x -> x.custom_branches
+  | exception Not_found -> []
+  ] in
+  let add_branches = match (in_patt, AList.assoc name rc.pertype) with [
+    (True, x) -> x.add_branches_patt
+  | (False, x) -> x.add_branches_expr
+  | exception Not_found -> []
+  ] in
   let rec genrec = fun [
     <:ctyp< $_$ == $ty$ >> -> genrec ty
   | <:ctyp:< [ $list:branches$ ] >> ->
@@ -67,9 +103,13 @@ value generate_conversion arg rc rho in_patt (name, t) =
           let argpatt = Patt.applist <:patt< $uid:uid$ >> (List.map (to_patt loc) argvars) in
           let arglist = List.fold_right (fun (v, ty) rhs ->
               <:expr< [ $genrec ty$ $lid:v$ :: $rhs$ ] >>) argvars <:expr< [] >> in
+          match List.assoc uid custom_branches with [
+            x -> x
+          | exception Not_found ->
           (argpatt, <:vala< None >>, <:expr< C.node_no_loc ~{prefix=data_prefix} $str:uid$ $arglist$ >>)
+          ]
         ]) branches in
-      <:expr< fun [ $list:branches$ ] >>
+      <:expr< fun [ $list:add_branches@branches$ ] >>
 
   | <:ctyp:< { $list:ltl$ } >> ->
       let argvars = List.map (fun (_, id, _, ty, _) -> (id, ty)) ltl in
@@ -112,11 +152,15 @@ value generate_conversion arg rc rho in_patt (name, t) =
   ] in
   match t with [
     <:ctyp:< Hashcons.hash_consed $t$ >> | <:ctyp:< hash_consed $t$ >> when rc.hashconsed ->
+    let branch =
     if in_patt then
       let node_label = <:patt< Hashcons . node >> in
-      <:expr< fun x -> C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Hashcons.node) ] >>
+      (<:patt< x >>, <:vala< None >>, 
+       <:expr< C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Hashcons.node) ] >>)
     else 
-      <:expr< fun x -> C.app_no_loc ~{prefix=data_prefix} $str:name$ [ $genrec t$ x.Hashcons.node ] >>
+      (<:patt< x >>, <:vala< None >>,
+       <:expr< C.app_no_loc ~{prefix=data_prefix} $str:"make_"^name$ [ $genrec t$ x.Hashcons.node ] >>) in
+    <:expr< fun [ $list:add_branches@[branch]$ ] >>
 
   | _ -> genrec t
   ]
@@ -191,7 +235,15 @@ value str_item_gen_q_ast name arg = fun [
 Pa_deriving.(Registry.add PI.{
   name = "q_ast"
 ; alternates = []
-; options = ["optional"; "data_source_module"; "quotation_source_module"; "expr_meta_module"; "patt_meta_module"; "hashconsed"]
+; options = [
+    "optional"
+  ; "data_source_module"
+  ; "quotation_source_module"
+  ; "expr_meta_module"
+  ; "patt_meta_module"
+  ; "hashconsed"
+  ; "pertype"
+  ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("quotation_source_module", <:expr< () >>)
@@ -199,6 +251,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("patt_meta_module", <:expr< Q_ast_base.P_MetaSig >>)
   ; ("external_types", <:expr< () >>)
   ; ("hashconsed", <:expr< False >>)
+  ; ("pertype", <:expr< () >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []

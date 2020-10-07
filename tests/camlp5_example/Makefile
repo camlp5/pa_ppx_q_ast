@@ -52,13 +52,38 @@ HCTYPES=attribute_body case_branch \
 	longid module_expr module_type patt payload poly_variant \
 	sig_item str_item type_decl type_extension type_var with_constr
 
+EXTTYPES= \
+	attribute_body case_branch \
+	class_expr class_sig_item class_str_item class_type \
+	ctyp expr extension_constructor generic_constructor \
+	longid module_expr module_type patt payload poly_variant \
+	sig_item str_item type_decl type_extension type_var with_constr
+
 SKIPTYPES=longid_lident attribute attributes_no_anti attributes
 camlp5_migrate.ml: camlp5_migrate.ml.TMPL make-migrate Makefile
 	./make-migrate inject $(HCTYPES) > inject_nodes.tmp
 	./make-migrate inject_skip $(SKIPTYPES) > inject_skip_nodes.tmp
 	./make-migrate project $(HCTYPES) > project_nodes.tmp
 	./make-migrate project_skip $(SKIPTYPES) > project_skip_nodes.tmp
+	./make-migrate binding $(EXTTYPES) > fun_bindings.tmp
 	cppo -n camlp5_migrate.ml.TMPL > camlp5_migrate.ml
+
+QTYPES= \
+	attribute_body \
+	class_expr class_sig_item class_str_item class_type \
+	ctyp expr extension_constructor generic_constructor:constructor \
+	longid:longident longid:extended_longident \
+	module_expr module_type patt poly_variant \
+	sig_item str_item type_decl type_extension with_constr
+
+q_ast_camlp5.ml: q_ast_camlp5.ml.TMPL make-qast Makefile
+	./make-qast ok $(QTYPES) > ok_quotations.tmp
+	./make-qast hc $(QTYPES) > hc_quotations.tmp
+	cppo -n q_ast_camlp5.ml.TMPL > q_ast_camlp5.ml
+
+pa_camlp5.ml: pa_camlp5.ml.TMPL make-pa Makefile
+	./make-pa pa $(QTYPES) > pa_grammars.tmp
+	cppo -n pa_camlp5.ml.TMPL > pa_camlp5.ml
 
 doc: $(CMT) $(CMTI)
 
@@ -80,7 +105,7 @@ local-install::
 .PRECIOUS: camlp5_migrate.ml.TMPL
 
 clean::
-	rm -rf META *.cm* *.o *.a *.tmp camlp5_migrate.ml
+	rm -rf META *.cm* *.o *.a *.tmp camlp5_migrate.ml q_ast_camlp5.ml pa_camlp5.ml
 
 EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
 $(CMO) $(CMI) $(CMX): $(EXTERNAL)

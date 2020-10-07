@@ -62,7 +62,6 @@ let migration_error feature =
 ]
 
 let dt = make_dt ()
-let inject x = dt.migrate_expr dt x
 
 end
 
@@ -116,7 +115,7 @@ let migration_error feature =
 ]
 
 let dt = make_dt ()
-let inject x = dt.migrate_expr dt x
 
 end
 
+#include "fun_bindings.tmp"
