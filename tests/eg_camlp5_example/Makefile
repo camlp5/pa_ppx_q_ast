@@ -17,9 +17,9 @@ CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
-TESTS=  expr.quot_r.TEST okexpr.quot_r.TEST \
+TESTS=  expr.quot_r.TEST okexpr.quot_r.TEST hcexpr.quot_r.TEST \
 
-all test: $(CMO) $(TESTS) $(TESTS:.byte=)
+all test: $(CMO) $(TESTS)
 
 
 expr.quot_r.TEST:
@@ -35,6 +35,16 @@ okexpr.quot_r.TEST:
 	$(NOT_OCAMLFIND) preprocess -package camlp5_example.parser_quotations,camlp5.pr_r \
 	-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' \
 	-syntax camlp5r tmp.quot_r.ml | perl -p -e 's,Camlp5_hashcons.OK,MLast,g' | \
+	$(DIFF) -I '(\*' -B quot_r.out.ml -
+
+hcexpr.quot_r.TEST:
+	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml | perl -p -e 's,<:,<:hc,' > tmp.quot_r.ml
+	$(NOT_OCAMLFIND) preprocess -package camlp5_example.parser_quotations,camlp5.pr_r \
+	-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' \
+	-syntax camlp5r tmp.quot_r.ml | \
+	perl -p -e 's,Camlp5_hashcons.HC.make_[a-z_]+,,g' | \
+	perl -p -e 's,Camlp5_hashcons.HC,MLast,g' | \
+	camlp5r pr_r.cmo -l 400 -sep '\n' -impl - | \
 	$(DIFF) -I '(\*' -B quot_r.out.ml -
 
 
