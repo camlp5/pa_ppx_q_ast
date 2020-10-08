@@ -3,7 +3,7 @@ let _migrate_vala __subrw_0 __dt__ = function
     Ploc.VaAnt v_0 -> Ploc.VaAnt v_0
   | Ploc.VaVal v_0 -> Ploc.VaVal (__subrw_0 __dt__ v_0)
 
-module Inject = struct
+module ToHC = struct
 exception Migration_error of string
 
 let migration_error feature =
@@ -36,11 +36,11 @@ let migration_error feature =
 ]
 
 let dt = make_dt ()
-let inject x = dt.migrate_term dt x
+let term x = dt.migrate_term dt x
 
 end
 
-module Project = struct
+module FromHC = struct
 exception Migration_error of string
 
 let migration_error feature =
@@ -73,7 +73,7 @@ let migration_error feature =
 ]
 
 let dt = make_dt ()
-let inject x = dt.migrate_term dt x
+let term x = dt.migrate_term dt x
 
 end
 

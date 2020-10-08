@@ -26,6 +26,6 @@ EXTEND
   ;
 
   lam_eoi: [ [ x = lam; EOI -> x ] ];
-  lam_hashcons_eoi: [ [ x = lam; EOI -> Lam_migrate.Inject.inject x ] ];
+  lam_hashcons_eoi: [ [ x = lam; EOI -> Lam_migrate.ToHC.lam x ] ];
 
 END;

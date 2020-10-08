@@ -63,10 +63,14 @@ EOF
         }
 EOF
     }
-    elsif ($mode eq 'binding') {
+    elsif ($mode eq 'to_binding') {
       print <<"EOF";
-let inject_${t} x = Inject.dt.migrate_${t} Inject.dt x
-let project_${t} x = Project.dt.migrate_${t} Project.dt x
+let ${t} x = dt.migrate_${t} dt x
+EOF
+    }
+    elsif ($mode eq 'from_binding') {
+      print <<"EOF";
+let ${t} x = dt.migrate_${t} dt x
 EOF
     }
   }

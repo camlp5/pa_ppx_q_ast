@@ -19,7 +19,7 @@ EXTEND
   GLOBAL: 
     ${pa}_eoi ${pa}_hashcons_eoi;
 
-  ${pa}_hashcons_eoi: [ [ x = ${pa}_eoi -> Camlp5_migrate.inject_${ty} x ] ];
+  ${pa}_hashcons_eoi: [ [ x = ${pa}_eoi -> Camlp5_migrate.ToHC.${ty} x ] ];
 END;
 EOF
     }

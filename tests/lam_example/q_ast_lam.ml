@@ -30,7 +30,7 @@ module Hashcons = struct
 [%%import: Lam_hashcons.HC.lam]
 [@@deriving q_ast {
     data_source_module = Lam_hashcons.HC
-  ; quotation_source_module = Lam_migrate.Project
+  ; quotation_source_module = Lam_migrate.FromHC
   ; hashconsed = true
   }]
 

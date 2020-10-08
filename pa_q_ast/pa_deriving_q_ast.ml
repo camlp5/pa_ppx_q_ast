@@ -116,7 +116,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
       let argpat = <:patt< { $list:lpl$ } >> in
       let members = List.map (fun (id, ty) ->
-          let label = <:patt< $longid:rc.data_source_module_longid$ . $lid:id$ >> in
+          let label = <:patt< $longid:rc.quotation_source_module_longid$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) members <:expr< [] >> in
       <:expr< fun $argpat$ -> C.record $reclist$ >>
@@ -190,7 +190,7 @@ value generate_converter arg rc in_patt (_, td) =
   let fbody = List.fold_right (fun (id, _) rhs -> <:expr< fun (type $lid:id$) -> $rhs$ >>) rho fbody in
   let ftype =
     if rho = [] then
-      <:ctyp< $longid:rc.data_source_module_longid$ . $lid:name$ -> C.t >>
+      <:ctyp< $longid:rc.quotation_source_module_longid$ . $lid:name$ -> C.t >>
     else
       let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
       let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
@@ -246,7 +246,6 @@ Pa_deriving.(Registry.add PI.{
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
-  ; ("quotation_source_module", <:expr< () >>)
   ; ("expr_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaE >>)
   ; ("patt_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaP >>)
   ; ("external_types", <:expr< () >>)

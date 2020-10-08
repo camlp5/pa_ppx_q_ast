@@ -30,18 +30,18 @@ package "parser" (
 )
 
 package "parser_quotations" (
-  requires(toploop) = "camlp5,sexp_example.parser"
+  requires(toploop) = "camlp5,sexp_example.parser,pa_ppx.base"
   archive(toploop) = "q_ast_sexp.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx_q_ast.runtime"
+    requires(syntax,preprocessor) = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx_q_ast.runtime,pa_ppx.base"
     archive(syntax,preprocessor,-native) = "q_ast_sexp.cmo"
     archive(syntax,preprocessor,native) = "q_ast_sexp.cmx"
 
   package "link" (
-  requires(byte) = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations"
+  requires(byte) = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx.base.link"
   archive(byte) = "q_ast_sexp.cmo"
   )
-  requires = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations"
+  requires = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx.base"
 )
 
 EOF

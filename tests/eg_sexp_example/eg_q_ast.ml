@@ -25,6 +25,15 @@ in srec e
 
 module NoVala = struct
 open Sexp.NoVala
+let rec atoms = function
+    <:sexpnovala< () >> -> []
+  | <:sexpnovala< $atom:a$ >> -> [a]
+
+  | <:sexpnovala< ( () . $exp:cdr$ ) >> -> atoms cdr
+  | <:sexpnovala< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
+  | <:sexpnovala< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
+    atoms <:sexpnovala< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+
 let rec atoms =
   function
     Nil -> []

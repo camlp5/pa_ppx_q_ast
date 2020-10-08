@@ -26,6 +26,6 @@ EXTEND
   ;
 
   term_eoi: [ [ x = term; EOI -> x ] ];
-  term_hashcons_eoi: [ [ x = term; EOI -> Debruijn_migrate.Inject.inject x ] ];
+  term_hashcons_eoi: [ [ x = term; EOI -> Debruijn_migrate.ToHC.term x ] ];
 
 END;

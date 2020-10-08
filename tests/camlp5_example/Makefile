@@ -65,7 +65,8 @@ camlp5_migrate.ml: camlp5_migrate.ml.TMPL make-migrate Makefile
 	./make-migrate inject_skip $(SKIPTYPES) > inject_skip_nodes.tmp
 	./make-migrate project $(HCTYPES) > project_nodes.tmp
 	./make-migrate project_skip $(SKIPTYPES) > project_skip_nodes.tmp
-	./make-migrate binding $(EXTTYPES) > fun_bindings.tmp
+	./make-migrate to_binding $(EXTTYPES) > to_fun_bindings.tmp
+	./make-migrate from_binding $(EXTTYPES) > from_fun_bindings.tmp
 	cppo -n camlp5_migrate.ml.TMPL > camlp5_migrate.ml
 
 QTYPES= \

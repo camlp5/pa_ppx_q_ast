@@ -36,11 +36,11 @@ let _migrate_vala __subrw_0 __dt__ = function
 ]
 
 let dt = make_dt ()
-let migrate x = dt.migrate_sexp dt x
+let sexp x = dt.migrate_sexp dt x
 
 end
 
-module ToVala = struct
+module FromMoVala = struct
 
 let _migrate_vala __subrw_0 __dt__ x =
   Ploc.VaVal (__subrw_0 __dt__ x)
@@ -72,7 +72,7 @@ let _migrate_vala __subrw_0 __dt__ x =
 ]
 
 let dt = make_dt ()
-let migrate x = dt.migrate_sexp dt x
+let sexp x = dt.migrate_sexp dt x
 
 end
 

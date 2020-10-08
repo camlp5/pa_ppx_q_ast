@@ -39,6 +39,6 @@ EXTEND
 
   sexp_eoi: [ [ x = sexp; EOI -> x ] ];
 
-  sexp_novala_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToNoVala.migrate x ] ];
+  sexp_novala_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToNoVala.sexp x ] ];
 
 END;

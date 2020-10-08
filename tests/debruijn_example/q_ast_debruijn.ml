@@ -36,7 +36,7 @@ module Hashcons = struct
 [%%import: Debruijn_hashcons.HC.term]
 [@@deriving q_ast {
     data_source_module = Debruijn_hashcons.HC
-  ; quotation_source_module = Debruijn_migrate.Project
+  ; quotation_source_module = Debruijn_migrate.FromHC
   ; hashconsed = true
   }]
 
