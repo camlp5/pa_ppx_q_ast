@@ -247,8 +247,8 @@ Pa_deriving.(Registry.add PI.{
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("quotation_source_module", <:expr< () >>)
-  ; ("expr_meta_module", <:expr< Q_ast_base.E_MetaSig >>)
-  ; ("patt_meta_module", <:expr< Q_ast_base.P_MetaSig >>)
+  ; ("expr_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaE >>)
+  ; ("patt_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaP >>)
   ; ("external_types", <:expr< () >>)
   ; ("hashconsed", <:expr< False >>)
   ; ("pertype", <:expr< () >>)

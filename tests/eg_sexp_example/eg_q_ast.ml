@@ -22,3 +22,26 @@ let subst rho e =
     else z
 in srec e
 ;;
+
+module NoVala = struct
+open Sexp.NoVala
+let rec atoms =
+  function
+    Nil -> []
+  | Atom a -> [a]
+  | Cons(Cons(caar, cdar), cdr) ->
+      atoms (Cons(caar, Cons (cdar, cdr)))
+  | Cons(Nil, cdr) -> atoms cdr
+  | Cons(Atom a, cdr) -> a :: atoms cdr
+end
+
+let rec atoms = function
+    <:sexp< () >> -> []
+  | <:sexp< $atom:a$ >> -> [a]
+
+  | <:sexp< ( () . $exp:cdr$ ) >> -> atoms cdr
+  | <:sexp< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
+  | <:sexp< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
+    atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+
+

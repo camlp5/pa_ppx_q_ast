@@ -32,7 +32,7 @@ package "parser_quotations" (
   requires(toploop) = "camlp5,hashcons,lam_example.parser"
   archive(toploop) = "q_ast_lam.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,fmt,hashcons,lam_example.runtime,lam_example.parser,camlp5.parser_quotations"
+    requires(syntax,preprocessor) = "camlp5,fmt,hashcons,lam_example.runtime,lam_example.parser,camlp5.parser_quotations,pa_ppx_q_ast.runtime"
     archive(syntax,preprocessor,-native) = "q_ast_lam.cmo"
     archive(syntax,preprocessor,native) = "q_ast_lam.cmx"
 

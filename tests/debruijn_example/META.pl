@@ -19,7 +19,7 @@ package "parser" (
   requires(toploop) = "camlp5,debruijn_example.runtime"
   archive(toploop) = "pa_debruijn.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,fmt,debruijn_example.runtime"
+    requires(syntax,preprocessor) = "camlp5,fmt,debruijn_example.runtime,pa_ppx_q_ast.runtime"
     archive(syntax,preprocessor,-native) = "pa_debruijn.cmo"
     archive(syntax,preprocessor,native) = "pa_debruijn.cmx"
 

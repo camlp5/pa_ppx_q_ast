@@ -18,7 +18,7 @@ IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	sexp.ml q_ast_sexp.ml pa_sexp.ml \
+	sexp.ml sexp_migrate.ml q_ast_sexp.ml pa_sexp.ml \
 
 MLI=
 CMO := $(ML:.ml=.cmo)
@@ -44,6 +44,17 @@ q_ast_sexp.cmo: q_ast_sexp.ml
 
 q_ast_sexp.cmx: q_ast_sexp.ml
 	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+
+sexp_migrate.cmo: sexp_migrate.ml
+	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_migrate,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
+
+
+	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
+
+sexp_migrate.cmx: sexp_migrate.ml
+	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
 
 doc: $(CMT) $(CMTI)
 

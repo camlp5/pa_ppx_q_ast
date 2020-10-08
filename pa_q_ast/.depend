@@ -1,3 +1,5 @@
-pa_deriving_q_ast.cmo pa_deriving_q_ast.cmi pa_deriving_q_ast.cmx: 
+pa_deriving_q_ast.cmo pa_ppx_q_ast_runtime.cmo pa_deriving_q_ast.cmi pa_ppx_q_ast_runtime.cmi pa_deriving_q_ast.cmx pa_ppx_q_ast_runtime.cmx: 
 pa_deriving_q_ast.cmo :
 pa_deriving_q_ast.cmx :
+pa_ppx_q_ast_runtime.cmo :
+pa_ppx_q_ast_runtime.cmx :

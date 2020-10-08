@@ -15,7 +15,7 @@ MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := $(PACKAGES),pa_ppx.deriving,pa_ppx.deriving_plugins.show,pa_ppx.base,pa_ppx.unmatched_vala,pa_ppx.deriving_plugins.params
 
 ML=\
-	pa_deriving_q_ast.ml \
+	pa_deriving_q_ast.ml pa_ppx_q_ast_runtime.ml \
 
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
@@ -35,7 +35,7 @@ META: META.pl
 install::
 	mkdir -p $(DESTDIR)/lib
 	./META.pl $(DESTDIR)/lib > META
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_q_ast -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(wildcard *.cmt*)
+	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_q_ast -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(CMI) $(KITS:.cmo=.o) $(wildcard *.cmt*)
 	$(RM) -f META
 
 local-install::
@@ -49,7 +49,7 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax camlp5r *.ml *.mli >> .depend.NEW \
+	$(OCAMLFIND) ocamldep -package $(PACKAGES) -syntax camlp5r *.ml *.mli >> .depend.NEW \
 		&& mv .depend.NEW .depend
 
 -include .depend

@@ -7,13 +7,14 @@ open MLast;
 open Pcaml;
 
 value sexp_eoi = Grammar.Entry.create gram "sexp_eoi";
+value sexp_novala_eoi = Grammar.Entry.create gram "sexp_novala_eoi";
 
 value sexp_atom a = Sexp.Atom a ;
 value sexp_nil = Sexp.Nil ;
 value sexp_cons e1 e2 = Sexp.Cons e1 e2 ;
 
 EXTEND
-  GLOBAL: sexp_eoi;
+  GLOBAL: sexp_eoi sexp_novala_eoi;
 
   sexp: [
     [
@@ -34,7 +35,10 @@ EXTEND
 
   v_sexp: [[ v = V sexp "exp" -> v ]];
 
+  atom: [[ i = LIDENT -> i | i = UIDENT -> i | i = INT -> i ]] ;
+
   sexp_eoi: [ [ x = sexp; EOI -> x ] ];
 
-  atom: [[ i = LIDENT -> i | i = UIDENT -> i | i = INT -> i ]] ;
+  sexp_novala_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToNoVala.migrate x ] ];
+
 END;
