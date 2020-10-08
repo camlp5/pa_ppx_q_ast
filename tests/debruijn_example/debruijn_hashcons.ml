@@ -11,11 +11,7 @@
                        ; memo_int = [%typ: int]
                        }
                      ; external_types = {
-                         Ploc.t = {
-                           preeq = (fun x y -> x = y)
-                         ; prehash = (fun x -> Hashtbl.hash x)
-                         }
-                       ; Ploc.vala = {
+                         Ploc.vala = {
                            preeq = (fun f x y -> match (x,y) with
                                (Ploc.VaAnt s1, Ploc.VaAnt s2) -> s1=s2
                              | (Ploc.VaVal v1, Ploc.VaVal v2) -> f v1 v2
