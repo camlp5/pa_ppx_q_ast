@@ -44,6 +44,7 @@ hcexpr.quot_r.TEST:
 	-syntax camlp5r tmp.quot_r.ml | \
 	perl -p -e 's,Camlp5_hashcons.HC.make_[a-z_]+,,g' | \
 	perl -p -e 's,Camlp5_hashcons.HC,MLast,g' | \
+	perl -p -e 's,Camlp5_migrate.FromHC,MLast,g' | \
 	camlp5r pr_r.cmo -l 400 -sep '\n' -impl - | \
 	$(DIFF) -I '(\*' -B quot_r.out.ml -
 

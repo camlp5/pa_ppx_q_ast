@@ -44,7 +44,9 @@ type pertype_t = {
 ; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
 }
 and t = {
-  data_source_module_expr : expr [@name data_source_module;]
+  optional : bool
+; plugin_name : string
+; data_source_module_expr : expr [@name data_source_module;]
 ; data_source_module_longid : longid [@computed longid_of_expr data_source_module_expr;]
 ; raw_quotation_source_module : option expr [@name quotation_source_module;]
 ; quotation_source_module_expr : expr

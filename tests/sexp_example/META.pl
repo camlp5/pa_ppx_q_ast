@@ -10,8 +10,9 @@ description = "sexp example parsing & quotation support"
 
 package "runtime" (
   directory = "$destdir/sexp_example"
-  archive(toploop) = "sexp.cmo sexp_migrate.cmo"
-  archive(syntax,preprocessor,-native) = "sexp.cmo sexp_migrate.cmo"
+  archive(toploop) = "sexp.cmo sexp_hashcons.cmo sexp_migrate.cmo"
+  archive(syntax,preprocessor,-native) = "sexp.cmo sexp_hashcons.cmo sexp_migrate.cmo"
+  requires = "hashcons"
 )
 
 package "parser" (
@@ -30,7 +31,7 @@ package "parser" (
 )
 
 package "parser_quotations" (
-  requires(toploop) = "camlp5,sexp_example.parser,pa_ppx.base"
+  requires(toploop) = "camlp5,sexp_example.parser,pa_ppx.base,pa_ppx_q_ast.runtime"
   archive(toploop) = "q_ast_sexp.cmo"
 
     requires(syntax,preprocessor) = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx_q_ast.runtime,pa_ppx.base"

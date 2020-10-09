@@ -23,18 +23,25 @@ let subst rho e =
 in srec e
 ;;
 
+let rec atoms = function
+    <:sexp< () >> -> []
+  | <:sexp< $atom:a$ >> -> [a]
+  | <:sexp< ( () . $exp:cdr$ ) >> -> atoms cdr
+  | <:sexp< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
+  | <:sexp< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
+    atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+
 module NoVala = struct
 open Sexp.NoVala
 let rec atoms = function
     <:sexpnovala< () >> -> []
   | <:sexpnovala< $atom:a$ >> -> [a]
-
   | <:sexpnovala< ( () . $exp:cdr$ ) >> -> atoms cdr
   | <:sexpnovala< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
   | <:sexpnovala< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
     atoms <:sexpnovala< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
 
-let rec atoms =
+let rec atoms' =
   function
     Nil -> []
   | Atom a -> [a]
@@ -44,13 +51,12 @@ let rec atoms =
   | Cons(Atom a, cdr) -> a :: atoms cdr
 end
 
+module HC = struct
 let rec atoms = function
-    <:sexp< () >> -> []
-  | <:sexp< $atom:a$ >> -> [a]
-
-  | <:sexp< ( () . $exp:cdr$ ) >> -> atoms cdr
-  | <:sexp< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
-  | <:sexp< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
-    atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
-
-
+    <:hcsexp< () >> -> []
+  | <:hcsexp< $atom:a$ >> -> [a]
+  | <:hcsexp< ( () . $exp:cdr$ ) >> -> atoms cdr
+  | <:hcsexp< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
+  | <:hcsexp< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
+    atoms <:hcsexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+end

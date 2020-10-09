@@ -49,3 +49,16 @@ type sexp = [%import: Sexp.sexp]
 Quotation.add "sexpnovala"
   (apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
 end
+
+module Hashcons = struct
+
+[%%import: Sexp_hashcons.HC.sexp]
+[@@deriving q_ast {
+    data_source_module = Sexp_hashcons.HC
+  ; quotation_source_module = Sexp_migrate.FromHC
+  ; hashconsed = true
+  }]
+
+Quotation.add "hcsexp"
+  (apply_entry Pa_sexp.sexp_hashcons_eoi E.sexp P.sexp)
+end

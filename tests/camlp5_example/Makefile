@@ -113,8 +113,9 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep -package $(PACKAGES) -syntax camlp5o *.ml *.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
+	$(OCAMLFIND) ocamldep $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o camlp5_{ast,hashcons,migrate}.ml q_ast_camlp5.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep -package camlp5.extend,camlp5.parser_quotations -syntax camlp5r pa_camlp5.ml >> .depend.NEW
+	mv .depend.NEW .depend
 
 -include .depend
 

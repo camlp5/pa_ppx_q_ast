@@ -1,5 +1,15 @@
-q_ast_camlp5.cmo q_ast_camlp5.cmi q_ast_camlp5.cmx: 
-q_ast_camlp5.cmo.ppo.cmo :
-q_ast_camlp5.cmo.ppo.cmx :
-q_ast_camlp5.cmo :
-q_ast_camlp5.cmx :
+camlp5_ast.cmo camlp5_hashcons.cmo camlp5_migrate.cmo pa_camlp5.cmo q_ast_camlp5.cmo camlp5_ast.cmi camlp5_hashcons.cmi camlp5_migrate.cmi pa_camlp5.cmi q_ast_camlp5.cmi camlp5_ast.cmx camlp5_hashcons.cmx camlp5_migrate.cmx pa_camlp5.cmx q_ast_camlp5.cmx: ../../local-install/lib/pa_ppx_q_ast/META
+q_ast_camlp5.cmo : \
+    pa_camlp5.cmo \
+    camlp5_migrate.cmo \
+    camlp5_hashcons.cmo \
+    camlp5_ast.cmo
+q_ast_camlp5.cmx : \
+    pa_camlp5.cmx \
+    camlp5_migrate.cmx \
+    camlp5_hashcons.cmx \
+    camlp5_ast.cmx
+pa_camlp5.cmo : \
+    camlp5_migrate.cmo
+pa_camlp5.cmx : \
+    camlp5_migrate.cmx
