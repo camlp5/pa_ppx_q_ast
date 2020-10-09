@@ -45,6 +45,10 @@ depexts: [
     "perl-String-ShellQuote"
     "perl-IPC-System-Simple"
   ] {os-family = "fedora"}
+  [
+    "perl-string-shellquote"
+    "perl-ipc-system-simple"
+  ] {os-family = "arch"}
 ]
 
 build: [
