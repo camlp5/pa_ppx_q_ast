@@ -3,7 +3,7 @@
 
 include Makefile.include
 
-PACKAGES := $(PACKAGES),fmt
+PACKAGES := $(PACKAGES),fmt,pa_ppx.utils
 
 ML=\
 	eg_parsing.ml eg_q_ast.ml \

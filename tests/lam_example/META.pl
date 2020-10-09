@@ -10,6 +10,7 @@ description = "lam example parsing & quotation support"
 
 package "runtime" (
   directory = "$destdir/lam_example"
+  requires = "hashcons"
   archive(toploop) = "lam.cmo lam_hashcons.cmo lam_migrate.cmo lam.cmo"
 )
 
