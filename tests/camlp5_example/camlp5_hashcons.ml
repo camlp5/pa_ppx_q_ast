@@ -50,3 +50,6 @@ let _prehash_vala f x =
                        ; attributes
                        ]
                      }]
+
+external loc_of_hcexpr_node : HC.expr_node -> loc = "%field0"
+let loc_of_hcexpr e = loc_of_hcexpr_node e.Hashcons.node
