@@ -21,6 +21,7 @@ let _preeq_vala f x y =
   match (x,y) with
     (Ploc.VaAnt s1, Ploc.VaAnt s2) -> s1=s2
   | (Ploc.VaVal v1, Ploc.VaVal v2) -> f v1 v2
+  | _ -> false
 
 let _prehash_vala f x =
   match x with
