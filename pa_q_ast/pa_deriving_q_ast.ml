@@ -202,7 +202,7 @@ value generate_converter arg rc in_patt (_, td) =
 
 value generate_meta_e_bindings loc arg rc in_patt tdl =
   let l = List.map (generate_converter arg rc in_patt) tdl in
-  let data_prefix = Q_ast.Meta_E.expr rc.data_source_module_expr in
+  let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l)
 ;
 
