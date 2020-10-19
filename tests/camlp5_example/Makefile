@@ -46,7 +46,7 @@ pa_camlp5.cmo: pa_camlp5.ml
 pa_camlp5.cmx: pa_camlp5.ml
 	$(OCAMLFIND) ocamlopt -package camlp5.extend -syntax camlp5r -c $<
 
-HCTYPES=attribute_body case_branch \
+HCTYPES=attribute_body \
 	class_expr class_sig_item class_str_item class_type \
 	ctyp expr extension_constructor generic_constructor \
 	longid module_expr module_type patt payload poly_variant \
@@ -59,7 +59,7 @@ EXTTYPES= \
 	longid module_expr module_type patt payload poly_variant \
 	sig_item str_item type_decl type_extension type_var with_constr
 
-SKIPTYPES=longid_lident attribute attributes_no_anti attributes
+SKIPTYPES=longid_lident attribute attributes_no_anti attributes case_branch
 camlp5_migrate.ml: camlp5_migrate.ml.TMPL make-migrate Makefile
 	./make-migrate inject $(HCTYPES) > inject_nodes.tmp
 	./make-migrate inject_skip $(SKIPTYPES) > inject_skip_nodes.tmp
@@ -113,7 +113,7 @@ $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o camlp5_{ast,hashcons,migrate}.ml q_ast_camlp5.ml >> .depend.NEW
+	$(OCAMLFIND) ocamldep $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml q_ast_camlp5.ml >> .depend.NEW
 	$(OCAMLFIND) ocamldep -package camlp5.extend,camlp5.parser_quotations -syntax camlp5r pa_camlp5.ml >> .depend.NEW
 	mv .depend.NEW .depend
 

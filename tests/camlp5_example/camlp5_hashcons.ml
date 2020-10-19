@@ -32,6 +32,9 @@ let _prehash_vala f x =
 [%%import: Camlp5_ast.expr]
 [@@deriving hashcons { hashconsed_module_name = HC
                      ; normal_module_name = OK
+                     ; memo = {
+                         memo_expr = [%typ: expr]
+                       }
                      ; external_types = {
                          Ploc.t = {
                            preeq = (fun x y -> x = y)
@@ -48,6 +51,7 @@ let _prehash_vala f x =
                        ; attribute
                        ; attributes_no_anti
                        ; attributes
+                       ; case_branch
                        ]
                      }]
 

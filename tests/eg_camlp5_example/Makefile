@@ -6,10 +6,10 @@ OVERSION = $(shell ocamlc -version)
 OVERSION_NAME := $(shell ./make_version_name.sh $(OVERSION))
 DIFF=diff -Bwi -u10
 
-PACKAGES := $(PACKAGES),fmt
+PACKAGES := $(PACKAGES),fmt,pa_ppx.utils
 
 ML=\
-	eg_q_ast.ml \
+	eg_parsing.ml eg_q_ast.ml \
 
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
@@ -54,6 +54,9 @@ hcexpr.quot_r.TEST:
 
 eg_q_ast.cmo: eg_q_ast.ml
 	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5_example.parser_quotations" $@
+
+eg_parsing.cmo: eg_parsing.ml
+	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5_example.runtime" $@
 
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
