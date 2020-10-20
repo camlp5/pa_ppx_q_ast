@@ -12,7 +12,7 @@ version = "$Version::version"
 description = "pa_ppx_q_ast deriver"
 
   package "runtime" (
-    requires = "camlp5.parser_quotations_base"
+    requires = "camlp5.parser_quotations"
     archive(byte) = "pa_ppx_q_ast_runtime.cmo"
     archive(native) = "pa_ppx_q_ast_runtime.cmx"
   )
