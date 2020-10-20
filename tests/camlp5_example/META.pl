@@ -10,7 +10,7 @@ description = "camlp5 example parsing & quotation support"
 
 package "runtime" (
   directory = "$destdir/camlp5_example"
-  requires = "hashcons"
+  requires = "hashcons,pa_ppx_q_ast.runtime"
   archive(byte) = "camlp5_ast.cmo camlp5_hashcons.cmo camlp5_migrate.cmo"
   archive(native) = "camlp5_ast.cmx camlp5_hashcons.cmx camlp5_migrate.cmx"
 )

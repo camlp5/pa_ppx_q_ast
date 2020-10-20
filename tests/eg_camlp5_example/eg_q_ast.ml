@@ -7,12 +7,10 @@ open Pa_ppx_utils ;;
 open Pa_ppx_base ;;
 open Ppxutil ;;
 
-let loc = Ploc.dummy ;;
-
 module Regular = struct
 
-let v0 = <:expr< 0 >>
-let v1 = <:expr< 1 + 2 * 3 / 4 >>
+let v0 = let loc = Ploc.dummy in <:expr< 0 >>
+let v1 = let loc = Ploc.dummy in <:expr< 1 + 2 * 3 / 4 >>
 
 let rec pp0 pps = function
     <:expr< $int:n$ >> -> Fmt.(pf pps "%s" n)
@@ -40,8 +38,8 @@ end ;;
 
 module OK = struct
 
-let v0 = <:okexpr< 0 >>
-let v1 = <:okexpr< 1 + 2 * 3 / 4 >>
+let v0 = let loc = Ploc.dummy in <:okexpr< 0 >>
+let v1 = let loc = Ploc.dummy in <:okexpr< 1 + 2 * 3 / 4 >>
 
 let rec pp0 pps = function
     <:okexpr< $int:n$ >> -> Fmt.(pf pps "%s" n)
@@ -68,8 +66,8 @@ end ;;
 
 module HC = struct
 
-let v0 = <:hcexpr< 0 >>
-let v1 = <:hcexpr< 1 + 2 * 3 / 4 >>
+let v0 = let loc = Ploc.dummy in <:hcexpr< 0 >>
+let v1 = let loc = Ploc.dummy in <:hcexpr< 1 + 2 * 3 / 4 >>
 
 let rec pp0 pps = function
     <:hcexpr< $int:n$ >> -> Fmt.(pf pps "%s" n)
@@ -91,8 +89,7 @@ let rec copy = function
   | <:hcexpr:< $e1$ - $e2$ >> -> <:hcexpr:< $e1$ - $e2$ >>
   | <:hcexpr:< $e1$ * $e2$ >> -> <:hcexpr:< $e1$ * $e2$ >>
   | <:hcexpr:< $e1$ / $e2$ >> -> <:hcexpr:< $e1$ / $e2$ >>
-
-
+ 
 exception Fail
 
 module FVS0 = struct
@@ -196,12 +193,12 @@ end
 
 let patt_alpha_subst rho p =
   let rec patrec = function
-      <:hcpatt< $lid:x$ >> ->
+      <:hcpatt:< $lid:x$ >> ->
       <:hcpatt< $lid:if List.mem_assoc x rho then List.assoc x rho else x$ >>
 
-    | <:hcpatt< $p1$ $p2$ >> -> <:hcpatt< $patrec p1$ $patrec p2$ >>
-    | <:hcpatt< ( $list:l$ ) >> -> <:hcpatt< ( $list:List.map patrec l$ ) >>
-    | <:hcpatt< $longid:_$ >> as z -> z
+    | <:hcpatt:< $p1$ $p2$ >> -> <:hcpatt< $patrec p1$ $patrec p2$ >>
+    | <:hcpatt:< ( $list:l$ ) >> -> <:hcpatt< ( $list:List.map patrec l$ ) >>
+    | <:hcpatt:< $longid:_$ >> as z -> z
   in
   patrec p
 
@@ -210,11 +207,11 @@ let rec subst rho z =
   let fvz = freevars z in
   if OrNot.is_unknown fvz then raise Fail ;
   match z with
-    <:hcexpr< $lid:id$ >> as z ->
+    <:hcexpr:< $lid:id$ >> as z ->
     if List.mem_assoc id rho then List.assoc id rho else z
-  | <:hcexpr< $e1$ $e2$ >> -> <:hcexpr< $subst rho e1$ $subst rho e2$ >>
-  | <:hcexpr< ( $list:l$ ) >> -> <:hcexpr< ( $list:List.map (subst rho) l$ ) >>
-  | <:hcexpr< function $list:branches$ >> as z ->
+  | <:hcexpr:< $e1$ $e2$ >> -> <:hcexpr< $subst rho e1$ $subst rho e2$ >>
+  | <:hcexpr:< ( $list:l$ ) >> -> <:hcexpr< ( $list:List.map (subst rho) l$ ) >>
+  | <:hcexpr:< function $list:branches$ >> as z ->
     (* keep only entries [x -> N] where x is free in z *)
     let rho = rho |> Std.filter (fun (id, _) -> FVS.free_in id fvz) in
     let subst_branch (p, whene, rhs) =
