@@ -1,6 +1,8 @@
 (* camlp5o *)
 (* hCLam.ml *)
 
+module Ploc = Sexp.Ploc
+
 [%%import: Sexp.sexp]
 [@@deriving hashcons { hashconsed_module_name = HC
                      ; normal_module_name = OK

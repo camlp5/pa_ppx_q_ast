@@ -60,5 +60,5 @@ module Hashcons = struct
   }]
 
 Quotation.add "hcsexp"
-  (apply_entry Pa_sexp.sexp_hashcons_eoi E.sexp P.sexp)
+  (Pa_ppx_q_ast_runtime.hc_apply_entry Pa_sexp.sexp_hashcons_eoi E.sexp P.sexp)
 end

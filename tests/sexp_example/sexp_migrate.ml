@@ -31,6 +31,11 @@ let _migrate_vala __subrw_0 __dt__ = function
         ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
         ; code = _migrate_vala
         }
+      ; migrate_loc = {
+          srctype = [%typ: Ploc.t]
+        ; dsttype = [%typ: Ploc.t]
+        ; code = fun __dt__ x -> x
+        }
       }
     }
 ]
@@ -40,7 +45,7 @@ let sexp x = dt.migrate_sexp dt x
 
 end
 
-module FromMoVala = struct
+module FromNoVala = struct
 
 let _migrate_vala __subrw_0 __dt__ x =
   Ploc.VaVal (__subrw_0 __dt__ x)
@@ -66,6 +71,11 @@ let _migrate_vala __subrw_0 __dt__ x =
         ; dsttype = [%typ: 'b Ploc.vala]
         ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
         ; code = _migrate_vala
+        }
+      ; migrate_loc = {
+          srctype = [%typ: Ploc.t]
+        ; dsttype = [%typ: Ploc.t]
+        ; code = fun __dt__ x -> x
         }
       }
     }
@@ -104,6 +114,11 @@ module ToHC = struct
             Sexp_hashcons.HC.sexp (__dt__.migrate_sexp_node __dt__ x)
           )
         }
+      ; migrate_loc = {
+          srctype = [%typ: Ploc.t]
+        ; dsttype = [%typ: Ploc.t]
+        ; code = fun __dt__ x -> x
+        }
       }
     }
 ]
@@ -140,6 +155,11 @@ let migration_error feature =
         ; code = (fun __dt__ x ->
             __dt__.migrate_sexp_node __dt__ x.Hashcons.node
           )
+        }
+      ; migrate_loc = {
+          srctype = [%typ: Ploc.t]
+        ; dsttype = [%typ: Ploc.t]
+        ; code = fun __dt__ x -> x
         }
       }
     }

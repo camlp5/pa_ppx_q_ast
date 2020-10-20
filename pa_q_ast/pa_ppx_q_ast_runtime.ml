@@ -16,3 +16,45 @@ module MetaP = struct
   value int n = let loc = Ploc.dummy in <:patt< $int:string_of_int n$ >> ;
 end
 ;
+
+value separate_locate s =
+  let len = String.length s in
+  if len > 0 && s.[0] = '@' then (String.sub s 1 (len - 1), True)
+  else (s, False)
+;
+
+value insert_loc_variable ast =
+  let (p, pl) =
+    loop [] ast where rec loop pl =
+    fun
+      [ <:patt:< $p1$ $p2$ >> -> loop [(p2, loc) :: pl] p1
+      | p -> (p, pl) ]
+  in
+  match pl with
+    [ [(<:patt< _ >>, loc) :: pl] ->
+      List.fold_left (fun p1 (p2, loc) -> <:patt< $p1$ $p2$ >>)
+        <:patt< $p$ $lid:Ploc.name.val$ >> pl
+    | _ -> ast ]
+;
+
+value hc_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    let ast = mp (f s) in
+    match (locate, ast) with [
+      (True, <:patt:< {Hashcons.node = $ast$} >>) ->
+      let ast = insert_loc_variable ast in
+      <:patt< {Hashcons.node = $ast$} >>
+    | (True, _) -> insert_loc_variable ast
+    | (False, _) -> ast
+    ] in
+  Quotation.ExAst (expr, patt)
+;
