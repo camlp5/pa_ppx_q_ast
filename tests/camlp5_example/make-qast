@@ -17,7 +17,7 @@ EOF
     }
     elsif ($mode eq 'hc') {
       print <<"EOF";
-("hc${pa}",apply_entry Pa_camlp5.${pa}_hashcons_eoi E.${ty} P.${ty});
+("hc${pa}",hc_apply_entry Pa_camlp5.${pa}_hashcons_eoi E.${ty} P.${ty});
 EOF
     }
   }

@@ -189,7 +189,9 @@ end
 
     }
   }]
-
+;;
+let hc_apply_entry = Pa_ppx_q_ast_runtime.hc_apply_entry
+;;
 List.map (fun (n,f) -> Quotation.add n f)
 [
 #include "hc_quotations.tmp"
