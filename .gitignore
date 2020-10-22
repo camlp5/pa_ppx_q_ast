@@ -25,3 +25,6 @@ docs
 */.depend.NEW
 */*/.depend.NEW
 */*/*/.depend.NEW
+_build
+*.ppo*
+*_ppo*
