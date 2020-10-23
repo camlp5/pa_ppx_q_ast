@@ -4,6 +4,7 @@
 
 open Fmt ;;
 
+module Regular = struct
 let rec pp pps = function
     <:sexp:< () >> -> Fmt.(pf pps "()")
   | <:sexp:< ( $exp:a$ . $exp:b$ ) >> -> Fmt.(pf pps "(%a . %a)" pp a pp b)
@@ -28,6 +29,8 @@ let rec atoms = function
   | <:sexp:< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
   | <:sexp:< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
     atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+end
+;;
 
 module NoVala = struct
 
@@ -70,4 +73,30 @@ let rec atoms = function
   | <:hcsexp:< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
     atoms <:hcsexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
 
+let car = function
+  <:hcsexp< ( $exp:a$ . $exp:_$ ) >> -> a
+let cdr = function
+  <:hcsexp< ( $exp:_$ . $exp:a$ ) >> -> a
+end
+
+module Unique = struct
+
+  let loc_of_sexp = function
+    <:unsexp:< () >> -> loc
+  | <:unsexp:< $atom:_$ >> -> loc
+  | <:unsexp:< ( $exp:_$ . $exp:_$ ) >> -> loc
+
+let rec atoms = function
+    <:unsexp:< () >> -> []
+  | <:unsexp:< $atom:a$ >> -> [a]
+  | <:unsexp:< ( () . $exp:cdr$ ) >> -> atoms cdr
+  | <:unsexp:< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
+  | <:unsexp:< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
+    atoms <:unsexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+
+
+let car = function
+  <:unsexp< ( $exp:a$ . $exp:_$ ) >> -> a
+let cdr = function
+  <:unsexp< ( $exp:_$ . $exp:a$ ) >> -> a
 end

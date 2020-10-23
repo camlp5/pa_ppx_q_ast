@@ -62,3 +62,16 @@ module Hashcons = struct
 Quotation.add "hcsexp"
   (Pa_ppx_q_ast_runtime.hc_apply_entry Pa_sexp.sexp_hashcons_eoi E.sexp P.sexp)
 end
+
+module Unique = struct
+
+[%%import: Sexp_unique.UN.sexp]
+[@@deriving q_ast {
+    data_source_module = Sexp_unique.UN
+  ; quotation_source_module = Sexp_migrate.FromUnique
+  ; uniqified = true
+  }]
+
+Quotation.add "unsexp"
+  (Pa_ppx_q_ast_runtime.unique_apply_entry Pa_sexp.sexp_unique_eoi E.sexp P.sexp)
+end

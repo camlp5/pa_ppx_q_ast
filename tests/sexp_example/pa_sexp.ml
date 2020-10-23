@@ -9,13 +9,14 @@ open Pcaml;
 value sexp_eoi = Grammar.Entry.create gram "sexp_eoi";
 value sexp_novala_eoi = Grammar.Entry.create gram "sexp_novala_eoi";
 value sexp_hashcons_eoi = Grammar.Entry.create gram "sexp_hashcons_eoi";
+value sexp_unique_eoi = Grammar.Entry.create gram "sexp_unique_eoi";
 
 value sexp_atom loc a = Sexp.Atom loc a ;
 value sexp_nil loc = Sexp.Nil loc ;
 value sexp_cons loc e1 e2 = Sexp.Cons loc e1 e2 ;
 
 EXTEND
-  GLOBAL: sexp_eoi sexp_novala_eoi sexp_hashcons_eoi;
+  GLOBAL: sexp_eoi sexp_novala_eoi sexp_hashcons_eoi sexp_unique_eoi;
 
   sexp: [
     [
@@ -41,5 +42,6 @@ EXTEND
   sexp_eoi: [ [ x = sexp; EOI -> x ] ];
   sexp_novala_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToNoVala.sexp x ] ];
   sexp_hashcons_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToHC.sexp x ] ];
+  sexp_unique_eoi: [ [ x = sexp; EOI -> Sexp_migrate.ToUnique.sexp x ] ];
 
 END;

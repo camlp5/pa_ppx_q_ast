@@ -18,7 +18,7 @@ IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	sexp.ml sexp_hashcons.ml sexp_migrate.ml q_ast_sexp.ml pa_sexp.ml \
+	sexp.ml sexp_hashcons.ml sexp_unique.ml sexp_migrate.ml q_ast_sexp.ml pa_sexp.ml \
 
 MLI=
 CMO := $(ML:.ml=.cmo)
@@ -31,41 +31,53 @@ all test: $(CMO) $(CMX) local-install
 
 pa_sexp.cmo: pa_sexp.ml
 	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
+	$(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
 
 pa_sexp.cmx: pa_sexp.ml
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
 
 q_ast_sexp.cmo: q_ast_sexp.ml
 	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
 
 q_ast_sexp.cmx: q_ast_sexp.ml
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
+
+
+q_ast_sexp.cmo: q_ast_sexp.ml
+	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import,pa_ppx_unique.runtime,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $<
+
+q_ast_sexp.cmx: q_ast_sexp.ml
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_q_ast,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $<
 
 sexp_migrate.cmo: sexp_migrate.ml
-	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
-
-
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
+	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $<
 
 sexp_migrate.cmx: sexp_migrate.ml
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime -syntax camlp5o -c $<
 
 sexp_hashcons.cmo: sexp_hashcons.ml
 	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $<
 
-
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $<
 
 sexp_hashcons.cmx: sexp_hashcons.ml
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $<
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_hashcons,pa_ppx.import -syntax camlp5o -c $<
+
+sexp_unique.cmo: sexp_unique.ml
+	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_unique,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_unique,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
+	$(OCAMLFIND) ocamlc $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_unique,pa_ppx.import -syntax camlp5o -c $<
+
+sexp_unique.cmx: sexp_unique.ml
+	$(OCAMLFIND) ocamlopt $(DEBUG) $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_unique,pa_ppx.import -syntax camlp5o -c $<
 
 doc: $(CMT) $(CMTI)
 

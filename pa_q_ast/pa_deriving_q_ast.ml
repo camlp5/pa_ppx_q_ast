@@ -64,12 +64,17 @@ and t = {
 
 ; external_types : (alist ctyp expr) [@default [];]
 ; hashconsed : bool [@default False;]
+; uniqified : bool [@default False;]
 ; pertype : (alist lident pertype_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
 } [@@deriving params {
     formal_args = {
       t = [ type_decls ]
     }
+  ; validators = { t = fun params ->
+      if params.hashconsed && params.uniqified then
+        Result.Error "at most one of hashconsed and uniqified can be true"
+      else Result.Ok True }
   };]
 ;
 
@@ -164,6 +169,17 @@ value generate_conversion arg rc rho in_patt (name, t) =
        <:expr< C.app_no_loc ~{prefix=data_prefix} $str:"make_"^name$ [ $genrec t$ x.Hashcons.node ] >>) in
     <:expr< fun [ $list:add_branches@[branch]$ ] >>
 
+  | <:ctyp:< Pa_ppx_unique_runtime.Unique.unique $t$ >> | <:ctyp:< unique $t$ >> when rc.uniqified ->
+    let branch =
+    if in_patt then
+      let node_label = <:patt< Pa_ppx_unique_runtime.Unique . node >> in
+      (<:patt< x >>, <:vala< None >>, 
+       <:expr< C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Pa_ppx_unique_runtime.Unique.node) ] >>)
+    else 
+      (<:patt< x >>, <:vala< None >>,
+       <:expr< C.app_no_loc ~{prefix=data_prefix} $str:"make_"^name$ [ $genrec t$ x.Pa_ppx_unique_runtime.Unique.node ] >>) in
+    <:expr< fun [ $list:add_branches@[branch]$ ] >>
+
   | _ -> genrec t
   ]
 ;
@@ -244,6 +260,7 @@ Pa_deriving.(Registry.add PI.{
   ; "expr_meta_module"
   ; "patt_meta_module"
   ; "hashconsed"
+  ; "uniqified"
   ; "pertype"
   ]
 ; default_options = let loc = Ploc.dummy in [
@@ -251,7 +268,6 @@ Pa_deriving.(Registry.add PI.{
   ; ("expr_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaE >>)
   ; ("patt_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaP >>)
   ; ("external_types", <:expr< () >>)
-  ; ("hashconsed", <:expr< False >>)
   ; ("pertype", <:expr< () >>)
   ]
 ; alg_attributes = []

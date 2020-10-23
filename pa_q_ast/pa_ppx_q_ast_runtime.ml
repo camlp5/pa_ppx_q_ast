@@ -58,3 +58,25 @@ value hc_apply_entry e me mp =
     ] in
   Quotation.ExAst (expr, patt)
 ;
+
+value unique_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    let ast = mp (f s) in
+    match (locate, ast) with [
+      (True, (<:patt:< {Pa_ppx_unique_runtime.Unique.node = $ast$} >> | <:patt:< {Unique.node = $ast$} >>)) ->
+      let ast = insert_loc_variable ast in
+      <:patt< {Pa_ppx_unique_runtime.Unique.node = $ast$} >>
+    | (True, _) -> insert_loc_variable ast
+    | (False, _) -> ast
+    ] in
+  Quotation.ExAst (expr, patt)
+;

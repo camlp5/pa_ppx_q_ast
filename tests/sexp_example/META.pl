@@ -10,9 +10,9 @@ description = "sexp example parsing & quotation support"
 
 package "runtime" (
   directory = "$destdir/sexp_example"
-  archive(toploop) = "sexp.cmo sexp_hashcons.cmo sexp_migrate.cmo"
-  archive(syntax,preprocessor,-native) = "sexp.cmo sexp_hashcons.cmo sexp_migrate.cmo"
-  requires = "hashcons"
+  archive(toploop) = "sexp.cmo sexp_hashcons.cmo sexp_unique.cmo sexp_migrate.cmo"
+  archive(syntax,preprocessor,-native) = "sexp.cmo sexp_hashcons.cmo sexp_unique.cmo sexp_migrate.cmo"
+  requires = "hashcons,pa_ppx_unique.runtime"
 )
 
 package "parser" (
