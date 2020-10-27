@@ -1,4 +1,12 @@
 
+pa_ppx_q_ast Version 0.07
+----------------------------
+
+* [27 Oct 2020] added support for "pa_ppx_unique"
+
+  worked thru making sure that "loc" was properly available in
+  quotations when specified (as with Camlp5's builtin quotations).
+
 pa_ppx_q_ast Version 0.01
 ----------------------------
 
