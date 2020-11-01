@@ -28,6 +28,5 @@ description = "pa_ppx_q_ast deriver"
   requires(byte) = "camlp5,pa_ppx.deriving_plugins.show.link,camlp5.parser_quotations.link,pa_ppx_q_ast.runtime"
   archive(byte) = "pa_deriving_q_ast.cmo"
   )
-  requires = "camlp5,pa_ppx.deriving_plugins.show,pa_ppx.runtime,camlp5.parser_quotations,pa_ppx.params_runtime,pa_ppx_q_ast.runtime"
 
 EOF
