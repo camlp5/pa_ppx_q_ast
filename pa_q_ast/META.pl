@@ -27,6 +27,7 @@ description = "pa_ppx_q_ast deriver"
   package "link" (
   requires(byte) = "camlp5,pa_ppx.deriving_plugins.show.link,camlp5.parser_quotations.link,pa_ppx_q_ast.runtime"
   archive(byte) = "pa_deriving_q_ast.cmo"
+  archive(native) = "pa_deriving_q_ast.cmx"
   )
 
 EOF
