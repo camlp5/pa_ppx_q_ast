@@ -150,6 +150,7 @@ MLast.TyVrn loc lpv ools;
 (* access *)
 <:patt< $longid:x$ . $p$ >>;
 <:patt< $longid:x$ >>;
+<:patt< $longid:x$ (type a b) >>;
 (* alias *)
 <:patt< ($p1$ as $p2$) >>;
 (* antiquotation <a href="#patt_1">(1)</a> *)
