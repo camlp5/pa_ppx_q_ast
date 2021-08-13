@@ -16,6 +16,7 @@ doc: "https://github.com/camlp5/pa_ppx_q_ast/doc"
 
 depends: [
   "ocaml"       { >= "4.10.0" & < "4.14.0" }
+  "conf-diffutils" { with-test }
   "conf-perl"
   "conf-perl-ipc-system-simple"
   "conf-perl-string-shellquote"
