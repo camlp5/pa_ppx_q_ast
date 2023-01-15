@@ -20,7 +20,7 @@ let lift n =
 
 let lift = memo2_int_term lift
 
-let subst_count = Pervasives.ref 0
+let subst_count = Stdlib.ref 0
 
 let subst w = 
   incr subst_count;

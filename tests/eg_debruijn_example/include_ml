@@ -20,7 +20,7 @@ Pcaml.inter_phrases := Some ";\n";;
 (*
 #require "camlp5.pr_r";;
 *)
-#require "camlp5.quotations";;
+#require "camlp5.parser_quotations";;
 #require "camlp5.extfun";;
 (*
 #require "camlp5.extend";;
@@ -116,6 +116,8 @@ print_string "================ START ================\n";; flush stdout ;;
 #require "hashcons";;
 #require "debruijn_example.runtime";;
 #require "debruijn_example.parser";;
+#require "pa_ppx_q_ast.runtime";;
+#require "debruijn_example.parser_quotations";;
 #load "eg_parsing.cmo";;
 (*
 #load "eg_q_ast.cmo";;
