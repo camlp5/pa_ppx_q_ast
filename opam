@@ -20,11 +20,11 @@ depends: [
   "conf-perl"
   "conf-perl-ipc-system-simple"
   "conf-perl-string-shellquote"
-  "camlp5"      { >= "8.00.03" }
-  "pa_ppx"      { >= "0.07.02" }
-  "pa_ppx_migrate"      { with-test & >= "0.07.02" }
-  "pa_ppx_hashcons"      { >= "0.07.02" }
-  "pa_ppx_unique"      { >= "0.07.02" }
+  "camlp5"      { >= "8.00.04" }
+  "pa_ppx"      { >= "0.08" }
+  "pa_ppx_migrate"      { with-test & >= "0.08" }
+  "pa_ppx_hashcons"      { >= "0.08" }
+  "pa_ppx_unique"      { >= "0.08" }
   "not-ocamlfind" { >= "0.01" }
   "pcre" { >= "7.4.3" }
   "ounit" {with-test}

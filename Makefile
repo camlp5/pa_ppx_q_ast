@@ -14,7 +14,10 @@ TESTDIRS= tests
 
 PACKAGES := pa_ppx.utils,pa_ppx.base,pa_ppx.import,pa_ppx.deriving
 
-all test: sys
+test: all
+	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
+
+all: sys
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 sys: plugins

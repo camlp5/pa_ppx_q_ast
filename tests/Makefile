@@ -6,8 +6,11 @@ TESTDIRS = sexp_example eg_sexp_example \
 	debruijn_example eg_debruijn_example \
 	 camlp5_example eg_camlp5_example
 
-all test:
+test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
+
+all:
+	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 clean:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ..; done
