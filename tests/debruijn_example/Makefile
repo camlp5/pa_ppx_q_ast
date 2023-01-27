@@ -13,8 +13,8 @@ NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := camlp5,fmt,hashcons
 SYNTAX = camlp5o
-IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
+export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
+export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
@@ -28,38 +28,6 @@ CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
 all test: $(CMO) $(CMX) local-install
-
-debruijn_migrate.cmo: debruijn_migrate.ml debruijn.cmi
-	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.pr_o,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate -syntax camlp5o -c $<
-
-debruijn_migrate.cmx: debruijn_migrate.ml debruijn.cmi
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate -syntax camlp5o -c $<
-
-debruijn_hashcons.cmo: debruijn_hashcons.ml debruijn.cmi
-	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.pr_o,pa_ppx.import,pa_ppx_hashcons -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,pa_ppx.import,pa_ppx_hashcons -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,pa_ppx.import,pa_ppx_hashcons -syntax camlp5o -c $<
-
-debruijn_hashcons.cmx: debruijn_hashcons.ml debruijn.cmi
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons -syntax camlp5o -c $<
-
-pa_debruijn.cmo: pa_debruijn.ml
-	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
-
-pa_debruijn.cmx: pa_debruijn.ml
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.parser_quotations,camlp5.extend_m -syntax camlp5r -c $<
-
-q_ast_debruijn.cmo: q_ast_debruijn.ml
-	$(NOT_OCAMLFIND) preprocess $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import,camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
-
-q_ast_debruijn.cmx: q_ast_debruijn.ml
-	$(OCAMLFIND) ocamlopt $(IMPORT_OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_q_ast,pa_ppx.import -syntax camlp5o -c $<
 
 doc: $(CMT) $(CMTI)
 
@@ -93,10 +61,12 @@ depend::
 
 -include .depend
 
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+
 .ml.cmo:
-	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.pr_o -syntax $(SYNTAX) $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmx:
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

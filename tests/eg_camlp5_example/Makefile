@@ -19,8 +19,9 @@ CMTI := $(MLI:.mli=.cmti)
 
 TESTS=  expr.quot_r.TEST okexpr.quot_r.TEST hcexpr.quot_r.TEST \
 
-all test: $(CMO) $(TESTS)
+all: $(CMO)
 
+test: $(TESTS)
 
 expr.quot_r.TEST:
 	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml > tmp.quot_r.ml
@@ -52,12 +53,6 @@ hcexpr.quot_r.TEST:
 % : %.opt
 	mkdir -p _build && ./$<
 
-eg_q_ast.cmo: eg_q_ast.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5_example.parser_quotations" $@
-
-eg_parsing.cmo: eg_parsing.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5_example.runtime" $@
-
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
@@ -72,3 +67,13 @@ depend::
 		&& mv .depend.NEW .depend
 
 -include .depend
+
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+
+.ml.cmo:
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
+
+.ml.cmx:
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

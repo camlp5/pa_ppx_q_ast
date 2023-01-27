@@ -18,12 +18,6 @@ all test: $(CMO) $(CMX)
 
 doc: $(CMT) $(CMTI)
 
-eg_parsing.cmo: eg_parsing.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),sexp_example.parser" $@
-
-eg_q_ast.cmo: eg_q_ast.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),sexp_example.parser_quotations" $@
-
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
@@ -38,3 +32,13 @@ depend::
 		&& mv .depend.NEW .depend
 
 -include .depend
+
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+
+.ml.cmo:
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
+
+.ml.cmx:
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

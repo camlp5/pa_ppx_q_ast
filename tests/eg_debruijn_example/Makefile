@@ -31,22 +31,10 @@ lamh.opt: lamh.cmx
 	$(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) -package $(PACKAGES),debruijn_example.runtime \
 	-linkpkg -linkall $^ -o $@
 
-eg_parsing.cmo: eg_parsing.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),camlp5.parser_quotations,hashcons,debruijn_example.parser" $@
-
-lamh.cmo: lamh.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),hashcons,debruijn_example.parser_quotations" $@
-
-lamh.cmx: lamh.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),hashcons,debruijn_example.parser_quotations" $@
-
-eg_q_ast.cmo: eg_q_ast.ml
-	$(MAKE) -f Makefile.one PACKAGES="$(PACKAGES),debruijn_example.parser_quotations" $@
-
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
-	rm -rf META *.cm* *.o
+	rm -rf META *.cm* *.o *.opt *.byte
 
 EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
 $(CMO) $(CMI) $(CMX): $(EXTERNAL)
@@ -57,3 +45,13 @@ depend::
 		&& mv .depend.NEW .depend
 
 -include .depend
+
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+
+.ml.cmo:
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
+
+.ml.cmx:
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

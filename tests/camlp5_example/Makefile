@@ -11,12 +11,11 @@ LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=$(LAUNCH) ocamlfind
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
-PACKAGES := camlp5,pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate
+PACKAGES := camlp5,pa_ppx_q_ast,pa_ppx_hashcons,pa_ppx_migrate
 SYNTAX = camlp5o
-OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
-OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
+export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
+export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
+export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 ML=\
 	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml pa_camlp5.ml q_ast_camlp5.ml \
@@ -29,22 +28,6 @@ CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
 all test: $(CMO) $(CMX) local-install
-
-q_ast_camlp5.cmo: q_ast_camlp5.ml
-	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.pr_o -syntax camlp5o $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $<
-
-q_ast_camlp5.cmx: q_ast_camlp5.ml
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $<
-
-pa_camlp5.cmo: pa_camlp5.ml
-	$(NOT_OCAMLFIND) preprocess -package camlp5.extend,camlp5.pr_r -syntax camlp5r $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc -package camlp5.extend -syntax camlp5r -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc -package camlp5.extend -syntax camlp5r -c $<
-
-pa_camlp5.cmx: pa_camlp5.ml
-	$(OCAMLFIND) ocamlopt -package camlp5.extend -syntax camlp5r -c $<
 
 HCTYPES=attribute_body \
 	class_expr class_sig_item class_str_item class_type \
@@ -119,10 +102,12 @@ depend::
 
 -include .depend
 
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+
 .ml.cmo:
-	$(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),camlp5.pr_o -syntax $(SYNTAX) $< > $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $@.ppo.ml
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmx:
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

@@ -3,30 +3,37 @@
 
 RM=rm
 
+YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
+LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=ocamlfind
+NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 OCAMLTOPLEVEL=ocaml
 CAMLP5LIB=$(shell $(OCAMLFIND) query camlp5)
 MKCAMLP5=mkcamlp5
+MKCAMLP5OPT=mkcamlp5.opt
 CAMLP5R=camlp5r -I $(CAMLP5LIB)
 INCLUDES=
 OCAMLCFLAGS=$(DEBUG) $(WARNERR) $(INCLUDES)
 PACKAGES=unix,camlp5
 PACKAGES := $(PACKAGES),camlp5.parser_quotations
 #PACKAGES := $(PACKAGES),camlp5.quotations
-SYNTAX = camlp5r
+#SYNTAX = camlp5r
+PRPACKAGE = camlp5.pr_o
 
 export PERL5LIB := $(TOP):$(PERL5LIB)
 
 top: all
 
 .mli.cmi:
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmo:
-	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
+	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmx:
-	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) -package $(PACKAGES) -syntax $(SYNTAX) -c $<
+	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmt:
 	@mkdir -p .cmt

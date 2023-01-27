@@ -1,4 +1,4 @@
-
+(** -syntax camlp5o -package hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime $(IMPORT_OCAMLCFLAGS) *)
 exception Migration_error of string
 
 let migration_error feature =
