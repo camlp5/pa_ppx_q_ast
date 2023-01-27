@@ -3,6 +3,7 @@
 
 WD=$(shell pwd)
 TOP=../..
+include $(TOP)/config/Makefile
 
 DESTDIR=
 RM=rm
@@ -12,7 +13,6 @@ OCAMLFIND=$(LAUNCH) ocamlfind
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := camlp5,fmt
-SYNTAX = camlp5o
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
@@ -60,13 +60,3 @@ depend::
 	mv .depend.NEW .depend
 
 -include .depend
-
-YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
-
-.ml.cmo:
-#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
-#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
-	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
-
-.ml.cmx:
-	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

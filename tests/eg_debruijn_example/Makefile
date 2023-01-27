@@ -1,7 +1,17 @@
 # Makefile,v
 # Copyright (c) INRIA 2007-2017
 
-include Makefile.include
+WD=$(shell pwd)
+TOP=../..
+include $(TOP)/config/Makefile
+
+DESTDIR=
+RM=rm
+
+LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
+OCAMLFIND=$(LAUNCH) ocamlfind
+NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
+MKCAMLP5=$(LAUNCH) mkcamlp5
 
 PACKAGES := $(PACKAGES),fmt
 
@@ -45,13 +55,3 @@ depend::
 		&& mv .depend.NEW .depend
 
 -include .depend
-
-YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
-
-.ml.cmo:
-#	$(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
-#	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o -c $*_ppo.ml
-	$(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
-
-.ml.cmx:
-	$(YAWRAP) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

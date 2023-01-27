@@ -1,7 +1,18 @@
 # Makefile,v
 # Copyright (c) INRIA 2007-2017
 
-include Makefile.include
+WD=$(shell pwd)
+TOP=../..
+include $(TOP)/config/Makefile
+
+DESTDIR=
+RM=rm
+
+LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
+OCAMLFIND=$(LAUNCH) ocamlfind
+NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
+MKCAMLP5=$(LAUNCH) mkcamlp5
+
 OVERSION = $(shell ocamlc -version)
 OVERSION_NAME := $(shell ./make_version_name.sh $(OVERSION))
 DIFF=diff -Bwi -u10
