@@ -118,10 +118,17 @@ print_string "================ START ================\n";; flush stdout ;;
 #require "debruijn_example.parser";;
 #require "pa_ppx_q_ast.runtime";;
 #require "debruijn_example.parser_quotations";;
-#load "eg_parsing.cmo";;
 (*
+#directory "../debruijn_example";;
+#load "helper.cmo";;
+#trace Helper.apply_entry ;;
+#trace Helper.expr_fun ;;
+#load "q_ast_debruijn.cmo";;
+#load "eg_parsing.cmo";;
+Helper.handle2_quotation Ploc.dummy ("debruijn", " $term:_M$ $term:_N$ ") ;;
+ *)
 #load "eg_q_ast.cmo";;
-*)
+
 
 (*
 ;;; Local Variables: ***

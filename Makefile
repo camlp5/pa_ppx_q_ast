@@ -8,7 +8,7 @@ WD=$(shell pwd)
 DESTDIR=
 RM=rm
 
-SYSDIRS= tools pa_q_ast
+SYSDIRS= pa_q_ast
 
 TESTDIRS= tests
 

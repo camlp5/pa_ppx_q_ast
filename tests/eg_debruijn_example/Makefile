@@ -8,11 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
-
 PACKAGES := $(PACKAGES),fmt
 
 ML=\
@@ -34,11 +29,11 @@ test: $(TESTS:.byte=)
 	mkdir -p _build && ./$<
 
 lamh.byte: lamh.cmo
-	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),debruijn_example.runtime \
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),debruijn_example.runtime \
 	-linkpkg -linkall $^ -o $@
 
 lamh.opt: lamh.cmx
-	$(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) -package $(PACKAGES),debruijn_example.runtime \
+	$(LAUNCH) $(OCAMLFIND) ocamlopt $(DEBUG) $(WARNERR) -package $(PACKAGES),debruijn_example.runtime \
 	-linkpkg -linkall $^ -o $@
 
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
@@ -46,7 +41,7 @@ lamh.opt: lamh.cmx
 clean::
 	rm -rf META *.cm* *.o *.opt *.byte
 
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
+EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES),camlp5,debruijn_example.parser_quotations | grep local-install)
 $(CMO) $(CMI) $(CMX): $(EXTERNAL)
 
 depend::

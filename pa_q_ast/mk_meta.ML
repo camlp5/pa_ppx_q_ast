@@ -1,14 +1,19 @@
-#!/usr/bin/env perl
+#include "../version.inc"
 
-use strict ;
-BEGIN { push (@INC, "..") }
-use Version ;
+let top = try Sys.getenv "TOP" with Not_found -> "" ;;
+let destdir = ref (top ^ "/local-install") ;;
 
-our $destdir = shift @ARGV ;
+Arg.(parse [
+         "-destdir", (Arg.String (fun s -> destdir := s)),
+         ("<path>    Set the destination directory (default: " ^
+	    !destdir ^ ")")
+       ]
+       (fun _ -> failwith "mk_meta: no anonymous args supported")
+     "mk_meta -destdir <dir>")
+;;
 
-print <<"EOF";
-# Specifications for the "pa_ppx_q_ast" preprocessor:
-version = "$Version::version"
+Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast" preprocessor:
+version = "%s"
 description = "pa_ppx_q_ast deriver"
 
   package "runtime" (
@@ -29,5 +34,4 @@ description = "pa_ppx_q_ast deriver"
   archive(byte) = "pa_deriving_q_ast.cmo"
   archive(native) = "pa_deriving_q_ast.cmx"
   )
-
-EOF
+|} version)

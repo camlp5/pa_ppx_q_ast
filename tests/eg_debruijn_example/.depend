@@ -1,4 +1,4 @@
-eg_parsing.cmo eg_q_ast.cmo eg_parsing.cmi eg_q_ast.cmi eg_parsing.cmx eg_q_ast.cmx: 
+eg_parsing.cmo eg_q_ast.cmo eg_parsing.cmi eg_q_ast.cmi eg_parsing.cmx eg_q_ast.cmx: ../../local-install/lib/debruijn_example/META
 eg_parsing.cmo :
 eg_parsing.cmx :
 eg_q_ast.cmo :

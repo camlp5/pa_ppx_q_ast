@@ -18,8 +18,8 @@ depends: [
   "ocaml"       { >= "4.10.0" & < "5.01.0" }
   "conf-diffutils" { with-test }
   "conf-perl"
-  "conf-perl-ipc-system-simple"
-  "conf-perl-string-shellquote"
+  "cppo" { >= "1.6.9" }
+  "camlp5-buildscripts" { >= "0.01" }
   "camlp5"      { >= "8.00.04" }
   "pa_ppx"      { >= "0.08" }
   "pa_ppx_migrate"      { with-test & >= "0.08" }

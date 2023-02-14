@@ -8,13 +8,7 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-YAWRAP=$(TOP)/tools/ya-wrap-ocamlfind
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := camlp5,fmt,hashcons
-SYNTAX = camlp5o
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
