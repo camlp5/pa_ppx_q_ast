@@ -3,21 +3,17 @@
 
 WD=$(shell pwd)
 TOP=../..
-include $(TOP)/config/Makefile
+include $(TOP)/config/Makefile.sub
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx.utils
 
 ML=\
 	eg_parsing.ml eg_q_ast.ml \
 
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
+ALLSRC=$(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 
 all test: $(CMO) $(CMX)
 
@@ -27,13 +23,3 @@ doc: $(CMT) $(CMTI)
 
 clean::
 	rm -rf META *.cm* *.o
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep -package $(PACKAGES),camlp5,lam_example.parser_quotations -syntax camlp5o $(ML) >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

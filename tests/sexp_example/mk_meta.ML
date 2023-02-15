@@ -1,15 +1,19 @@
-#!/usr/bin/env perl
+let top = try Sys.getenv "TOP" with Not_found -> "" ;;
+let destdir = ref (top ^ "/local-install") ;;
 
-use strict ;
+Arg.(parse [
+         "-destdir", (Arg.String (fun s -> destdir := s)),
+         ("<path>    Set the destination directory (default: " ^
+	    !destdir ^ ")")
+       ]
+       (fun _ -> failwith "mk_meta: no anonymous args supported")
+     "mk_meta -destdir <dir>")
+;;
 
-our $destdir = shift @ARGV ;
-
-print <<"EOF";
-# Specifications for "sexp_example"
+Fmt.(pf stdout {|# Specifications for "sexp_example"
 description = "sexp example parsing & quotation support"
 
 package "runtime" (
-  directory = "$destdir/sexp_example"
   archive(toploop) = "sexp.cmo sexp_hashcons.cmo sexp_unique.cmo sexp_migrate.cmo"
   archive(syntax,preprocessor,-native) = "sexp.cmo sexp_hashcons.cmo sexp_unique.cmo sexp_migrate.cmo"
   requires = "hashcons,pa_ppx_unique.runtime"
@@ -44,5 +48,4 @@ package "parser_quotations" (
   )
   requires = "camlp5,fmt,sexp_example.runtime,sexp_example.parser,camlp5.parser_quotations,pa_ppx.base"
 )
-
-EOF
+|})

@@ -1,15 +1,19 @@
-#!/usr/bin/env perl
+let top = try Sys.getenv "TOP" with Not_found -> "" ;;
+let destdir = ref (top ^ "/local-install") ;;
 
-use strict ;
+Arg.(parse [
+         "-destdir", (Arg.String (fun s -> destdir := s)),
+         ("<path>    Set the destination directory (default: " ^
+	    !destdir ^ ")")
+       ]
+       (fun _ -> failwith "mk_meta: no anonymous args supported")
+     "mk_meta -destdir <dir>")
+;;
 
-our $destdir = shift @ARGV ;
-
-print <<"EOF";
-# Specifications for "debruijn_example"
+Fmt.(pf stdout {|# Specifications for "debruijn_example"
 description = "debruijn example parsing & quotation support"
 
 package "runtime" (
-  directory = "$destdir/debruijn_example"
   requires = "hashcons"
   archive(byte) = "debruijn.cmo debruijn_hashcons.cmo debruijn_migrate.cmo"
   archive(native) = "debruijn.cmx debruijn_hashcons.cmx debruijn_migrate.cmx"
@@ -44,5 +48,4 @@ package "parser_quotations" (
   )
   requires = "camlp5,fmt,debruijn_example.runtime,debruijn_example.parser,camlp5.parser_quotations"
 )
-
-EOF
+|})

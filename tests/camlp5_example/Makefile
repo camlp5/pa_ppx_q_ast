@@ -3,12 +3,11 @@
 
 WD=$(shell pwd)
 TOP=../..
-include $(TOP)/config/Makefile
+include $(TOP)/config/Makefile.sub
 
 DESTDIR=
-RM=rm
 
-PACKAGES := camlp5,pa_ppx_q_ast,pa_ppx_hashcons,pa_ppx_migrate
+PACKAGES := fmt,camlp5,pa_ppx_q_ast,pa_ppx_hashcons,pa_ppx_migrate
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
@@ -17,11 +16,8 @@ ML=\
 	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml pa_camlp5.ml q_ast_camlp5.ml \
 
 MLI=
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
+ALLSRC=$(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 
 all test: $(CMO) $(CMX) local-install
 
@@ -69,14 +65,9 @@ doc: $(CMT) $(CMTI)
 
 KITS=$(CMO)
 
-META: META.pl
-	./META.pl > META
-
-install::
+install:: META
 	mkdir -p $(DESTDIR)/lib
-	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff camlp5_example -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(CMI) $(wildcard *.cmt*)
-	$(RM) -f META
 
 local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
@@ -86,14 +77,3 @@ local-install::
 
 clean::
 	rm -rf META *.cm* *.o *.a *.tmp camlp5_migrate.ml q_ast_camlp5.ml pa_camlp5.ml
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(OCAMLCFLAGS) -package $(PACKAGES) -syntax camlp5o camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml q_ast_camlp5.ml >> .depend.NEW
-	$(OCAMLFIND) ocamldep -package camlp5.extend,camlp5.parser_quotations -syntax camlp5r pa_camlp5.ml >> .depend.NEW
-	mv .depend.NEW .depend
-
--include .depend

@@ -1,15 +1,19 @@
-#!/usr/bin/env perl
+let top = try Sys.getenv "TOP" with Not_found -> "" ;;
+let destdir = ref (top ^ "/local-install") ;;
 
-use strict ;
+Arg.(parse [
+         "-destdir", (Arg.String (fun s -> destdir := s)),
+         ("<path>    Set the destination directory (default: " ^
+	    !destdir ^ ")")
+       ]
+       (fun _ -> failwith "mk_meta: no anonymous args supported")
+     "mk_meta -destdir <dir>")
+;;
 
-our $destdir = shift @ARGV ;
-
-print <<"EOF";
-# Specifications for "lam_example"
+Fmt.(pf stdout {|# Specifications for "lam_example"
 description = "lam example parsing & quotation support"
 
 package "runtime" (
-  directory = "$destdir/lam_example"
   requires = "hashcons"
   archive(toploop) = "lam.cmo lam_hashcons.cmo lam_migrate.cmo lam.cmo"
 )
@@ -43,5 +47,4 @@ package "parser_quotations" (
   )
   requires = "camlp5,fmt,hashcons,lam_example.runtime,lam_example.parser,camlp5.parser_quotations"
 )
-
-EOF
+|})
