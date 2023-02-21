@@ -8,6 +8,7 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := camlp5,fmt
+TARGET_PACKAGE=sexp_example
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
@@ -19,15 +20,15 @@ MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX) local-install
+test: all
+
+all: $(CMO) $(CMX)
+	$(MAKE) local-install
 
 doc: $(CMT) $(CMTI)
 
-KITS=$(CMO)
-
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff sexp_example -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(CMI) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
+install:: default_install
 
 local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install

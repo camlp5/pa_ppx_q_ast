@@ -7,6 +7,10 @@ camlp5_migrate.cmo : \
     camlp5_hashcons.cmo
 camlp5_migrate.cmx : \
     camlp5_hashcons.cmx
+pa_camlp5.cmo : \
+    camlp5_migrate.cmo
+pa_camlp5.cmx : \
+    camlp5_migrate.cmx
 q_ast_camlp5.cmo : \
     pa_camlp5.cmo \
     camlp5_migrate.cmo \
@@ -17,7 +21,3 @@ q_ast_camlp5.cmx : \
     camlp5_migrate.cmx \
     camlp5_hashcons.cmx \
     camlp5_ast.cmx
-pa_camlp5.cmo : \
-    camlp5_migrate.cmo
-pa_camlp5.cmx : \
-    camlp5_migrate.cmx

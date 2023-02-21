@@ -1,10 +1,34 @@
 sexp.cmo sexp_hashcons.cmo sexp_unique.cmo sexp_migrate.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi sexp_hashcons.cmi sexp_unique.cmi sexp_migrate.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx sexp_hashcons.cmx sexp_unique.cmx sexp_migrate.cmx q_ast_sexp.cmx pa_sexp.cmx: 
-q_ast_sexp.cmo : \
-    pa_sexp.cmo
-q_ast_sexp.cmx : \
-    pa_sexp.cmx
 sexp.cmo :
 sexp.cmx :
+sexp_hashcons.cmo : \
+    sexp.cmo
+sexp_hashcons.cmx : \
+    sexp.cmx
+sexp_unique.cmo : \
+    sexp.cmo
+sexp_unique.cmx : \
+    sexp.cmx
+sexp_migrate.cmo : \
+    sexp_unique.cmo \
+    sexp_hashcons.cmo \
+    sexp.cmo
+sexp_migrate.cmx : \
+    sexp_unique.cmx \
+    sexp_hashcons.cmx \
+    sexp.cmx
+q_ast_sexp.cmo : \
+    sexp_unique.cmo \
+    sexp_migrate.cmo \
+    sexp_hashcons.cmo \
+    sexp.cmo \
+    pa_sexp.cmo
+q_ast_sexp.cmx : \
+    sexp_unique.cmx \
+    sexp_migrate.cmx \
+    sexp_hashcons.cmx \
+    sexp.cmx \
+    pa_sexp.cmx
 pa_sexp.cmo : \
     sexp_migrate.cmo \
     sexp.cmo

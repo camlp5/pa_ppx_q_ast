@@ -8,6 +8,8 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := camlp5,fmt,hashcons
+TARGET_PACKAGE=lam_example
+
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
@@ -19,15 +21,15 @@ MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX) local-install
+all test: $(CMO) $(CMX)
+	$(MAKE) local-install
 
 doc: $(CMT) $(CMTI)
 
 KITS=$(CMO)
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff lam_example -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(CMI) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
+install:: default_install
 
 local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
@@ -36,3 +38,10 @@ local-install::
 
 clean::
 	rm -rf META *.cm* *.o *.a
+
+lam_hashcons.cmo: lam.cmo lam.cmi
+lam_hashcons.cmx: lam.cmx lam.cmi
+lam_migrate.cmo: lam_hashcons.cmo lam_hashcons.cmi
+lam_migrate.cmx: lam_hashcons.cmx lam_hashcons.cmi
+q_ast_lam.cmo: lam_hashcons.cmo lam_hashcons.cmi
+q_ast_lam.cmx: lam_hashcons.cmx lam_hashcons.cmi

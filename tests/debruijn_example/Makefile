@@ -8,6 +8,8 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := camlp5,fmt,hashcons
+TARGET_PACKAGE=debruijn_example
+
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
@@ -19,15 +21,13 @@ MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX) local-install
+all test: $(CMO) $(CMX)
+	$(MAKE) local-install
 
 doc: $(CMT) $(CMTI)
 
-KITS=$(CMO)
-
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff debruijn_example -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(CMI) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
+install:: default_install
 
 local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
@@ -36,3 +36,10 @@ local-install::
 
 clean::
 	rm -rf META *.cm* *.o *.a
+
+debruijn_hashcons.cmo: debruijn.cmo debruijn.cmi
+debruijn_hashcons.cmx: debruijn.cmx debruijn.cmi
+debruijn_migrate.cmo: debruijn_hashcons.cmo debruijn_hashcons.cmi
+debruijn_migrate.cmx: debruijn_hashcons.cmx debruijn_hashcons.cmi
+q_ast_debruijn.cmo: debruijn_hashcons.cmo debruijn_hashcons.cmi
+q_ast_debruijn.cmx: debruijn_hashcons.cmx debruijn_hashcons.cmi

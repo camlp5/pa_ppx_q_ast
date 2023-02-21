@@ -23,7 +23,8 @@ TESTS=  expr.quot_r.TEST okexpr.quot_r.TEST hcexpr.quot_r.TEST \
 
 all: $(CMO)
 
-test: $(TESTS)
+test: all
+	$(MAKE) $(TESTS)
 
 expr.quot_r.TEST:
 	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml > tmp.quot_r.ml
@@ -34,17 +35,17 @@ expr.quot_r.TEST:
 
 
 okexpr.quot_r.TEST:
-	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml | perl -p -e 's,<:,<:ok,' > tmp.quot_r.ml
+	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml | perl -p -e 's,<:,<:ok,' > oktmp.quot_r.ml
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5_example.parser_quotations,camlp5.pr_r \
 	-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' \
-	-syntax camlp5r tmp.quot_r.ml | perl -p -e 's,Camlp5_hashcons.OK,MLast,g' | \
+	-syntax camlp5r oktmp.quot_r.ml | perl -p -e 's,Camlp5_hashcons.OK,MLast,g' | \
 	$(DIFF) -I '(\*' -B quot_r.out.ml -
 
 hcexpr.quot_r.TEST:
-	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml | perl -p -e 's,<:,<:hc,' > tmp.quot_r.ml
+	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml | perl -p -e 's,<:,<:hc,' > hctmp.quot_r.ml
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5_example.parser_quotations,camlp5.pr_r \
 	-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' \
-	-syntax camlp5r tmp.quot_r.ml | \
+	-syntax camlp5r hctmp.quot_r.ml | \
 	perl -p -e 's,Camlp5_hashcons.HC.make_[a-z_]+,,g' | \
 	perl -p -e 's,Camlp5_hashcons.HC,MLast,g' | \
 	perl -p -e 's,Camlp5_migrate.FromHC,MLast,g' | \
@@ -58,4 +59,4 @@ hcexpr.quot_r.TEST:
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
-	rm -rf META *.cm* *.o tmp*
+	rm -rf META *.cm* *.o *tmp*

@@ -8,10 +8,11 @@ open MLast;
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
+open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 open Pa_ppx_utils ;
-open Pa_ppx_params.Runtime ;
+open Pa_ppx_params_runtime.Runtime ;
 
 value debug = Pa_passthru.debug ;
 

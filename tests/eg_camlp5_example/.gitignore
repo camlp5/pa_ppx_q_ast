@@ -2,4 +2,4 @@
 *.o
 calc
 calc.opt
-tmp*
+*tmp*

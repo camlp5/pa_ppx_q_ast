@@ -8,6 +8,8 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := fmt,camlp5,pa_ppx_q_ast,pa_ppx_hashcons,pa_ppx_migrate
+TARGET_PACKAGE=camlp5_example
+
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
@@ -19,7 +21,10 @@ MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX) local-install
+test: all
+
+all: $(CMO) $(CMX)
+	$(MAKE) local-install
 
 HCTYPES=attribute_body \
 	class_expr class_sig_item class_str_item class_type \
@@ -65,9 +70,8 @@ doc: $(CMT) $(CMTI)
 
 KITS=$(CMO)
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff camlp5_example -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(CMI) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
+install:: default_install
 
 local-install::
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
@@ -77,3 +81,10 @@ local-install::
 
 clean::
 	rm -rf META *.cm* *.o *.a *.tmp camlp5_migrate.ml q_ast_camlp5.ml pa_camlp5.ml
+
+camlp5_hashcons.cmo: camlp5_ast.cmo camlp5_ast.cmi
+camlp5_hashcons.cmx: camlp5_ast.cmx camlp5_ast.cmi
+camlp5_migrate.cmo: camlp5_hashcons.cmo camlp5_hashcons.cmi
+camlp5_migrate.cmx: camlp5_hashcons.cmx camlp5_hashcons.cmi
+q_ast_camlp5.cmo: camlp5_hashcons.cmo camlp5_hashcons.cmi
+q_ast_camlp5.cmx: camlp5_hashcons.cmx camlp5_hashcons.cmi
