@@ -44,6 +44,8 @@ type pertype_t = {
 ; add_branches_patt : (list case_branch) [@computed extract_branches add_branches_patt_code;]
 ; add_branches_expr_code : option expr 
 ; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
+; pattern : option patt
+; expression : option expr
 }
 and t = {
   optional : bool

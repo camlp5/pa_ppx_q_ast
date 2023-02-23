@@ -3,3 +3,5 @@ pa_deriving_q_ast.cmo :
 pa_deriving_q_ast.cmx :
 pa_ppx_q_ast_runtime.cmo :
 pa_ppx_q_ast_runtime.cmx :
+mk_meta.cmo :
+mk_meta.cmx :

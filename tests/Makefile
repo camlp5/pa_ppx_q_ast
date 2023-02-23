@@ -2,6 +2,7 @@
 # Copyright (c) INRIA 2007-2017
 
 TESTDIRS = sexp/lib sexp/test \
+	sexp2/lib sexp2/test \
 	lam/lib lam/test \
 	debruijn/lib debruijn/test \
 	 camlp5/lib camlp5/test
