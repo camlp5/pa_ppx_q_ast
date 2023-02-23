@@ -2,7 +2,7 @@
 # Copyright (c) INRIA 2007-2017
 
 WD=$(shell pwd)
-TOP=../..
+TOP=../../..
 include $(TOP)/config/Makefile.sub
 
 DESTDIR=

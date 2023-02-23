@@ -2,20 +2,20 @@
 # Copyright (c) INRIA 2007-2017
 
 WD=$(shell pwd)
-TOP=../..
+TOP=../../..
 include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
 PACKAGES := camlp5,fmt,hashcons
-TARGET_PACKAGE=debruijn_example
+TARGET_PACKAGE=lam_example
 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	debruijn.ml debruijn_hashcons.ml debruijn_migrate.ml q_ast_debruijn.ml pa_debruijn.ml \
+	lam.ml lam_hashcons.ml lam_migrate.ml q_ast_lam.ml pa_lam.ml \
 
 MLI=
 ALLSRC=$(ML) $(MLI)
@@ -25,6 +25,8 @@ all test: $(CMO) $(CMX)
 	$(MAKE) local-install
 
 doc: $(CMT) $(CMTI)
+
+KITS=$(CMO)
 
 TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
 install:: default_install
@@ -37,9 +39,9 @@ local-install::
 clean::
 	rm -rf META *.cm* *.o *.a
 
-debruijn_hashcons.cmo: debruijn.cmo debruijn.cmi
-debruijn_hashcons.cmx: debruijn.cmx debruijn.cmi
-debruijn_migrate.cmo: debruijn_hashcons.cmo debruijn_hashcons.cmi
-debruijn_migrate.cmx: debruijn_hashcons.cmx debruijn_hashcons.cmi
-q_ast_debruijn.cmo: debruijn_hashcons.cmo debruijn_hashcons.cmi
-q_ast_debruijn.cmx: debruijn_hashcons.cmx debruijn_hashcons.cmi
+lam_hashcons.cmo: lam.cmo lam.cmi
+lam_hashcons.cmx: lam.cmx lam.cmi
+lam_migrate.cmo: lam_hashcons.cmo lam_hashcons.cmi
+lam_migrate.cmx: lam_hashcons.cmx lam_hashcons.cmi
+q_ast_lam.cmo: lam_hashcons.cmo lam_hashcons.cmi
+q_ast_lam.cmx: lam_hashcons.cmx lam_hashcons.cmi

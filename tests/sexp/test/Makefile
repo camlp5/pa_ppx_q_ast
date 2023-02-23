@@ -3,7 +3,7 @@
 
 
 WD=$(shell pwd)
-TOP=../..
+TOP=../../..
 include $(TOP)/config/Makefile.sub
 
 DESTDIR=

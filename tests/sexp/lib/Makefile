@@ -2,31 +2,30 @@
 # Copyright (c) INRIA 2007-2017
 
 WD=$(shell pwd)
-TOP=../..
+TOP=../../..
 include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := camlp5,fmt,hashcons
-TARGET_PACKAGE=lam_example
-
+PACKAGES := camlp5,fmt
+TARGET_PACKAGE=sexp_example
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 
 ML=\
-	lam.ml lam_hashcons.ml lam_migrate.ml q_ast_lam.ml pa_lam.ml \
+	sexp.ml sexp_hashcons.ml sexp_unique.ml sexp_migrate.ml q_ast_sexp.ml pa_sexp.ml \
 
 MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX)
+test: all
+
+all: $(CMO) $(CMX)
 	$(MAKE) local-install
 
 doc: $(CMT) $(CMTI)
-
-KITS=$(CMO)
 
 TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
 install:: default_install
@@ -38,10 +37,3 @@ local-install::
 
 clean::
 	rm -rf META *.cm* *.o *.a
-
-lam_hashcons.cmo: lam.cmo lam.cmi
-lam_hashcons.cmx: lam.cmx lam.cmi
-lam_migrate.cmo: lam_hashcons.cmo lam_hashcons.cmi
-lam_migrate.cmx: lam_hashcons.cmx lam_hashcons.cmi
-q_ast_lam.cmo: lam_hashcons.cmo lam_hashcons.cmi
-q_ast_lam.cmx: lam_hashcons.cmx lam_hashcons.cmi

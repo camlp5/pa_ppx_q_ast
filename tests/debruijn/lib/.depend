@@ -1,0 +1,29 @@
+debruijn.cmo debruijn_hashcons.cmo debruijn_migrate.cmo q_ast_debruijn.cmo pa_debruijn.cmo debruijn.cmi debruijn_hashcons.cmi debruijn_migrate.cmi q_ast_debruijn.cmi pa_debruijn.cmi debruijn.cmx debruijn_hashcons.cmx debruijn_migrate.cmx q_ast_debruijn.cmx pa_debruijn.cmx: 
+debruijn.cmo :
+debruijn.cmx :
+debruijn_hashcons.cmo : \
+    debruijn.cmo
+debruijn_hashcons.cmx : \
+    debruijn.cmx
+debruijn_migrate.cmo : \
+    debruijn_hashcons.cmo \
+    debruijn.cmo
+debruijn_migrate.cmx : \
+    debruijn_hashcons.cmx \
+    debruijn.cmx
+q_ast_debruijn.cmo : \
+    pa_debruijn.cmo \
+    debruijn_migrate.cmo \
+    debruijn_hashcons.cmo \
+    debruijn.cmo
+q_ast_debruijn.cmx : \
+    pa_debruijn.cmx \
+    debruijn_migrate.cmx \
+    debruijn_hashcons.cmx \
+    debruijn.cmx
+pa_debruijn.cmo : \
+    debruijn_migrate.cmo \
+    debruijn.cmo
+pa_debruijn.cmx : \
+    debruijn_migrate.cmx \
+    debruijn.cmx
