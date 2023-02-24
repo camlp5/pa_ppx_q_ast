@@ -45,6 +45,9 @@ type sexp = [%import: Sexp.sexp]
   ; quotation_source_module = Sexp
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
+  ; entrypoints = [ { name = "sexpnovala"; grammar_entry: Pa_sexp.sexp_eoi; type_name = sexp } ]
+  ; node_mode = Normal
+  ; loc_mode = AutoLoc
   }]
 
 Quotation.add "sexpnovala"

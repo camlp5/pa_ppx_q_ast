@@ -21,8 +21,10 @@ type sexp = [%import: Sexp.sexp]
          ; expression = (fun _ -> <:expr< loc >>)
          }
        }
+     ; loc_mode = NoLoc
+     ; entrypoints = [
+         {name = "sexp"; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }
+       ]
 }]
 
-Quotation.add "sexp"
-  (Pa_ppx_q_ast_runtime.noloc_apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
 end

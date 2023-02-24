@@ -37,7 +37,14 @@ value extract_branches = fun [
 ]
 ;
 
-type pertype_t = {
+type loc_mode_t = [ NoLoc | AutoLoc  | CustomLoc of expr ]
+and node_mode_t = [ Normal | Hashcons | Unique ]
+and entrypoint_t = {
+    entry_name : string [@name name;]
+  ; grammar_entry : expr
+  ; type_name : lident
+}
+and pertype_t = {
   custom_branches_code : option expr 
 ; custom_branches : (alist lident case_branch) [@computed extract_case_branches custom_branches_code;]
 ; add_branches_patt_code : option expr 
@@ -74,6 +81,9 @@ and t = {
 ; pertype : (alist lident pertype_t) [@default [];]
 ; custom_type : (alist lident custom_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
+; entrypoints : list entrypoint_t [@default [];]
+; node_mode : node_mode_t [@default Normal;]
+; loc_mode : loc_mode_t [@default AutoLoc;]
 } [@@deriving params {
     formal_args = {
       t = [ type_decls ]
@@ -250,6 +260,15 @@ value generate_meta_p_bindings loc arg rc in_patt tdl =
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
+value generate_entrypoint loc arg rc (ep : entrypoint_t) =
+  let apply_fun = match (rc.node_mode, rc.loc_mode) with [
+        (Normal, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.apply_entry >>
+      | (Normal, NoLoc) ->   <:expr< Pa_ppx_q_ast_runtime.noloc_apply_entry >>
+      ] in
+  <:str_item< Quotation.add $str:ep.entry_name$
+  ($apply_fun$ $ep.grammar_entry$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
+;
+
 end
 ;
 
@@ -258,6 +277,7 @@ value str_item_gen_q_ast name arg = fun [
     let rc = QAST.build_context loc arg tdl in
     let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc False rc.QAST.type_decls in
     let (meta_p_data_prefix_bindings, meta_p_bindings) = QAST.generate_meta_p_bindings loc arg rc True rc.QAST.type_decls in
+    let ep_sil = List.map (QAST.generate_entrypoint loc arg rc) rc.entrypoints in
     <:str_item< declare module E = struct
                 module C = $module_expr_of_longident rc.expr_meta_module_longid$ ;
                 value $list:meta_e_data_prefix_bindings$ ;
@@ -268,6 +288,7 @@ value str_item_gen_q_ast name arg = fun [
                 value $list:meta_p_data_prefix_bindings$ ;
                 value rec $list:meta_p_bindings$ ;
                 end ;
+                declare $list:ep_sil$ end ;
                 end >>
 | _ -> assert False ]
 ;
@@ -285,6 +306,9 @@ Pa_deriving.(Registry.add PI.{
   ; "uniqified"
   ; "pertype"
   ; "custom_type"
+  ; "entrypoints"
+  ; "node_mode"
+  ; "loc_mode"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
@@ -293,6 +317,8 @@ Pa_deriving.(Registry.add PI.{
   ; ("external_types", <:expr< () >>)
   ; ("pertype", <:expr< () >>)
   ; ("custom_type", <:expr< () >>)
+  ; ("node_mode", <:expr< Normal >>)
+  ; ("loc_mode", <:expr< AutoLoc >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []
