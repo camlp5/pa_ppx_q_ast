@@ -9,12 +9,20 @@ open Pcaml
 
 open Pa_ppx_base
 open Pa_sexp
-open Q_ast 
 
 module Regular = struct
+type location = [%import: Sexp.location]
 type sexp = [%import: Sexp.sexp]
-[@@deriving q_ast { data_source_module = Sexp }]
+[@@deriving q_ast {
+       data_source_module = Sexp
+     ; custom_type = {
+         location = {
+           pattern = (fun _ -> <:patt< _ >>)
+         ; expression = (fun _ -> <:expr< loc >>)
+         }
+       }
+}]
 
 Quotation.add "sexp"
-  (apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
+  (Pa_ppx_q_ast_runtime.noloc_apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
 end

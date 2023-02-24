@@ -44,8 +44,10 @@ type pertype_t = {
 ; add_branches_patt : (list case_branch) [@computed extract_branches add_branches_patt_code;]
 ; add_branches_expr_code : option expr 
 ; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
-; pattern : option patt
-; expression : option expr
+}
+and custom_t = {
+  pattern : expr
+; expression : expr
 }
 and t = {
   optional : bool
@@ -70,6 +72,7 @@ and t = {
 ; hashconsed : bool [@default False;]
 ; uniqified : bool [@default False;]
 ; pertype : (alist lident pertype_t) [@default [];]
+; custom_type : (alist lident custom_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
 } [@@deriving params {
     formal_args = {
@@ -155,6 +158,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | <:ctyp:< string >> -> <:expr< C.string >>
 
   | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ >>
+  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.custom_type -> <:expr< $lid:lid$ >>
   | <:ctyp:< $lid:id$ >> when List.mem_assoc id rho ->
     <:expr< $lid:List.assoc id rho$ >>
   | ty -> Ploc.raise (loc_of_ctyp ty)
@@ -220,16 +224,30 @@ value generate_converter arg rc in_patt (_, td) =
   (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
+value generate_custom_expr_converter arg rc (id, custom) =
+  let loc = loc_of_expr custom.expression in
+  let fbody = <:expr< let loc = Ploc.dummy in $custom.expression$ >> in
+  (<:patt< $lid:id$ >>, fbody, <:vala< [] >>)
+;
+
+value generate_custom_patt_converter arg rc (id, custom) =
+  let loc = loc_of_expr custom.pattern in
+  let fbody = <:expr< let loc = Ploc.dummy in $custom.pattern$ >> in
+  (<:patt< $lid:id$ >>, fbody, <:vala< [] >>)
+;
+
 value generate_meta_e_bindings loc arg rc in_patt tdl =
   let l = List.map (generate_converter arg rc in_patt) tdl in
+  let customl = List.map (generate_custom_expr_converter arg rc) rc.custom_type in
   let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
-  ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l)
+  ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
 value generate_meta_p_bindings loc arg rc in_patt tdl =
   let l = List.map (generate_converter arg rc in_patt) tdl in
+  let customl = List.map (generate_custom_patt_converter arg rc) rc.custom_type in
   let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
-  ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l)
+  ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
 end
@@ -266,6 +284,7 @@ Pa_deriving.(Registry.add PI.{
   ; "hashconsed"
   ; "uniqified"
   ; "pertype"
+  ; "custom_type"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
@@ -273,6 +292,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("patt_meta_module", <:expr< Pa_ppx_q_ast_runtime.MetaP >>)
   ; ("external_types", <:expr< () >>)
   ; ("pertype", <:expr< () >>)
+  ; ("custom_type", <:expr< () >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []

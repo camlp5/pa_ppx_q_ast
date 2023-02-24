@@ -66,6 +66,9 @@ default_uninstall::
 	perl -p -i -e 's,.*: loaded,: loaded,' $<
 	diff -Bwiu $^
 
+toplevel::
+	$(LAUNCH) ocaml -nopromptcont
+
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::

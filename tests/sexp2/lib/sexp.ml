@@ -11,15 +11,9 @@ end
 
 open Ploc
 
-module NoVala = struct
-type 'a novala = 'a
-type sexp =
-    Atom of Ploc.t * (string novala)
-  | Cons of Ploc.t * (sexp novala) * (sexp novala)
-  | Nil of Ploc.t
-end
+type location = Ploc.t
 
 type sexp =
-    Atom of Ploc.t * (string vala)
-  | Cons of Ploc.t * (sexp vala) * (sexp vala)
-  | Nil of Ploc.t
+    Atom of location * (string vala)
+  | Cons of location * (sexp vala) * (sexp vala)
+  | Nil of location

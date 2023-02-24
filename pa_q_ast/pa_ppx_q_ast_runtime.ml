@@ -37,6 +37,58 @@ value insert_loc_variable ast =
     | _ -> ast ]
 ;
 
+
+value apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    let ast = mp (f s) in
+    if locate then
+      let (p, pl) =
+        loop [] ast where rec loop pl =
+          fun
+          [ <:patt:< $p1$ $p2$ >> -> loop [(p2, loc) :: pl] p1
+          | p -> (p, pl) ]
+      in
+      match (p,pl) with
+      [ (_, [(<:patt< _ >>, loc) :: pl]) ->
+          List.fold_left (fun p1 (p2, loc) -> <:patt< $p1$ $p2$ >>)
+            <:patt< $p$ $lid:Ploc.name.val$ >> pl
+      | (<:patt:< ( $list:pl$ ) >>, []) ->
+        let pl = match pl with [
+          [ <:patt< _ >> :: pl ] -> [ <:patt< $lid:Ploc.name.val$ >> :: pl ]
+        | _ -> pl
+        ] in
+        <:patt< ( $list:pl$ ) >>
+      | _ -> ast ]
+    else ast
+  in
+  Quotation.ExAst (expr, patt)
+;
+
+value noloc_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    mp (f s)
+  in
+  Quotation.ExAst (expr, patt)
+;
+
 value hc_apply_entry e me mp =
   let f s =
     Ploc.call_with Plexer.force_antiquot_loc True
