@@ -13,6 +13,7 @@ let rec pp pps = function
 ;;
 
 let subst rho e =
+  let loc = Ploc.dummy in
   let rec srec = function
     <:sexp:< () >> -> <:sexp< () >>
   | <:sexp:< ( $exp:a$ . $exp:b$ ) >> -> 
@@ -29,6 +30,7 @@ let rec atoms = function
   | <:sexp:< ( () . $exp:cdr$ ) >> -> atoms cdr
   | <:sexp:< ( $atom:a$ . $exp:cdr$ ) >> -> a::(atoms cdr)
   | <:sexp:< ( ( $exp:caar$ . $exp:cdar$ ) . $exp:cdr$ ) >> ->
-    atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
+     let loc = Ploc.dummy in
+     atoms <:sexp< ( $exp:caar$ . ( $exp:cdar$ . $exp:cdr$ ) ) >>
 end
 ;;

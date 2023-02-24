@@ -1,4 +1,4 @@
-sexp.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx q_ast_sexp.cmx pa_sexp.cmx: 
+sexp.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx q_ast_sexp.cmx pa_sexp.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
 sexp.cmo :
 sexp.cmx :
 q_ast_sexp.cmo : \

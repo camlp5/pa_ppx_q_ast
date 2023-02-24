@@ -7,8 +7,8 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := camlp5,fmt
-TARGET_PACKAGE=pa_ppx_q_ast,sexp2_example
+PACKAGES := camlp5,fmt,pa_ppx_q_ast
+TARGET_PACKAGE=sexp2_example
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
