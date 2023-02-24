@@ -13,10 +13,13 @@ open Q_ast
 
 module Regular = struct
 type sexp = [%import: Sexp.sexp]
-[@@deriving q_ast { data_source_module = Sexp }]
+[@@deriving q_ast {
+       data_source_module = Sexp
+     ; entrypoints = [
+         { name = "sexp" ; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }
+       ]
+}]
 
-Quotation.add "sexp"
-  (apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
 end
 
 module NoVala = struct
@@ -45,13 +48,11 @@ type sexp = [%import: Sexp.sexp]
   ; quotation_source_module = Sexp
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
-  ; entrypoints = [ { name = "sexpnovala"; grammar_entry: Pa_sexp.sexp_eoi; type_name = sexp } ]
+  ; entrypoints = [ { name = "sexpnovala"; grammar_entry = Pa_sexp.sexp_eoi; type_name = sexp } ]
   ; node_mode = Normal
   ; loc_mode = AutoLoc
   }]
 
-Quotation.add "sexpnovala"
-  (apply_entry Pa_sexp.sexp_eoi E.sexp P.sexp)
 end
 
 module Hashcons = struct
@@ -61,10 +62,10 @@ module Hashcons = struct
     data_source_module = Sexp_hashcons.HC
   ; quotation_source_module = Sexp_migrate.FromHC
   ; hashconsed = true
+  ; entrypoints = [ { name = "hcsexp"; grammar_entry = Pa_sexp.sexp_hashcons_eoi; type_name = sexp } ]
+  ; node_mode = Hashcons
+  ; loc_mode = AutoLoc
   }]
-
-Quotation.add "hcsexp"
-  (Pa_ppx_q_ast_runtime.hc_apply_entry Pa_sexp.sexp_hashcons_eoi E.sexp P.sexp)
 end
 
 module Unique = struct
@@ -74,8 +75,8 @@ module Unique = struct
     data_source_module = Sexp_unique.UN
   ; quotation_source_module = Sexp_migrate.FromUnique
   ; uniqified = true
+  ; entrypoints = [ { name = "unsexp"; grammar_entry = Pa_sexp.sexp_unique_eoi; type_name = sexp } ]
+  ; node_mode = Unique
+  ; loc_mode = AutoLoc
   }]
-
-Quotation.add "unsexp"
-  (Pa_ppx_q_ast_runtime.unique_apply_entry Pa_sexp.sexp_unique_eoi E.sexp P.sexp)
 end

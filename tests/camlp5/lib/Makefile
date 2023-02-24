@@ -59,7 +59,9 @@ QTYPES= \
 
 q_ast_camlp5.ml: q_ast_camlp5.ml.TMPL make-qast Makefile
 	./make-qast ok $(QTYPES) > ok_quotations.tmp
+	./make-qast ok-ep $(QTYPES) > ok_entrypoints.tmp
 	./make-qast hc $(QTYPES) > hc_quotations.tmp
+	./make-qast hc-ep $(QTYPES) > hc_entrypoints.tmp
 	cppo -n q_ast_camlp5.ml.TMPL > q_ast_camlp5.ml
 
 pa_camlp5.ml: pa_camlp5.ml.TMPL make-pa Makefile

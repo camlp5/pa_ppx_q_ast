@@ -10,7 +10,17 @@ use strict ;
     my ($ty, $pa) = split(/:/, $t) ;
     $pa ||= $ty ;
 
-    if ($mode eq 'ok') {
+    if ($mode eq 'ok-ep') {
+      print <<"EOF";
+{ name = "ok${pa}" ; grammar_entry = Pa_camlp5.${pa}_eoi ; type_name = ${ty} } ;
+EOF
+    }
+    elsif ($mode eq 'hc-ep') {
+      print <<"EOF";
+{ name = "hc${pa}" ; grammar_entry = Pa_camlp5.${pa}_hashcons_eoi ; type_name = ${ty} } ;
+EOF
+    }
+    elsif ($mode eq 'ok') {
       print <<"EOF";
 ("ok${pa}",apply_entry Pa_camlp5.${pa}_eoi E.${ty} P.${ty});
 EOF

@@ -263,6 +263,8 @@ value generate_meta_p_bindings loc arg rc in_patt tdl =
 value generate_entrypoint loc arg rc (ep : entrypoint_t) =
   let apply_fun = match (rc.node_mode, rc.loc_mode) with [
         (Normal, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.apply_entry >>
+      | (Hashcons, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.hc_apply_entry >>
+      | (Unique, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.unique_apply_entry >>
       | (Normal, NoLoc) ->   <:expr< Pa_ppx_q_ast_runtime.noloc_apply_entry >>
       ] in
   <:str_item< Quotation.add $str:ep.entry_name$

@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),fmt,pa_ppx.utils
+PACKAGES := $(PACKAGES),fmt,pa_ppx.utils,lam_example
 
 ML=\
 	eg_parsing.ml eg_q_ast.ml \

@@ -81,12 +81,16 @@ module MetaP = Regular.MetaP
           | PaXtr (loc, s, _) → C.xtr_or_anti loc (fun r → C.node "PaAnt" [r]) s
       }
     }
+  ; entrypoints = [
+#include "ok_entrypoints.tmp"
+    ]
   }]
-
+(*
 List.map (fun (n,f) -> Quotation.add n f)
 [
 #include "ok_quotations.tmp"
 ]
+ *)
 end
 
 module Hashcons = struct
@@ -189,14 +193,18 @@ end
       }
 
     }
+  ; entrypoints = [
+#include "hc_entrypoints.tmp"
+    ]
   }]
 ;;
+(*
 let hc_apply_entry = Pa_ppx_q_ast_runtime.hc_apply_entry
 ;;
 List.map (fun (n,f) -> Quotation.add n f)
 [
 #include "hc_quotations.tmp"
 ]
-
+ *)
 end
 
