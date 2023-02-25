@@ -63,6 +63,9 @@ let rec copy = function
   | <:okexpr:< $e1$ * $e2$ >> -> <:okexpr:< $e1$ * $e2$ >>
   | <:okexpr:< $e1$ / $e2$ >> -> <:okexpr:< $e1$ / $e2$ >>
 
+let loc_of_type_decl = function
+    <:oktype_decl:< $lid:_$ = $_$ >> -> loc
+
 end ;;
 
 module HC = struct
