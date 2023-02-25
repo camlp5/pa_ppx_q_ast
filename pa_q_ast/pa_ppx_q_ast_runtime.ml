@@ -45,11 +45,11 @@ value apply_entry e me mp =
   in
   let expr s =
     let (s, locate) = separate_locate s in
-    me (f s)
+    me () (f s)
   in
   let patt s =
     let (s, locate) = separate_locate s in
-    let ast = mp (f s) in
+    let ast = mp () (f s) in
     if locate then
       let (p, pl) =
         loop [] ast where rec loop pl =
@@ -73,6 +73,33 @@ value apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
+module Fresh = struct
+  type t = ref int  ;
+  value mk () = ref 0 ;
+  value get r = do {
+    let v = r.val in
+    incr r ;
+    v
+  }
+  ;
+end ;
+
+value customloc_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me () (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    mp (Fresh.mk()) (f s)
+  in
+  Quotation.ExAst (expr, patt)
+;
+
 value noloc_apply_entry e me mp =
   let f s =
     Ploc.call_with Plexer.force_antiquot_loc True
@@ -80,11 +107,11 @@ value noloc_apply_entry e me mp =
   in
   let expr s =
     let (s, locate) = separate_locate s in
-    me (f s)
+    me () (f s)
   in
   let patt s =
     let (s, locate) = separate_locate s in
-    mp (f s)
+    mp () (f s)
   in
   Quotation.ExAst (expr, patt)
 ;
@@ -96,11 +123,11 @@ value hc_apply_entry e me mp =
   in
   let expr s =
     let (s, locate) = separate_locate s in
-    me (f s)
+    me () (f s)
   in
   let patt s =
     let (s, locate) = separate_locate s in
-    let ast = mp (f s) in
+    let ast = mp () (f s) in
     match (locate, ast) with [
       (True, <:patt:< {Hashcons.node = $ast$} >>) ->
       let ast = insert_loc_variable ast in
@@ -118,11 +145,11 @@ value unique_apply_entry e me mp =
   in
   let expr s =
     let (s, locate) = separate_locate s in
-    me (f s)
+    me () (f s)
   in
   let patt s =
     let (s, locate) = separate_locate s in
-    let ast = mp (f s) in
+    let ast = mp () (f s) in
     match (locate, ast) with [
       (True, (<:patt:< {Pa_ppx_unique_runtime.Unique.node = $ast$} >> | <:patt:< {Unique.node = $ast$} >>)) ->
       let ast = insert_loc_variable ast in

@@ -17,8 +17,8 @@ type sexp = [%import: Sexp.sexp]
        data_source_module = Sexp
      ; custom_type = {
          location = {
-           pattern = (fun _ -> <:patt< _ >>)
-         ; expression = (fun _ -> <:expr< loc >>)
+           pattern = (fun ctxt _ -> <:patt< _ >>)
+         ; expression = (fun ctxt _ -> <:expr< loc >>)
          }
        }
      ; loc_mode = NoLoc

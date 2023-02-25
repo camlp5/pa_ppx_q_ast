@@ -176,8 +176,8 @@ value generate_conversion arg rc rho in_patt (name, t) =
 
   | <:ctyp:< string >> -> <:expr< C.string >>
 
-  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ >>
-  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.custom_type -> <:expr< $lid:lid$ >>
+  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ __ctxt__ >>
+  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.custom_type -> <:expr< $lid:lid$ __ctxt__ >>
   | <:ctyp:< $lid:id$ >> when List.mem_assoc id rho ->
     <:expr< $lid:List.assoc id rho$ >>
   | ty -> Ploc.raise (loc_of_ctyp ty)
@@ -232,14 +232,15 @@ value generate_converter arg rc in_patt (_, td) =
   | _ -> body
   ] in
   let fbody = List.fold_right (fun (id, fname) rhs -> <:expr< fun ( $lid:fname$ : $lid:id$ -> C.t) -> $rhs$ >>) rho body in
+  let fbody = <:expr< fun __ctxt__ -> $fbody$ >> in
   let fbody = List.fold_right (fun (id, _) rhs -> <:expr< fun (type $lid:id$) -> $rhs$ >>) rho fbody in
   let ftype =
     if rho = [] then
-      <:ctyp< $longid:rc.quotation_source_module_longid$ . $lid:name$ -> C.t >>
+      <:ctyp< ctxt_t -> $longid:rc.quotation_source_module_longid$ . $lid:name$ -> C.t >>
     else
       let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
       let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
-      <:ctyp< ! $list:List.map fst rho$ . $rhsty$ >> in
+      <:ctyp< ! $list:List.map fst rho$ . ctxt_t -> $rhsty$ >> in
   (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
@@ -275,9 +276,20 @@ value generate_entrypoint loc arg rc (ep : entrypoint_t) =
       | (Hashcons, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.hc_apply_entry >>
       | (Unique, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.unique_apply_entry >>
       | (Normal, NoLoc) ->   <:expr< Pa_ppx_q_ast_runtime.noloc_apply_entry >>
+      | (Normal, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_apply_entry >>
       ] in
   <:str_item< Quotation.add $str:ep.entry_name$
   ($apply_fun$ $ep.grammar_entry$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
+;
+
+value generate_ctxt_ctyps loc arg rc =
+  match (rc.node_mode, rc.loc_mode) with [
+      (Normal, AutoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
+    | (Hashcons, AutoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
+    | (Unique, AutoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
+    | (Normal, NoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
+    | (Normal, CustomLoc _) -> (<:ctyp< Pa_ppx_q_ast_runtime.Fresh.t >>,<:ctyp< unit >>)
+    ]
 ;
 
 end
@@ -289,26 +301,30 @@ value str_item_gen_q_ast name arg = fun [
     let rc = match rc.loc_mode with [
           CustomLoc l ->
           let expression =
-            let loc_expr_expr = expr_as_expr loc Fmt.(str "<:expr< %s >>" l.loc_varname) in
-            <:expr< fun _ -> $loc_expr_expr$ >> in
+            let loc_expr_expr = expr_as_expr loc l.loc_varname in
+            <:expr< fun ctxt _ -> $loc_expr_expr$ >> in
           let pattern =
-            let loc_patt_expr = patt_as_expr loc Fmt.(str "<:patt< %s >>" l.loc_varname) in
-            <:expr< fun _ -> $loc_patt_expr$ >> in
+            let loc_patt_expr = patt_as_expr loc l.loc_varname in
+            let any_patt_expr = patt_as_expr loc "_" in
+            <:expr< fun ctxt _ -> if Pa_ppx_q_ast_runtime.Fresh.get ctxt > 0 then $any_patt_expr$ else $loc_patt_expr$ >> in
           let c = QAST.{ pattern = pattern ; expression = expression } in
           { (rc) with custom_type = [(l.QAST.loc_typename, c) :: rc.custom_type] }
         | _ -> rc
         ] in
     let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc False rc.QAST.type_decls in
     let (meta_p_data_prefix_bindings, meta_p_bindings) = QAST.generate_meta_p_bindings loc arg rc True rc.QAST.type_decls in
+    let (patt_ctxt_ctyp, expr_ctxt_ctyp) = QAST.generate_ctxt_ctyps loc arg rc in
     let ep_sil = List.map (QAST.generate_entrypoint loc arg rc) rc.entrypoints in
     <:str_item< declare module E = struct
                 module C = $module_expr_of_longident rc.expr_meta_module_longid$ ;
                 value $list:meta_e_data_prefix_bindings$ ;
+                type ctxt_t = $expr_ctxt_ctyp$ ;
                 value rec $list:meta_e_bindings$ ;
                 end ;
                 module P = struct
                 module C = $module_expr_of_longident rc.patt_meta_module_longid$ ;
                 value $list:meta_p_data_prefix_bindings$ ;
+                type ctxt_t = $patt_ctxt_ctyp$ ;
                 value rec $list:meta_p_bindings$ ;
                 end ;
                 declare $list:ep_sil$ end ;
