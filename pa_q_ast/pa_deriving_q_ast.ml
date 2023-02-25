@@ -134,8 +134,8 @@ value generate_conversion arg rc rho in_patt (name, t) =
           <:constructor< $uid:uid$ of $list:tyl$ >> ->
           let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i,ty)) tyl in
           let argpatt = Patt.applist <:patt< $uid:uid$ >> (List.map (to_patt loc) argvars) in
-          let arglist = List.fold_right (fun (v, ty) rhs ->
-              <:expr< [ $genrec ty$ $lid:v$ :: $rhs$ ] >>) argvars <:expr< [] >> in
+          let argexps = List.map (fun (v, ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
+          let arglist = convert_up_list_expr loc argexps in
           match List.assoc uid custom_branches with [
             x -> x
           | exception Not_found ->
@@ -151,14 +151,14 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let members = List.map (fun (id, ty) ->
           let label = <:patt< $longid:rc.quotation_source_module_longid$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
-      let reclist = List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) members <:expr< [] >> in
+      let reclist = convert_up_list_expr loc members in
       <:expr< fun $argpat$ -> C.record $reclist$ >>
 
   | <:ctyp:< ( $list:l$ ) >> ->
       let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
       let argpat = <:patt< ( $list:List.map (to_patt loc) argvars$ ) >> in
       let members = List.map (fun (v,ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
-      let tuplist = List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) members <:expr< [] >> in
+      let tuplist = convert_up_list_expr loc members in
       <:expr< fun $argpat$ -> C.tuple $tuplist$ >>
 
   | <:ctyp:< vala $ty$ >> | <:ctyp:< Ploc.vala $ty$ >> | <:ctyp:< Pcaml.t $ty$ >> ->
