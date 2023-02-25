@@ -15,12 +15,13 @@ type location = [%import: Sexp.location]
 type sexp = [%import: Sexp.sexp]
 [@@deriving q_ast {
        data_source_module = Sexp
-     ; custom_type = {
-         location = {
+     ; custom_type = [
+         ([%typ: location], {
            pattern = (fun ctxt _ -> <:patt< _ >>)
          ; expression = (fun ctxt _ -> <:expr< loc >>)
-         }
-       }
+         ; function_name = location
+         })
+       ]
      ; loc_mode = NoLoc
      ; entrypoints = [
          {name = "sexp"; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }

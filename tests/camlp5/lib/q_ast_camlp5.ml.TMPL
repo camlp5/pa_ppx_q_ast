@@ -27,6 +27,7 @@ end
     data_source_module = Camlp5_ast
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
+  ; loc_mode = CustomLoc { loc_varname = loc ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
  }]
 
 end
@@ -84,6 +85,7 @@ module MetaP = Regular.MetaP
   ; entrypoints = [
 #include "ok_entrypoints.tmp"
     ]
+  ; loc_mode = CustomLoc { loc_varname = loc ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 (*
 List.map (fun (n,f) -> Quotation.add n f)
@@ -197,6 +199,7 @@ end
 #include "hc_entrypoints.tmp"
     ]
   ; node_mode = Hashcons
+  ; loc_mode = CustomLoc { loc_varname = loc ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 ;;
 (*

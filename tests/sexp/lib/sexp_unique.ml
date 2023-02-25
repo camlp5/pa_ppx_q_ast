@@ -4,9 +4,7 @@
 
 module Ploc = Sexp.Ploc
 
-[%%import: Sexp.sexp
-             [@with location := Sexp.location]
-]
+[%%import: Sexp.sexp]
 [@@deriving unique { uniqified_module_name = UN
                    ; normal_module_name = OK
                    ; pertype_customization = {

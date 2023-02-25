@@ -11,13 +11,11 @@ open Pa_ppx_base
 open Pa_sexp
 open Q_ast 
 
-type location = Sexp.location
-
 module Regular = struct
 type sexp = [%import: Sexp.sexp]
 [@@deriving q_ast {
        data_source_module = Sexp
-     ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
+     ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
      ; entrypoints = [
          { name = "sexp" ; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }
        ]
@@ -52,7 +50,7 @@ type sexp = [%import: Sexp.sexp]
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
   ; entrypoints = [ { name = "sexpnovala"; grammar_entry = Pa_sexp.sexp_eoi; type_name = sexp } ]
-  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
+  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 
 end
@@ -68,7 +66,7 @@ module Hashcons = struct
   ; hashconsed = true
   ; entrypoints = [ { name = "hcsexp"; grammar_entry = Pa_sexp.sexp_hashcons_eoi; type_name = sexp } ]
   ; node_mode = Hashcons
-  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
+  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 end
 
@@ -83,6 +81,6 @@ module Unique = struct
   ; uniqified = true
   ; entrypoints = [ { name = "unsexp"; grammar_entry = Pa_sexp.sexp_unique_eoi; type_name = sexp } ]
   ; node_mode = Unique
-  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
+  ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 end

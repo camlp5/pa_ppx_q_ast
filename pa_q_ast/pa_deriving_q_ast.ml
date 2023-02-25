@@ -181,7 +181,6 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | <:ctyp:< bool >> -> <:expr< C.bool >>
   | <:ctyp:< list >> -> <:expr< C.list >>
   | <:ctyp:< option >> -> <:expr< C.option >>
-  | <:ctyp:< Ploc.t >> | <:ctyp:< loc >> -> <:expr< fun _ -> C.loc_v () >>
 
   | <:ctyp:< $_$ $_$ >> as ty ->
     let (ty, argtys) = Ctyp.unapplist ty in

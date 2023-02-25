@@ -15,15 +15,7 @@ type location = [%import: Sexp.location]
 type sexp = [%import: Sexp.sexp]
 [@@deriving q_ast {
        data_source_module = Sexp
-(*
-     ; custom_type = {
-         location = {
-           pattern = (fun _ -> <:patt< _ >>)
-         ; expression = (fun _ -> <:expr< loc >>)
-         }
-       }
- *)
-     ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_typename = location }
+     ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
      ; entrypoints = [
          {name = "sexp"; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }
        ]
