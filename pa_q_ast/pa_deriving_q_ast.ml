@@ -18,6 +18,14 @@ value debug = Pa_passthru.debug ;
 
 value canon_ctyp ty = Reloc.ctyp (fun _ -> Ploc.dummy) 0 ty ;
 
+value expr_as_expr loc s =
+  Pcaml.handle_expr_quotation loc ("expr@", s)
+;
+
+value patt_as_expr loc s =
+  Pcaml.handle_expr_quotation loc ("patt@", s)
+;
+
 module QAST = struct
 
 value extract_case_branches = fun [
@@ -37,7 +45,8 @@ value extract_branches = fun [
 ]
 ;
 
-type loc_mode_t = [ NoLoc | AutoLoc  | CustomLoc of expr ]
+type loc_mode_t = [ NoLoc | AutoLoc  | CustomLoc of custom_loc_t ]
+and custom_loc_t = { loc_varname : lident ; loc_typename : lident }
 and node_mode_t = [ Normal | Hashcons | Unique ]
 and entrypoint_t = {
     entry_name : string [@name name;]
@@ -277,6 +286,18 @@ end
 value str_item_gen_q_ast name arg = fun [
   <:str_item:< type $_flag:_$ $list:tdl$ >> ->
     let rc = QAST.build_context loc arg tdl in
+    let rc = match rc.loc_mode with [
+          CustomLoc l ->
+          let expression =
+            let loc_expr_expr = expr_as_expr loc Fmt.(str "<:expr< %s >>" l.loc_varname) in
+            <:expr< fun _ -> $loc_expr_expr$ >> in
+          let pattern =
+            let loc_patt_expr = patt_as_expr loc Fmt.(str "<:patt< %s >>" l.loc_varname) in
+            <:expr< fun _ -> $loc_patt_expr$ >> in
+          let c = QAST.{ pattern = pattern ; expression = expression } in
+          { (rc) with custom_type = [(l.QAST.loc_typename, c) :: rc.custom_type] }
+        | _ -> rc
+        ] in
     let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc False rc.QAST.type_decls in
     let (meta_p_data_prefix_bindings, meta_p_bindings) = QAST.generate_meta_p_bindings loc arg rc True rc.QAST.type_decls in
     let ep_sil = List.map (QAST.generate_entrypoint loc arg rc) rc.entrypoints in
