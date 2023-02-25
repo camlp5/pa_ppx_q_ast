@@ -73,12 +73,13 @@ value apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-module Fresh = struct
-  type t = ref int  ;
-  value mk () = ref 0 ;
+module Locate = struct
+  type t = { ctr : ref int ; locate : bool } ;
+  value mk locate = { ctr = ref 0 ; locate = locate } ;
+  value locate r = r.locate ;
   value get r = do {
-    let v = r.val in
-    incr r ;
+    let v = r.ctr.val in
+    incr r.ctr ;
     v
   }
   ;
@@ -95,7 +96,7 @@ value customloc_apply_entry e me mp =
   in
   let patt s =
     let (s, locate) = separate_locate s in
-    mp (Fresh.mk()) (f s)
+    mp (Locate.mk locate) (f s)
   in
   Quotation.ExAst (expr, patt)
 ;
@@ -138,6 +139,22 @@ value hc_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
+value customloc_hc_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me () (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    mp (Locate.mk locate) (f s)
+ in
+  Quotation.ExAst (expr, patt)
+;
+
 value unique_apply_entry e me mp =
   let f s =
     Ploc.call_with Plexer.force_antiquot_loc True
@@ -157,5 +174,21 @@ value unique_apply_entry e me mp =
     | (True, _) -> insert_loc_variable ast
     | (False, _) -> ast
     ] in
+  Quotation.ExAst (expr, patt)
+;
+
+value customloc_unique_apply_entry e me mp =
+  let f s =
+    Ploc.call_with Plexer.force_antiquot_loc True
+      (Grammar.Entry.parse e) (Stream.of_string s)
+  in
+  let expr s =
+    let (s, locate) = separate_locate s in
+    me () (f s)
+  in
+  let patt s =
+    let (s, locate) = separate_locate s in
+    mp (Locate.mk locate) (f s)
+  in
   Quotation.ExAst (expr, patt)
 ;

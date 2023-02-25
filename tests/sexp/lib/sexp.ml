@@ -11,15 +11,20 @@ end
 
 open Ploc
 
+type location = Ploc.t
+let preeq_location x y = x = y
+let prehash_location x = Hashtbl.hash x
+let hash_location = prehash_location
+
 module NoVala = struct
 type 'a novala = 'a
 type sexp =
-    Atom of Ploc.t * (string novala)
-  | Cons of Ploc.t * (sexp novala) * (sexp novala)
-  | Nil of Ploc.t
+    Atom of location * (string novala)
+  | Cons of location * (sexp novala) * (sexp novala)
+  | Nil of location
 end
 
 type sexp =
-    Atom of Ploc.t * (string vala)
-  | Cons of Ploc.t * (sexp vala) * (sexp vala)
-  | Nil of Ploc.t
+    Atom of location * (string vala)
+  | Cons of location * (sexp vala) * (sexp vala)
+  | Nil of location

@@ -9,6 +9,7 @@ module Regular = struct
 
 [%%import: Sexp.sexp
   [@with Ploc.vala := vala]
+  [@with location := Sexp.location]
   [@add [%%import: 'a Sexp.Ploc.vala]]
 ]
 [@@deriving migrate
@@ -32,8 +33,8 @@ module Regular = struct
       ]
     ; dispatchers = {
        migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -53,6 +54,7 @@ end
 module NoVala = struct
 
 [%%import: Sexp.NoVala.sexp
+  [@with location := Sexp.location]
   [@add [%%import: 'a Sexp.NoVala.novala]]
 ]
 [@@deriving migrate
@@ -70,8 +72,8 @@ module NoVala = struct
       ]
     ; dispatchers = {
        migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -95,7 +97,9 @@ let _migrate_vala __subrw_0 __dt__ = function
     migration_error "Sexp_migrate.ToNoVala: found an antiquotation (not permitted when converting to NoVala)"
   | Ploc.VaVal v_0 -> (__subrw_0 __dt__ v_0)
 
-[%%import: Sexp.sexp]
+[%%import: Sexp.sexp
+  [@with location := Sexp.location]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -116,8 +120,8 @@ let _migrate_vala __subrw_0 __dt__ = function
         ; code = _migrate_vala
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -135,6 +139,7 @@ let _migrate_vala __subrw_0 __dt__ x =
   Ploc.VaVal (__subrw_0 __dt__ x)
 
 [%%import: Sexp.NoVala.sexp
+  [@with location := Sexp.location]
   [@with novala := Sexp.NoVala.novala]
 ]
 [@@deriving migrate
@@ -157,8 +162,8 @@ let _migrate_vala __subrw_0 __dt__ x =
         ; code = _migrate_vala
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -173,6 +178,7 @@ end
 module HC = struct
 
 [%%import: Sexp_hashcons.HC.sexp
+  [@with location := Sexp.location]
   [@with Ploc.vala := vala]
   [@add [%%import: 'a Sexp.Ploc.vala]]
 ]
@@ -204,8 +210,8 @@ module HC = struct
           )
         }
        ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -228,7 +234,9 @@ let _migrate_vala __subrw_0 __dt__ = function
 
 module ToHC = struct
 
-[%%import: Sexp_hashcons.OK.sexp]
+[%%import: Sexp_hashcons.OK.sexp
+  [@with location := Sexp.location]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -251,8 +259,8 @@ module ToHC = struct
           )
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -270,7 +278,9 @@ exception Migration_error of string
 let migration_error feature =
   raise (Migration_error feature)
 
-[%%import: Sexp_hashcons.HC.sexp]
+[%%import: Sexp_hashcons.HC.sexp
+  [@with location := Sexp.location]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -293,8 +303,8 @@ let migration_error feature =
           )
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -309,6 +319,7 @@ end
 module Unique = struct
 
 [%%import: Sexp_unique.UN.sexp
+  [@with location := Sexp.location]
   [@with Ploc.vala := vala]
   [@add [%%import: 'a Sexp.Ploc.vala]]
 ]
@@ -340,8 +351,8 @@ module Unique = struct
           )
         }
        ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -360,7 +371,9 @@ end
 
 module ToUnique = struct
 
-[%%import: Sexp_unique.OK.sexp]
+[%%import: Sexp_unique.OK.sexp
+  [@with location := Sexp.location]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -383,8 +396,8 @@ module ToUnique = struct
           )
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }
@@ -402,7 +415,9 @@ exception Migration_error of string
 let migration_error feature =
   raise (Migration_error feature)
 
-[%%import: Sexp_unique.UN.sexp]
+[%%import: Sexp_unique.UN.sexp
+  [@with location := Sexp.location]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -425,8 +440,8 @@ let migration_error feature =
           )
         }
       ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: Sexp.location]
+        ; dsttype = [%typ: Sexp.location]
         ; code = fun __dt__ x -> x
         }
       }

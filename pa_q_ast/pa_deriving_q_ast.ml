@@ -46,7 +46,7 @@ value extract_branches = fun [
 ;
 
 type loc_mode_t = [ NoLoc | AutoLoc  | CustomLoc of custom_loc_t ]
-and custom_loc_t = { loc_varname : lident ; loc_typename : lident }
+and custom_loc_t = { loc_varname : lident ; loc_type : ctyp ; loc_function_name : lident }
 and node_mode_t = [ Normal | Hashcons | Unique ]
 and entrypoint_t = {
     entry_name : string [@name name;]
@@ -64,6 +64,7 @@ and pertype_t = {
 and custom_t = {
   pattern : expr
 ; expression : expr
+; function_name : lident
 }
 and t = {
   optional : bool
@@ -88,7 +89,7 @@ and t = {
 ; hashconsed : bool [@default False;]
 ; uniqified : bool [@default False;]
 ; pertype : (alist lident pertype_t) [@default [];]
-; custom_type : (alist lident custom_t) [@default [];]
+; custom_type : (alist ctyp custom_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
 ; entrypoints : list entrypoint_t [@default [];]
 ; node_mode : node_mode_t [@default Normal;]
@@ -189,7 +190,10 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | <:ctyp:< string >> -> <:expr< C.string >>
 
   | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.type_decls -> <:expr< $lid:lid$ __ctxt__ >>
-  | <:ctyp:< $lid:lid$ >> when List.mem_assoc lid rc.custom_type -> <:expr< $lid:lid$ __ctxt__ >>
+  | cty when AList.mem ~{cmp=Reloc.eq_ctyp} cty rc.custom_type ->
+     let loc = loc_of_ctyp cty in
+     let ct = AList.assoc ~{cmp=Reloc.eq_ctyp} cty rc.custom_type in
+     <:expr< $lid:ct.function_name$ __ctxt__ >>
   | <:ctyp:< $lid:id$ >> when List.mem_assoc id rho ->
     <:expr< $lid:List.assoc id rho$ >>
   | ty -> Ploc.raise (loc_of_ctyp ty)
@@ -256,16 +260,16 @@ value generate_converter arg rc in_patt (_, td) =
   (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
-value generate_custom_expr_converter arg rc (id, custom) =
+value generate_custom_expr_converter arg rc (_, custom) =
   let loc = loc_of_expr custom.expression in
   let fbody = <:expr< let loc = Ploc.dummy in $custom.expression$ >> in
-  (<:patt< $lid:id$ >>, fbody, <:vala< [] >>)
+  (<:patt< $lid:custom.function_name$ >>, fbody, <:vala< [] >>)
 ;
 
-value generate_custom_patt_converter arg rc (id, custom) =
+value generate_custom_patt_converter arg rc (_, custom) =
   let loc = loc_of_expr custom.pattern in
   let fbody = <:expr< let loc = Ploc.dummy in $custom.pattern$ >> in
-  (<:patt< $lid:id$ >>, fbody, <:vala< [] >>)
+  (<:patt< $lid:custom.function_name$ >>, fbody, <:vala< [] >>)
 ;
 
 value generate_meta_e_bindings loc arg rc in_patt tdl =
@@ -289,6 +293,8 @@ value generate_entrypoint loc arg rc (ep : entrypoint_t) =
       | (Unique, AutoLoc) -> <:expr< Pa_ppx_q_ast_runtime.unique_apply_entry >>
       | (Normal, NoLoc) ->   <:expr< Pa_ppx_q_ast_runtime.noloc_apply_entry >>
       | (Normal, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_apply_entry >>
+      | (Hashcons, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_hc_apply_entry >>
+      | (Unique, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_unique_apply_entry >>
       ] in
   <:str_item< Quotation.add $str:ep.entry_name$
   ($apply_fun$ $ep.grammar_entry$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
@@ -300,7 +306,7 @@ value generate_ctxt_ctyps loc arg rc =
     | (Hashcons, AutoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
     | (Unique, AutoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
     | (Normal, NoLoc) -> (<:ctyp< unit >>,<:ctyp< unit >>)
-    | (Normal, CustomLoc _) -> (<:ctyp< Pa_ppx_q_ast_runtime.Fresh.t >>,<:ctyp< unit >>)
+    | (_, CustomLoc _) -> (<:ctyp< Pa_ppx_q_ast_runtime.Locate.t >>,<:ctyp< unit >>)
     ]
 ;
 
@@ -318,9 +324,9 @@ value str_item_gen_q_ast name arg = fun [
           let pattern =
             let loc_patt_expr = patt_as_expr loc l.loc_varname in
             let any_patt_expr = patt_as_expr loc "_" in
-            <:expr< fun ctxt _ -> if Pa_ppx_q_ast_runtime.Fresh.get ctxt > 0 then $any_patt_expr$ else $loc_patt_expr$ >> in
-          let c = QAST.{ pattern = pattern ; expression = expression } in
-          { (rc) with custom_type = [(l.QAST.loc_typename, c) :: rc.custom_type] }
+            <:expr< fun ctxt _ -> if not (Pa_ppx_q_ast_runtime.Locate.locate ctxt) || Pa_ppx_q_ast_runtime.Locate.get ctxt > 0 then $any_patt_expr$ else $loc_patt_expr$ >> in
+          let c = QAST.{ pattern = pattern ; expression = expression ; function_name = l.loc_function_name } in
+          { (rc) with custom_type = [(l.QAST.loc_type, c) :: rc.custom_type] }
         | _ -> rc
         ] in
     let (meta_e_data_prefix_bindings, meta_e_bindings) = QAST.generate_meta_e_bindings loc arg rc False rc.QAST.type_decls in

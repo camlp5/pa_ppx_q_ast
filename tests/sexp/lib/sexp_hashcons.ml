@@ -4,7 +4,9 @@
 
 module Ploc = Sexp.Ploc
 
-[%%import: Sexp.sexp]
+[%%import: Sexp.sexp
+             [@with location := Sexp.location]
+]
 [@@deriving hashcons { hashconsed_module_name = HC
                      ; normal_module_name = OK
                      ; external_types = {

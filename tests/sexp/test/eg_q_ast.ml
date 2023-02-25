@@ -7,9 +7,9 @@ open Fmt ;;
 
 module Regular = struct
 let rec pp pps = function
-    <:sexp:< () >> -> Fmt.(pf pps "()")
-  | <:sexp:< ( $exp:a$ . $exp:b$ ) >> -> Fmt.(pf pps "(%a . %a)" pp a pp b)
-  | <:sexp:< $atom:a$ >> -> Fmt.(pf pps "%a" string a)
+    <:sexp< () >> -> Fmt.(pf pps "()")
+  | <:sexp< ( $exp:a$ . $exp:b$ ) >> -> Fmt.(pf pps "(%a . %a)" pp a pp b)
+  | <:sexp< $atom:a$ >> -> Fmt.(pf pps "%a" string a)
 ;;
 
 let subst rho e =
@@ -36,9 +36,9 @@ end
 module NoVala = struct
 
   let loc_of_sexp = function
-    <:sexpnovala:< () >> -> loc
-  | <:sexpnovala:< $atom:_$ >> -> loc
-  | <:sexpnovala:< ( $exp:_$ . $exp:_$ ) >> -> loc
+    <:sexpnovala:< () >> -> __loc__
+  | <:sexpnovala:< $atom:_$ >> -> __loc__
+  | <:sexpnovala:< ( $exp:_$ . $exp:_$ ) >> -> __loc__
 
 open Sexp.NoVala
 let rec atoms = function
@@ -62,9 +62,9 @@ end
 module HC = struct
 
   let loc_of_sexp = function
-    <:hcsexp:< () >> -> loc
-  | <:hcsexp:< $atom:_$ >> -> loc
-  | <:hcsexp:< ( $exp:_$ . $exp:_$ ) >> -> loc
+    <:hcsexp:< () >> -> __loc__
+  | <:hcsexp:< $atom:_$ >> -> __loc__
+  | <:hcsexp:< ( $exp:_$ . $exp:_$ ) >> -> __loc__
 
 let rec atoms = function
     <:hcsexp:< () >> -> []
@@ -83,9 +83,9 @@ end
 module Unique = struct
 
   let loc_of_sexp = function
-    <:unsexp:< () >> -> loc
-  | <:unsexp:< $atom:_$ >> -> loc
-  | <:unsexp:< ( $exp:_$ . $exp:_$ ) >> -> loc
+    <:unsexp:< () >> -> __loc__
+  | <:unsexp:< $atom:_$ >> -> __loc__
+  | <:unsexp:< ( $exp:_$ . $exp:_$ ) >> -> __loc__
 
 let rec atoms = function
     <:unsexp:< () >> -> []
