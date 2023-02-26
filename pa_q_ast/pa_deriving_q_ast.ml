@@ -60,6 +60,8 @@ and pertype_t = {
 ; add_branches_patt : (list case_branch) [@computed extract_branches add_branches_patt_code;]
 ; add_branches_expr_code : option expr 
 ; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
+; data_source_module : longid [@default default_data_source_module;]
+; quotation_source_module : longid [@default default_quotation_source_module;]
 }
 and custom_t = {
   pattern : expr
@@ -77,7 +79,8 @@ and t = {
 ; external_types : (alist ctyp expr) [@default [];]
 ; hashconsed : bool [@default False;]
 ; uniqified : bool [@default False;]
-; pertype : (alist lident pertype_t) [@default [];]
+; pertype : (alist lident (pertype_t [@actual_args [ default_data_source_module
+                                                   ; default_quotation_source_module ];])) [@default [];]
 ; custom_type : (alist ctyp custom_t) [@default [];]
 ; type_decls : list (string * MLast.type_decl) [@computed type_decls;]
 ; entrypoints : list entrypoint_t [@default [];]
@@ -86,6 +89,8 @@ and t = {
 } [@@deriving params {
     formal_args = {
       t = [ type_decls ]
+    ; pertype_t = [ default_data_source_module
+                  ; default_quotation_source_module ]
     }
   ; validators = { t = fun params ->
       if params.hashconsed && params.uniqified then
@@ -119,6 +124,20 @@ value left_right_eval_list_expr loc el =
   <:expr< let $list:letbs$ in $varlist$ >>
 ;
 
+value data_source_module rc name =
+  match List.assoc name rc.pertype with [
+      exception Not_found -> rc.default_data_source_module
+    | x -> x.data_source_module
+    ]
+;
+
+value quotation_source_module rc name =
+  match List.assoc name rc.pertype with [
+      exception Not_found -> rc.default_quotation_source_module
+    | x -> x.quotation_source_module
+    ]
+;
+
 value generate_conversion arg rc rho in_patt (name, t) =
   let custom_branches = match AList.assoc name rc.pertype with [
     x -> x.custom_branches
@@ -129,19 +148,23 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | (False, x) -> x.add_branches_expr
   | exception Not_found -> []
   ] in
+  let quoted_data_source_module =
+    let loc = loc_of_ctyp t in
+    <:expr< let loc = Ploc.dummy in $Q_ast.Meta_E.longid (data_source_module rc name)$ >> in
+
   let rec genrec = fun [
     <:ctyp< $_$ == $ty$ >> -> genrec ty
   | <:ctyp:< [ $list:branches$ ] >> ->
       let branches = List.map (fun [
           <:constructor< $uid:uid$ of $list:tyl$ >> ->
           let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i,ty)) tyl in
-          let argpatt = Patt.applist <:patt< $longid:rc.default_quotation_source_module$ . $uid:uid$ >> (List.map (to_patt loc) argvars) in
+          let argpatt = Patt.applist <:patt< $longid:quotation_source_module rc name$ . $uid:uid$ >> (List.map (to_patt loc) argvars) in
           let argexps = List.map (fun (v, ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
           let arglist = left_right_eval_list_expr loc argexps in
           match List.assoc uid custom_branches with [
             x -> x
           | exception Not_found ->
-          (argpatt, <:vala< None >>, <:expr< C.node_no_loc ~{prefix=data_prefix} $str:uid$ $arglist$ >>)
+          (argpatt, <:vala< None >>, <:expr< C.node_no_loc ~{prefix= $quoted_data_source_module$} $str:uid$ $arglist$ >>)
           ]
         ]) branches in
       <:expr< fun [ $list:add_branches@branches$ ] >>
@@ -151,7 +174,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
       let argpat = <:patt< { $list:lpl$ } >> in
       let members = List.map (fun (id, ty) ->
-          let label = <:patt< $longid:rc.default_quotation_source_module$ . $lid:id$ >> in
+          let label = <:patt< $longid:quotation_source_module rc name$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.record $reclist$ >>
@@ -197,7 +220,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
        <:expr< C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Hashcons.node) ] >>)
     else 
       (<:patt< x >>, <:vala< None >>,
-       <:expr< C.app_no_loc ~{prefix=data_prefix} $str:"make_"^name$ [ $genrec t$ x.Hashcons.node ] >>) in
+       <:expr< C.app_no_loc ~{prefix= $quoted_data_source_module$} $str:"make_"^name$ [ $genrec t$ x.Hashcons.node ] >>) in
     <:expr< fun [ $list:add_branches@[branch]$ ] >>
 
   | <:ctyp:< Pa_ppx_unique_runtime.Unique.unique $t$ >> | <:ctyp:< unique $t$ >> when rc.uniqified ->
@@ -208,7 +231,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
        <:expr< C.record [(let loc = Ploc.dummy in $Q_ast.Meta_E.patt node_label$, $genrec t$ x.Pa_ppx_unique_runtime.Unique.node) ] >>)
     else 
       (<:patt< x >>, <:vala< None >>,
-       <:expr< C.app_no_loc ~{prefix=data_prefix} $str:"make_"^name$ [ $genrec t$ x.Pa_ppx_unique_runtime.Unique.node ] >>) in
+       <:expr< C.app_no_loc ~{prefix= $quoted_data_source_module$} $str:"make_"^name$ [ $genrec t$ x.Pa_ppx_unique_runtime.Unique.node ] >>) in
     <:expr< fun [ $list:add_branches@[branch]$ ] >>
 
   | _ -> genrec t
@@ -241,7 +264,7 @@ value generate_converter arg rc in_patt (_, td) =
   let fbody = List.fold_right (fun (id, _) rhs -> <:expr< fun (type $lid:id$) -> $rhs$ >>) rho fbody in
   let ftype =
     if rho = [] then
-      <:ctyp< ctxt_t -> $longid:rc.default_quotation_source_module$ . $lid:name$ -> C.t >>
+      <:ctyp< ctxt_t -> $longid:quotation_source_module rc name$ . $lid:name$ -> C.t >>
     else
       let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
       let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
