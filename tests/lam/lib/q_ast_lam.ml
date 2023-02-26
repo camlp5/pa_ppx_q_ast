@@ -13,7 +13,7 @@ open Q_ast
 module Regular = struct
 [%%import: Lam.lam]
 [@@deriving q_ast {
-       data_source_module = Lam
+       default_data_source_module = Lam
      ; entrypoints = [
          { name = "lam" ; grammar_entry = Pa_lam.lam_eoi ; type_name = lam }
        ]
@@ -23,7 +23,7 @@ end
 module OK = struct
 [%%import: Lam_hashcons.OK.lam]
 [@@deriving q_ast {
-       data_source_module = Lam_hashcons.OK
+       default_data_source_module = Lam_hashcons.OK
      ; entrypoints = [
          { name = "oklam" ; grammar_entry = Pa_lam.lam_eoi ; type_name = lam }
        ]
@@ -34,8 +34,8 @@ module Hashcons = struct
 
 [%%import: Lam_hashcons.HC.lam]
 [@@deriving q_ast {
-    data_source_module = Lam_hashcons.HC
-  ; quotation_source_module = Lam_migrate.FromHC
+    default_data_source_module = Lam_hashcons.HC
+  ; default_quotation_source_module = Lam_migrate.FromHC
   ; hashconsed = true
   ; entrypoints = [
       { name = "hclam" ; grammar_entry = Pa_lam.lam_hashcons_eoi ; type_name = lam }

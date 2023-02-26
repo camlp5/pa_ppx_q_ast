@@ -14,7 +14,7 @@ module Regular = struct
 type location = [%import: Sexp.location]
 type sexp = [%import: Sexp.sexp]
 [@@deriving q_ast {
-       data_source_module = Sexp
+       default_data_source_module = Sexp
      ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
      ; entrypoints = [
          {name = "sexp"; grammar_entry = Pa_sexp.sexp_eoi ; type_name = sexp }

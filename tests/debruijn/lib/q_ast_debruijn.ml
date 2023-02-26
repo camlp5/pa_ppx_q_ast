@@ -14,7 +14,7 @@ module Regular = struct
 
 [%%import: Debruijn.term]
 [@@deriving q_ast {
-    data_source_module = Debruijn
+    default_data_source_module = Debruijn
      ; entrypoints = [
          { name = "debruijn" ; grammar_entry = Pa_debruijn.term_eoi ; type_name = term }
        ]
@@ -25,7 +25,7 @@ module OK = struct
 
 [%%import: Debruijn_hashcons.OK.term]
 [@@deriving q_ast {
-    data_source_module = Debruijn_hashcons.OK
+    default_data_source_module = Debruijn_hashcons.OK
      ; entrypoints = [
          { name = "okdebruijn" ; grammar_entry = Pa_debruijn.term_eoi ; type_name = term }
        ]
@@ -36,8 +36,8 @@ module Hashcons = struct
 
 [%%import: Debruijn_hashcons.HC.term]
 [@@deriving q_ast {
-    data_source_module = Debruijn_hashcons.HC
-  ; quotation_source_module = Debruijn_migrate.FromHC
+    default_data_source_module = Debruijn_hashcons.HC
+  ; default_quotation_source_module = Debruijn_migrate.FromHC
   ; hashconsed = true
   ; entrypoints = [
       { name = "hcdebruijn" ; grammar_entry = Pa_debruijn.term_hashcons_eoi ; type_name = term }

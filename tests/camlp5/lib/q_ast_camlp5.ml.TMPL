@@ -24,7 +24,7 @@ end
 
 [%%import: Camlp5_ast.expr]
 [@@deriving q_ast {
-    data_source_module = Camlp5_ast
+    default_data_source_module = Camlp5_ast
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
   ; loc_mode = CustomLoc { loc_varname = loc ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
@@ -38,7 +38,7 @@ module MetaP = Regular.MetaP
 
 [%%import: Camlp5_hashcons.OK.expr]
 [@@deriving q_ast {
-    data_source_module = Camlp5_hashcons.OK
+    default_data_source_module = Camlp5_hashcons.OK
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
   ; pertype = {
@@ -111,8 +111,8 @@ end
 
 [%%import: Camlp5_hashcons.HC.expr]
 [@@deriving q_ast {
-    data_source_module = Camlp5_hashcons.HC
-  ; quotation_source_module = Camlp5_migrate.FromHC
+    default_data_source_module = Camlp5_hashcons.HC
+  ; default_quotation_source_module = Camlp5_migrate.FromHC
   ; expr_meta_module = MetaE
   ; patt_meta_module = MetaP
   ; hashconsed = true

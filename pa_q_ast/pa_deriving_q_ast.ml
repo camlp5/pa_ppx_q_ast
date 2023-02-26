@@ -69,15 +69,15 @@ and custom_t = {
 and t = {
   optional : bool
 ; plugin_name : string
-; data_source_module_expr : expr [@name data_source_module;]
-; data_source_module_longid : longid [@computed longid_of_expr data_source_module_expr;]
-; raw_quotation_source_module : option expr [@name quotation_source_module;]
-; quotation_source_module_expr : expr
-      [@computed (match raw_quotation_source_module with [
-          None -> data_source_module_expr
+; default_data_source_module_expr : expr [@name default_data_source_module;]
+; default_data_source_module_longid : longid [@computed longid_of_expr default_data_source_module_expr;]
+; default_raw_quotation_source_module : option expr [@name default_quotation_source_module;]
+; default_quotation_source_module_expr : expr
+      [@computed (match default_raw_quotation_source_module with [
+          None -> default_data_source_module_expr
         | Some x -> x
         ]);]
-; quotation_source_module_longid : longid [@computed longid_of_expr quotation_source_module_expr;]
+; default_quotation_source_module_longid : longid [@computed longid_of_expr default_quotation_source_module_expr;]
 
 ; expr_meta_module_expr : expr [@name expr_meta_module;]
 ; expr_meta_module_longid : longid [@computed longid_of_expr expr_meta_module_expr;]
@@ -146,7 +146,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let branches = List.map (fun [
           <:constructor< $uid:uid$ of $list:tyl$ >> ->
           let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i,ty)) tyl in
-          let argpatt = Patt.applist <:patt< $uid:uid$ >> (List.map (to_patt loc) argvars) in
+          let argpatt = Patt.applist <:patt< $longid:rc.default_quotation_source_module_longid$ . $uid:uid$ >> (List.map (to_patt loc) argvars) in
           let argexps = List.map (fun (v, ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
           let arglist = left_right_eval_list_expr loc argexps in
           match List.assoc uid custom_branches with [
@@ -162,7 +162,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
       let argpat = <:patt< { $list:lpl$ } >> in
       let members = List.map (fun (id, ty) ->
-          let label = <:patt< $longid:rc.quotation_source_module_longid$ . $lid:id$ >> in
+          let label = <:patt< $longid:rc.default_quotation_source_module_longid$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.record $reclist$ >>
@@ -252,7 +252,7 @@ value generate_converter arg rc in_patt (_, td) =
   let fbody = List.fold_right (fun (id, _) rhs -> <:expr< fun (type $lid:id$) -> $rhs$ >>) rho fbody in
   let ftype =
     if rho = [] then
-      <:ctyp< ctxt_t -> $longid:rc.quotation_source_module_longid$ . $lid:name$ -> C.t >>
+      <:ctyp< ctxt_t -> $longid:rc.default_quotation_source_module_longid$ . $lid:name$ -> C.t >>
     else
       let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
       let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
@@ -275,14 +275,14 @@ value generate_custom_patt_converter arg rc (_, custom) =
 value generate_meta_e_bindings loc arg rc in_patt tdl =
   let l = List.filter_map (generate_converter arg rc in_patt) tdl in
   let customl = List.map (generate_custom_expr_converter arg rc) rc.custom_type in
-  let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
+  let data_prefix = Q_ast.Meta_E.longid rc.default_data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
 value generate_meta_p_bindings loc arg rc in_patt tdl =
   let l = List.filter_map (generate_converter arg rc in_patt) tdl in
   let customl = List.map (generate_custom_patt_converter arg rc) rc.custom_type in
-  let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
+  let data_prefix = Q_ast.Meta_E.longid rc.default_data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
@@ -355,8 +355,8 @@ Pa_deriving.(Registry.add PI.{
 ; alternates = []
 ; options = [
     "optional"
-  ; "data_source_module"
-  ; "quotation_source_module"
+  ; "default_data_source_module"
+  ; "default_quotation_source_module"
   ; "expr_meta_module"
   ; "patt_meta_module"
   ; "hashconsed"

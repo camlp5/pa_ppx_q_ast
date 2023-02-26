@@ -13,7 +13,7 @@ open Pa_sexp
 module Regular = struct
 [%%import: Sexp.sexp]
 [@@deriving q_ast {
-       data_source_module = Sexp
+       default_data_source_module = Sexp
      ; custom_type = [
          ([%typ: location], {
            pattern = (fun ctxt _ -> <:patt< _ >>)
