@@ -9,9 +9,11 @@ open Pcaml;
 
 value sexp_eoi = Grammar.Entry.create gram "sexp_eoi";
 
-value sexp_atom loc a = Sexp.Atom loc a ;
-value sexp_nil loc = Sexp.Nil loc ;
-value sexp_cons loc e1 e2 = Sexp.Cons loc e1 e2 ;
+value sexp_atom loc a = Sexp.Atom loc [loc] a ;
+value sexp_nil loc = Sexp.Nil loc [loc];
+value sexp_cons loc e1 e2 =
+  let ls_of_sexp_vala e = Pcaml.vala_mapa Sexp.location_stack_of_sexp (fun _ -> []) e in
+ Sexp.Cons loc ([loc]@(ls_of_sexp_vala e1)@(ls_of_sexp_vala e2)) e1 e2 ;
 
 EXTEND
   GLOBAL: sexp_eoi;
@@ -21,11 +23,11 @@ EXTEND
       a = V atom "atom" -> sexp_atom loc a
     | "(" ; l1 = LIST1 v_sexp ; opt_e2 = OPT [ "." ; e2 = v_sexp -> e2 ] ; ")" ->
       match opt_e2 with [
-        None -> List.fold_right (fun vse1 se2 -> Sexp.Cons loc vse1 <:vala< se2 >>) l1 (sexp_nil loc)
+        None -> List.fold_right (fun vse1 se2 -> sexp_cons loc vse1 <:vala< se2 >>) l1 (sexp_nil loc)
       | Some ve2 ->
          let (last, l1) = sep_last l1 in
-         List.fold_right (fun vse1 se2 -> Sexp.Cons loc vse1 <:vala< se2 >>) l1
-           (Sexp.Cons loc last ve2)
+         List.fold_right (fun vse1 se2 -> sexp_cons loc vse1 <:vala< se2 >>) l1
+           (sexp_cons loc last ve2)
       ]
     | "(" ; ")" ->
         sexp_nil loc

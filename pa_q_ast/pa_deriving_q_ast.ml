@@ -229,6 +229,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
 value generate_converter arg rc in_patt (_, td) =
   let loc = loc_of_type_decl td in
   let name = td.tdNam |> uv |> snd |> uv in
+  if AList.mem ~{cmp=Reloc.eq_ctyp} <:ctyp< $lid:name$ >> rc.custom_type then None else
   let rho =
     let tyvars = td.tdPrm |> uv in
     List.mapi (fun i -> fun [
@@ -256,7 +257,7 @@ value generate_converter arg rc in_patt (_, td) =
       let thety = Ctyp.applist <:ctyp< $lid:name$ >> (List.map (fun (id, _) -> <:ctyp< ' $id$ >>) rho) in
       let rhsty = List.fold_right (fun (id, _) rhs -> <:ctyp< ( ' $id$ -> C.t) -> $rhs$ >>) rho <:ctyp< $thety$ -> C.t >> in
       <:ctyp< ! $list:List.map fst rho$ . ctxt_t -> $rhsty$ >> in
-  (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
+  Some (<:patt< ( $lid:name$ : $ftype$ ) >>, fbody, <:vala< [] >>)
 ;
 
 value generate_custom_expr_converter arg rc (_, custom) =
@@ -272,14 +273,14 @@ value generate_custom_patt_converter arg rc (_, custom) =
 ;
 
 value generate_meta_e_bindings loc arg rc in_patt tdl =
-  let l = List.map (generate_converter arg rc in_patt) tdl in
+  let l = List.filter_map (generate_converter arg rc in_patt) tdl in
   let customl = List.map (generate_custom_expr_converter arg rc) rc.custom_type in
   let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
 ;
 
 value generate_meta_p_bindings loc arg rc in_patt tdl =
-  let l = List.map (generate_converter arg rc in_patt) tdl in
+  let l = List.filter_map (generate_converter arg rc in_patt) tdl in
   let customl = List.map (generate_custom_patt_converter arg rc) rc.custom_type in
   let data_prefix = Q_ast.Meta_E.longid rc.data_source_module_longid in
   ([(<:patt< data_prefix >>, <:expr< let loc = Ploc.dummy in $data_prefix$ >>, <:vala< [] >>)], l@customl)
