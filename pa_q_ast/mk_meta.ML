@@ -17,7 +17,7 @@ version = "%s"
 description = "pa_ppx_q_ast deriver"
 
   package "runtime" (
-    requires = "camlp5.parser_quotations"
+    requires = "camlp5.parser_quotations.link"
     archive(byte) = "pa_ppx_q_ast_runtime.cmo"
     archive(native) = "pa_ppx_q_ast_runtime.cmx"
   )
