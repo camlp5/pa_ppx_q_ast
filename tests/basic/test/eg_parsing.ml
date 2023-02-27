@@ -5,4 +5,4 @@
 
 open Fmt ;;
 
-let t = {| 'c' |} |> Stream.of_string |> Grammar.Entry.parse Pa_basic.basic_eoi ;;
+let t = {| 'c' 47l |} |> Stream.of_string |> Grammar.Entry.parse Pa_basic.basic_eoi ;;

@@ -14,7 +14,7 @@ EXTEND
 
   basic: [
     [
-      c = CHAR -> Basic.{ char = Plexing.eval_char c }
+      c = CHAR ; n = INT_l -> Basic.{ char = Plexing.eval_char c ; int32 = Int32.of_string n }
     ]
   ]
   ;

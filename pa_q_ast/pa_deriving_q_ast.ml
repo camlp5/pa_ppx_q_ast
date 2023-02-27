@@ -191,6 +191,10 @@ value generate_conversion arg rc rho in_patt (name, t) =
 
   | <:ctyp:< char >> -> <:expr< C.char >>
   | <:ctyp:< int >> -> <:expr< C.int >>
+  | <:ctyp:< int32 >> -> <:expr< C.int32 >>
+  | <:ctyp:< int64 >> -> <:expr< C.int64 >>
+  | <:ctyp:< nativeint >> -> <:expr< C.nativeint >>
+  | <:ctyp:< float >> -> <:expr< C.float >>
   | <:ctyp:< bool >> -> <:expr< C.bool >>
   | <:ctyp:< list >> -> <:expr< C.list >>
   | <:ctyp:< option >> -> <:expr< C.option >>

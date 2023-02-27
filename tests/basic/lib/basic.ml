@@ -5,4 +5,5 @@
 type t =
   {
     char : char
+  ; int32 : int32
   }

@@ -6,14 +6,11 @@ module MetaE = struct
     List.fold_left (fun e1 e2 -> <:expr< $e1$ $e2$ >>)
       <:expr< $longid:prefix$ . $lid:fid$ >> el
   ;
-
-  value int n = let loc = Ploc.dummy in <:expr< $int:string_of_int n$ >> ;
 end
 ;
 
 module MetaP = struct
   include Q_ast_base.P_MetaSig ;
-  value int n = let loc = Ploc.dummy in <:patt< $int:string_of_int n$ >> ;
 end
 ;
 
