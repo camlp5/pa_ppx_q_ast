@@ -1,10 +1,12 @@
 # Makefile,v
 # Copyright (c) INRIA 2007-2017
 
-TESTDIRS = sexp/lib sexp/test \
+TESTDIRS = \
+	basic/lib basic/test \
+	sexp/lib sexp/test \
 	lam/lib lam/test \
 	debruijn/lib debruijn/test \
-	 camlp5/lib camlp5/test \
+	camlp5/lib camlp5/test \
 	sexp2/lib sexp2/test \
 	sexp3/lib sexp3/test \
 	sexp4/lib sexp4/test \
