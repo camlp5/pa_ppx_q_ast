@@ -189,6 +189,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | <:ctyp:< vala $ty$ >> | <:ctyp:< Ploc.vala $ty$ >> | <:ctyp:< Pcaml.t $ty$ >> ->
     <:expr< C.vala $genrec ty$ >>
 
+  | <:ctyp:< char >> -> <:expr< C.char >>
   | <:ctyp:< int >> -> <:expr< C.int >>
   | <:ctyp:< bool >> -> <:expr< C.bool >>
   | <:ctyp:< list >> -> <:expr< C.list >>
