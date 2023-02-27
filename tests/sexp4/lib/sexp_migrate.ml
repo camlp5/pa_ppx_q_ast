@@ -10,6 +10,10 @@ module Regular = struct
 [%%import: Sexp.sexp
   [@with Ploc.vala := vala]
   [@add [%%import: 'a Sexp.Ploc.vala]]
+  [@add type position = [%import: Sexp.position
+                                    [@with Ploc.vala := vala]
+                        ]
+  ]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -32,8 +36,8 @@ module Regular = struct
       ]
     ; dispatchers = {
        migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: position]
+        ; dsttype = [%typ: Sexp.position]
         ; code = fun __dt__ x -> x
         }
       }
@@ -45,7 +49,7 @@ let sexp x = dt.migrate_sexp dt x
 
 let reloc_sexp =
   let dt = make_dt () in
-  let dt = {(dt) with migrate_loc = fun _ _ -> Ploc.dummy } in
+  let dt = {(dt) with migrate_loc = fun _ _ -> Sexp.dummy_pos } in
   dt.migrate_sexp dt
 
 end
@@ -54,6 +58,7 @@ module NoVala = struct
 
 [%%import: Sexp.NoVala.sexp
   [@add [%%import: 'a Sexp.NoVala.novala]]
+  [@add type position = [%import: Sexp.NoVala.position]]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -70,8 +75,8 @@ module NoVala = struct
       ]
     ; dispatchers = {
        migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
+          srctype = [%typ: position]
+        ; dsttype = [%typ: Sexp.NoVala.position]
         ; code = fun __dt__ x -> x
         }
       }
@@ -83,7 +88,7 @@ let sexp x = dt.migrate_sexp dt x
 
 let reloc_sexp =
   let dt = make_dt () in
-  let dt = {(dt) with migrate_loc = fun _ _ -> Ploc.dummy } in
+  let dt = {(dt) with migrate_loc = fun _ _ -> Sexp.NoVala.dummy_pos } in
   dt.migrate_sexp dt
 
 end
@@ -95,7 +100,14 @@ let _migrate_vala __subrw_0 __dt__ = function
     migration_error "Sexp_migrate.ToNoVala: found an antiquotation (not permitted when converting to NoVala)"
   | Ploc.VaVal v_0 -> (__subrw_0 __dt__ v_0)
 
-[%%import: Sexp.sexp]
+[%%import: Sexp.sexp
+  [@with Ploc.vala := vala]
+  [@add [%%import: 'a Sexp.Ploc.vala]]
+  [@add type position = [%import: Sexp.position
+                                    [@with Ploc.vala := vala]
+                        ]
+  ]
+]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
     ; dispatch_table_constructor = make_dt
@@ -105,20 +117,16 @@ let _migrate_vala __subrw_0 __dt__ = function
         ; dstmod = Sexp.NoVala
         ; types = [
             sexp
+          ; position
           ]
         }
       ]
     ; dispatchers = {
         migrate_vala = {
-          srctype = [%typ: 'a Ploc.vala]
+          srctype = [%typ: 'a vala]
         ; dsttype = [%typ: 'b Sexp.NoVala.novala]
         ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
         ; code = _migrate_vala
-        }
-      ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
-        ; code = fun __dt__ x -> x
         }
       }
     }
@@ -135,7 +143,8 @@ let _migrate_vala __subrw_0 __dt__ x =
   Ploc.VaVal (__subrw_0 __dt__ x)
 
 [%%import: Sexp.NoVala.sexp
-  [@with novala := Sexp.NoVala.novala]
+  [@add [%%import: 'a Sexp.NoVala.novala]]
+  [@add type position = [%import: Sexp.NoVala.position]]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -146,20 +155,16 @@ let _migrate_vala __subrw_0 __dt__ x =
         ; dstmod = Sexp
         ; types = [
             sexp
+          ; position
           ]
         }
       ]
     ; dispatchers = {
         migrate_vala = {
-          srctype = [%typ: 'a Sexp.NoVala.novala]
-        ; dsttype = [%typ: 'b Ploc.vala]
+          srctype = [%typ: 'a novala]
+        ; dsttype = [%typ: 'b Sexp.Ploc.vala]
         ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
         ; code = _migrate_vala
-        }
-      ; migrate_loc = {
-          srctype = [%typ: Ploc.t]
-        ; dsttype = [%typ: Ploc.t]
-        ; code = fun __dt__ x -> x
         }
       }
     }
@@ -169,3 +174,4 @@ let dt = make_dt ()
 let sexp x = dt.migrate_sexp dt x
 
 end
+

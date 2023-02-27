@@ -10,26 +10,28 @@ open Pcaml;
 value sexp_eoi = Grammar.Entry.create gram "sexp_eoi";
 value sexp_novala_eoi = Grammar.Entry.create gram "sexp_novala_eoi";
 
-value sexp_atom loc a = Sexp.Atom loc a ;
-value sexp_nil loc = Sexp.Nil loc ;
-value sexp_cons loc e1 e2 = Sexp.Cons loc e1 e2 ;
+value sexp_atom loc a = Sexp.(Atom (vala_map mkpos loc) a) ;
+value sexp_nil loc = Sexp.(Nil (vala_map mkpos loc)) ;
+value sexp_cons loc e1 e2 = Sexp.(Cons (vala_map mkpos loc) e1 e2) ;
 
 EXTEND
   GLOBAL: sexp_eoi sexp_novala_eoi;
 
+  location : [ [ -> loc ] ] ;
+
   sexp: [
     [
-      a = V atom "atom" -> sexp_atom loc a
-    | "(" ; l1 = LIST1 v_sexp ; opt_e2 = OPT [ "." ; e2 = v_sexp -> e2 ] ; ")" ->
+      l = V location "loc" ; a = V atom "atom" -> sexp_atom l a
+    | l = V location "loc" ; "(" ; l1 = LIST1 v_sexp ; opt_e2 = OPT [ "." ; e2 = v_sexp -> e2 ] ; ")" ->
       match opt_e2 with [
-        None -> List.fold_right (fun vse1 se2 -> Sexp.Cons loc vse1 <:vala< se2 >>) l1 (sexp_nil loc)
+        None -> List.fold_right (fun vse1 se2 -> sexp_cons l vse1 <:vala< se2 >>) l1 (sexp_nil l)
       | Some ve2 ->
          let (last, l1) = sep_last l1 in
-         List.fold_right (fun vse1 se2 -> Sexp.Cons loc vse1 <:vala< se2 >>) l1
-           (Sexp.Cons loc last ve2)
+         List.fold_right (fun vse1 se2 -> sexp_cons l vse1 <:vala< se2 >>) l1
+           (sexp_cons l last ve2)
       ]
-    | "(" ; ")" ->
-        sexp_nil loc
+    | l = V location "loc" ; "(" ; ")" ->
+        sexp_nil l
     ]
   ]
   ;

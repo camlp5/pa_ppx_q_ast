@@ -12,7 +12,10 @@ open Pa_sexp
 open Q_ast 
 
 module Regular = struct
-type sexp = [%import: Sexp.sexp]
+[%%import: Sexp.sexp
+  [@add type position = [%import: Sexp.position]
+  ]
+]
 [@@deriving q_ast {
        default_data_source_module = Sexp
      ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
@@ -43,7 +46,10 @@ module NoVala = struct
                                Pp_MLast.pp_patt e))
   end
 
-type sexp = [%import: Sexp.sexp]
+[%%import: Sexp.sexp
+  [@add type position = [%import: Sexp.position]
+  ]
+]
 [@@deriving q_ast {
     default_data_source_module = Sexp.NoVala
   ; default_quotation_source_module = Sexp

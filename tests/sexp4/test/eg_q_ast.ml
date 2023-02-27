@@ -36,9 +36,9 @@ end
 module NoVala = struct
 
   let loc_of_sexp = function
-    <:sexpnovala:< () >> -> __loc__
-  | <:sexpnovala:< $atom:_$ >> -> __loc__
-  | <:sexpnovala:< ( $exp:_$ . $exp:_$ ) >> -> __loc__
+    <:sexpnovala:< $loc:l$ () >> -> l
+  | <:sexpnovala:< $loc:l$ $atom:_$ >> -> l
+  | <:sexpnovala:< $loc:l$  ( $exp:_$ . $exp:_$ ) >> -> l
 
 open Sexp.NoVala
 let rec atoms = function

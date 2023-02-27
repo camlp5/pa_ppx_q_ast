@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(** -syntax camlp5r -package pa_ppx.deriving_plugins.params *)
 (* camlp5r *)
 (* pa_deriving_q_ast.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
@@ -174,7 +174,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
       let argpat = <:patt< { $list:lpl$ } >> in
       let members = List.map (fun (id, ty) ->
-          let label = <:patt< $longid:quotation_source_module rc name$ . $lid:id$ >> in
+          let label = <:patt< $longid:data_source_module rc name$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.record $reclist$ >>
