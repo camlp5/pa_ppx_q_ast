@@ -113,6 +113,7 @@ value to_patt loc (v, ty) = <:patt< ($lid:v$ : $ty$) >> ;
 value to_expr loc (v, ty) = <:expr< ($lid:v$ : $ty$) >> ;
 
 value left_right_eval_list_expr loc el =
+  if el = [] then <:expr< [] >> else
   let l = el |> List.mapi (fun i e ->
                     let v = Fmt.(str "__v_%d__" i) in
                     let varexp = <:expr< $lid:v$ >> in
