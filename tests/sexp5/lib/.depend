@@ -1,0 +1,19 @@
+sexp.cmo sexp_migrate.cmo q_ast_sexp.cmo pa_sexp.cmo sexp.cmi sexp_migrate.cmi q_ast_sexp.cmi pa_sexp.cmi sexp.cmx sexp_migrate.cmx q_ast_sexp.cmx pa_sexp.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
+sexp.cmo :
+sexp.cmx :
+sexp_migrate.cmo : \
+    sexp.cmo
+sexp_migrate.cmx : \
+    sexp.cmx
+q_ast_sexp.cmo : \
+    sexp.cmo \
+    pa_sexp.cmo
+q_ast_sexp.cmx : \
+    sexp.cmx \
+    pa_sexp.cmx
+pa_sexp.cmo : \
+    sexp_migrate.cmo \
+    sexp.cmo
+pa_sexp.cmx : \
+    sexp_migrate.cmx \
+    sexp.cmx

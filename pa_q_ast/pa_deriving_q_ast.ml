@@ -172,7 +172,7 @@ value generate_conversion arg rc rho in_patt (name, t) =
   | <:ctyp:< { $list:ltl$ } >> ->
       let argvars = List.map (fun (_, id, _, ty, _) -> (id, ty)) ltl in
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
-      let argpat = <:patt< { $list:lpl$ } >> in
+      let argpat = <:patt< $longid:quotation_source_module rc name$ . { $list:lpl$ } >> in
       let members = List.map (fun (id, ty) ->
           let label = <:patt< $longid:data_source_module rc name$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in

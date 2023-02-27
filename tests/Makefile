@@ -8,6 +8,7 @@ TESTDIRS = sexp/lib sexp/test \
 	sexp2/lib sexp2/test \
 	sexp3/lib sexp3/test \
 	sexp4/lib sexp4/test \
+	sexp5/lib sexp5/test \
 
 test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ../..; done
