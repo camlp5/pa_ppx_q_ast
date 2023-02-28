@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package sexp3_example.parser *)
+(**pp -syntax camlp5o -package sexp3_example.parser *)
 (* camlp5o *)
 (* eg_sexp.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

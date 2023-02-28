@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package pa_ppx_hashcons,pa_ppx.import $(IMPORT_OCAMLCFLAGS) *)
+(**pp -syntax camlp5o -package pa_ppx_hashcons,pa_ppx.import $(IMPORT_OCAMLCFLAGS) *)
 (* camlp5o *)
 (* hCLam.ml *)
 

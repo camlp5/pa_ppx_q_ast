@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package hashcons,debruijn_example.parser_quotations *)
+(**pp -syntax camlp5o -package hashcons,debruijn_example.parser_quotations *)
 (* programme de test de réductions massives de lambda-termes *)
 (* version AVEC hash-consing *)
 

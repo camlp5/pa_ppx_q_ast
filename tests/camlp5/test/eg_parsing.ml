@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package camlp5_example.runtime *)
+(**pp -syntax camlp5o -package camlp5_example.runtime *)
 (* camlp5o *)
 (* eg_parsing.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

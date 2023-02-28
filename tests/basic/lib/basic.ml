@@ -1,4 +1,4 @@
-(** -syntax camlp5o *)
+(**pp -syntax camlp5o *)
 (* camlp5o *)
 (* sexp.ml,v *)
 

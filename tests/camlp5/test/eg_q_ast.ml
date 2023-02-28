@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package camlp5_example.parser_quotations *)
+(**pp -syntax camlp5o -package camlp5_example.parser_quotations *)
 (* camlp5o *)
 (* eg_q_ast.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

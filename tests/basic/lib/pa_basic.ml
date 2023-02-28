@@ -1,4 +1,4 @@
-(** -syntax camlp5r -package camlp5.parser_quotations,camlp5.extend_m *)
+(**pp -syntax camlp5r -package camlp5.parser_quotations,camlp5.extend_m *)
 (* camlp5r *)
 (* pa_sexp.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

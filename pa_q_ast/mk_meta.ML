@@ -22,6 +22,7 @@ description = "pa_ppx_q_ast deriver"
     archive(native) = "pa_ppx_q_ast_runtime.cmx"
 
     requires(syntax,preprocessor) = "camlp5.parser_quotations"
+    requires(toploop) = "camlp5.parser_quotations"
   )
 
   requires(toploop) = "camlp5,pa_ppx.deriving_plugins.show,camlp5.parser_quotations,pa_ppx.params_runtime,pa_ppx_q_ast.runtime"
