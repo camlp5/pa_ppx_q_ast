@@ -21,3 +21,20 @@ module Regular = struct
 }]
 
 end
+
+module Regular2 = struct
+
+let parse_string s =
+  Ploc.call_with Plexer.force_antiquot_loc true
+    (Grammar.Entry.parse Pa_basic.basic_eoi) (Stream.of_string s)
+
+[%%import: Basic.t]
+[@@deriving q_ast {
+       default_data_source_module = Basic
+     ; loc_mode = NoLoc
+     ; entrypoints = [
+         {name = "basic2"; from_string = parse_string ; type_name = t }
+       ]
+}]
+
+end

@@ -50,7 +50,8 @@ and custom_loc_t = { loc_varname : lident ; loc_type : ctyp ; loc_function_name 
 and node_mode_t = [ Normal | Hashcons | Unique ]
 and entrypoint_t = {
     entry_name : string [@name name;]
-  ; grammar_entry : expr
+  ; grammar_entry : option expr
+  ; from_string : option expr
   ; type_name : lident
 }
 and pertype_t = {
@@ -95,6 +96,10 @@ and t = {
   ; validators = { t = fun params ->
       if params.hashconsed && params.uniqified then
         Result.Error "at most one of hashconsed and uniqified can be true"
+      else if params.entrypoints
+              |> List.exists (fun ep -> None = ep.grammar_entry && None = ep.from_string ||
+                                          None <> ep.grammar_entry && None <> ep.from_string) then
+        Result.Error "exactly one of grammar_entry and from_string can be specified"
       else Result.Ok True }
   };]
 ;
@@ -314,8 +319,16 @@ value generate_entrypoint loc arg rc (ep : entrypoint_t) =
       | (Hashcons, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_hc_apply_entry >>
       | (Unique, CustomLoc _) ->   <:expr< Pa_ppx_q_ast_runtime.customloc_unique_apply_entry >>
       ] in
+  let grammar_entry = match ep.grammar_entry with [
+        None -> <:expr< None >>
+      | Some e -> <:expr<  Some $e$ >>
+      ] in
+  let from_string = match ep.from_string with [
+        None -> <:expr< None >>
+      | Some e -> <:expr<  Some $e$ >>
+      ] in
   <:str_item< Quotation.add $str:ep.entry_name$
-  ($apply_fun$ $ep.grammar_entry$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
+  ($apply_fun$ $grammar_entry$ $from_string$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
 ;
 
 value generate_ctxt_ctyps loc arg rc =

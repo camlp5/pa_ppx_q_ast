@@ -8,3 +8,7 @@ open Fmt ;;
 let rec pp pps = function
     <:basic< 'c' 47l >> -> ()
 ;;
+
+let rec pp2 pps = function
+    <:basic2< 'c' 47l >> -> ()
+;;

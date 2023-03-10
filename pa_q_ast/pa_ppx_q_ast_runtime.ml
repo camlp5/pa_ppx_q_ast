@@ -35,11 +35,18 @@ value insert_loc_variable ast =
 ;
 
 
-value apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value parse_string grammar_entry from_string s =
+  match (grammar_entry, from_string) with [
+      (None, None) | (Some _, Some _) -> assert False
+      | (Some e,_) ->
+         Ploc.call_with Plexer.force_antiquot_loc True
+           (Grammar.Entry.parse e) (Stream.of_string s)
+      | (None, Some pf) -> pf s
+    ]
+;
+
+value apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -82,11 +89,8 @@ module Locate = struct
   ;
 end ;
 
-value customloc_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value customloc_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -98,11 +102,8 @@ value customloc_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-value noloc_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value noloc_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -114,11 +115,8 @@ value noloc_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-value hc_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value hc_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -136,11 +134,8 @@ value hc_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-value customloc_hc_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value customloc_hc_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -152,11 +147,8 @@ value customloc_hc_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-value unique_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value unique_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
@@ -174,11 +166,8 @@ value unique_apply_entry e me mp =
   Quotation.ExAst (expr, patt)
 ;
 
-value customloc_unique_apply_entry e me mp =
-  let f s =
-    Ploc.call_with Plexer.force_antiquot_loc True
-      (Grammar.Entry.parse e) (Stream.of_string s)
-  in
+value customloc_unique_apply_entry grammar_entry from_string me mp =
+  let f s = parse_string grammar_entry from_string s in
   let expr s =
     let (s, locate) = separate_locate s in
     me () (f s)
