@@ -183,7 +183,8 @@ value generate_conversion arg rc rho in_patt (name, t) =
           let label = <:patt< $longid:data_source_module rc name$ . $lid:id$ >> in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = left_right_eval_list_expr loc members in
-      <:expr< fun $argpat$ -> C.record $reclist$ >>
+      let last_branch = (argpat, <:vala< None >>, <:expr< C.record $reclist$ >>) in
+      <:expr< fun [ $list:add_branches@[last_branch]$ ] >>
 
   | <:ctyp:< ( $list:l$ ) >> ->
       let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
