@@ -1,4 +1,4 @@
-(**pp -syntax camlp5r *)
+(**pp -syntax camlp5r -package camlp5.parser_quotations *)
 module MetaE = struct
   include Q_ast_base.E_MetaSig ;
   value app_no_loc ?{prefix} fid el =
