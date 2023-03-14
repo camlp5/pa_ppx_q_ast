@@ -1,0 +1,19 @@
+sexp.cmo parser.cmo lexer.cmo sexp.cmi parser.cmi lexer.cmi sexp.cmx parser.cmx lexer.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
+sexp.cmo :
+sexp.cmx :
+parser.cmo : \
+    sexp.cmo \
+    parser.cmi
+parser.cmx : \
+    sexp.cmx \
+    parser.cmi
+lexer.cmo : \
+    parser.cmi \
+    lexer.cmi
+lexer.cmx : \
+    parser.cmx \
+    lexer.cmi
+parser.cmi : \
+    sexp.cmo
+lexer.cmi : \
+    parser.cmi
