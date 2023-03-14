@@ -83,15 +83,9 @@ parse_sexp:
 (* -------------------------------------------------------------------------- *)
 
 sexp: LPAREN RPAREN
-        { Nil (make_loc $sloc) }
-/*
-| LPAREN l = nonempty_llist(sexp) RPAREN
-        { List.fold_right (fun l r -> Cons (make_loc $sloc, l, r)) l (Nil (make_loc $sloc)) }
-| LPAREN l = nonempty_llist(sexp) DOT r = sexp RPAREN
-        { List.fold_right (fun l r -> Cons (make_loc $sloc, l, r)) l r }
-*/
+      { Nil (make_loc $sloc) }
 | LPAREN l=sexp_list RPAREN
-        { l }
+      { l }
 ;
 
 sexp_list:
