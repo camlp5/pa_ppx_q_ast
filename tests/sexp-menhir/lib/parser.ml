@@ -94,15 +94,15 @@ let _menhir_action_2 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 86 "parser.mly"
-        ( Nil (make_loc _sloc) )
+      ( Nil (make_loc _sloc) )
 # 99 "parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_3 =
   fun l ->
     (
-# 94 "parser.mly"
-        ( l )
+# 88 "parser.mly"
+      ( l )
 # 107 "parser.ml"
      : (Sexp.sexp))
 
@@ -112,7 +112,7 @@ let _menhir_action_4 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 99 "parser.mly"
+# 93 "parser.mly"
     ( Cons (make_loc _sloc, l, Nil (make_loc _sloc)) )
 # 118 "parser.ml"
      : (Sexp.sexp))
@@ -123,7 +123,7 @@ let _menhir_action_5 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 101 "parser.mly"
+# 95 "parser.mly"
     ( Cons (make_loc _sloc, l, r) )
 # 129 "parser.ml"
      : (Sexp.sexp))
@@ -134,7 +134,7 @@ let _menhir_action_6 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 103 "parser.mly"
+# 97 "parser.mly"
     ( Cons (make_loc _sloc, l, r) )
 # 140 "parser.ml"
      : (Sexp.sexp))
@@ -278,7 +278,7 @@ let parse_sexp =
     let MenhirBox_parse_sexp v = _menhir_run_00 _menhir_stack _menhir_lexbuf _menhir_lexer in
     v
 
-# 106 "parser.mly"
+# 100 "parser.mly"
   
 
 # 285 "parser.ml"

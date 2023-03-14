@@ -2,3 +2,5 @@
 *.o
 calc
 calc.opt
+parser.conflicts
+*mock*
