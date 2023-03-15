@@ -86,6 +86,8 @@ sexp: LPAREN RPAREN
       { Nil (make_loc $sloc) }
 | LPAREN l=sexp_list RPAREN
       { l }
+| a=ATOM
+      { Atom (make_loc $sloc, a) }
 ;
 
 sexp_list:
