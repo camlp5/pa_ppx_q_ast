@@ -1,19 +1,25 @@
-sexp.cmo parser.cmo lexer.cmo sexp.cmi parser.cmi lexer.cmi sexp.cmx parser.cmx lexer.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
+sexp.cmo sexp_parser.cmo sexp_lexer.cmo sexp_parse.cmo sexp.cmi sexp_parser.cmi sexp_lexer.cmi sexp_parse.cmi sexp.cmx sexp_parser.cmx sexp_lexer.cmx sexp_parse.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
 sexp.cmo :
 sexp.cmx :
-parser.cmo : \
+sexp_parser.cmo : \
     sexp.cmo \
-    parser.cmi
-parser.cmx : \
+    sexp_parser.cmi
+sexp_parser.cmx : \
     sexp.cmx \
-    parser.cmi
-lexer.cmo : \
-    parser.cmi \
-    lexer.cmi
-lexer.cmx : \
-    parser.cmx \
-    lexer.cmi
-parser.cmi : \
+    sexp_parser.cmi
+sexp_lexer.cmo : \
+    sexp_parser.cmi \
+    sexp_lexer.cmi
+sexp_lexer.cmx : \
+    sexp_parser.cmx \
+    sexp_lexer.cmi
+sexp_parse.cmo : \
+    sexp_parser.cmi \
+    sexp_lexer.cmi
+sexp_parse.cmx : \
+    sexp_parser.cmx \
+    sexp_lexer.cmx
+sexp_parser.cmi : \
     sexp.cmo
-lexer.cmi : \
-    parser.cmi
+sexp_lexer.cmi : \
+    sexp_parser.cmi

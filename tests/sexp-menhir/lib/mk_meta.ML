@@ -14,18 +14,18 @@ Fmt.(pf stdout {|# Specifications for "sexp_menhir_example"
 description = "sexp example parsing & quotation support"
 
 package "runtime" (
-  archive(toploop) = "sexp.cmo sexp_migrate.cmo"
-  archive(syntax,preprocessor,-native) = "sexp.cmo sexp_migrate.cmo"
+  archive(toploop) = "sexp.cmo"
+  archive(syntax,preprocessor,-native) = "sexp.cmo"
   requires = ""
 )
 
 package "parser" (
   requires(toploop) = "camlp5,sexp_menhir_example.runtime"
-  archive(toploop) = "pa_sexp.cmo"
+  archive(toploop) = "sexp_parser.cmo sexp_lexer.cmo sexp_parse.cmo"
 
     requires(syntax,preprocessor) = "camlp5,fmt,sexp_menhir_example.runtime"
-    archive(syntax,preprocessor,-native) = "pa_sexp.cmo"
-    archive(syntax,preprocessor,native) = "pa_sexp.cmx"
+    archive(syntax,preprocessor,-native) = "sexp_parser.cmo sexp_lexer.cmo sexp_parse.cmo"
+    archive(syntax,preprocessor,native) = "sexp_parser.cmx sexp_lexer.cmx sexp_parse.cmx"
 
   package "link" (
   requires(byte) = "camlp5,fmt,sexp_menhir_example.runtime"

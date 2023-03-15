@@ -1,8 +1,8 @@
-# 18 "lexer.mll"
+# 18 "sexp_lexer.mll"
  
 open Lexing
 open Misc
-open Parser
+open Sexp_parser
 
 type error =
   | Illegal_character of char
@@ -25,7 +25,7 @@ let update_loc lexbuf file line absolute chars =
   }
 
 
-# 29 "lexer.ml"
+# 29 "sexp_lexer.ml"
 let __ocaml_lex_tables = {
   Lexing.lex_base =
    "\000\000\248\255\249\255\250\255\251\255\252\255\084\000\002\000\
@@ -143,55 +143,55 @@ let rec token lexbuf =
 and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 57 "lexer.mll"
+# 57 "sexp_lexer.mll"
       ( update_loc lexbuf None 1 false 0;
         token lexbuf )
-# 150 "lexer.ml"
+# 150 "sexp_lexer.ml"
 
   | 1 ->
-# 60 "lexer.mll"
+# 60 "sexp_lexer.mll"
       ( token lexbuf )
-# 155 "lexer.ml"
+# 155 "sexp_lexer.ml"
 
   | 2 ->
 let
-# 61 "lexer.mll"
+# 61 "sexp_lexer.mll"
               atom
-# 161 "lexer.ml"
+# 161 "sexp_lexer.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 62 "lexer.mll"
+# 62 "sexp_lexer.mll"
       ( ATOM atom )
-# 165 "lexer.ml"
+# 165 "sexp_lexer.ml"
 
   | 3 ->
-# 63 "lexer.mll"
+# 63 "sexp_lexer.mll"
          ( LPAREN )
-# 170 "lexer.ml"
+# 170 "sexp_lexer.ml"
 
   | 4 ->
-# 64 "lexer.mll"
+# 64 "sexp_lexer.mll"
          ( RPAREN )
-# 175 "lexer.ml"
+# 175 "sexp_lexer.ml"
 
   | 5 ->
-# 65 "lexer.mll"
+# 65 "sexp_lexer.mll"
          ( DOT )
-# 180 "lexer.ml"
+# 180 "sexp_lexer.ml"
 
   | 6 ->
-# 66 "lexer.mll"
+# 66 "sexp_lexer.mll"
         ( EOF )
-# 185 "lexer.ml"
+# 185 "sexp_lexer.ml"
 
   | 7 ->
 let
-# 67 "lexer.mll"
+# 67 "sexp_lexer.mll"
           illegal_char
-# 191 "lexer.ml"
+# 191 "sexp_lexer.ml"
 = Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
-# 68 "lexer.mll"
+# 68 "sexp_lexer.mll"
       ( error lexbuf (Illegal_character illegal_char) )
-# 195 "lexer.ml"
+# 195 "sexp_lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
       __ocaml_lex_token_rec lexbuf __ocaml_lex_state

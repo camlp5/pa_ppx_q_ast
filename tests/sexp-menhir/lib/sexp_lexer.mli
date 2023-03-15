@@ -1,5 +1,5 @@
 
-val token: Lexing.lexbuf -> Parser.token
+val token: Lexing.lexbuf -> Sexp_parser.token
 
 type error =
   | Illegal_character of char

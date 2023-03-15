@@ -16,18 +16,7 @@ let pp_patt ty = Fmt.(pf stdout "#<patt< %s >>" (Eprinter.apply Pcaml.pr_patt Pp
 
 print_string "================ START ================\n";; flush stdout ;;
 
-#require "camlp5.quotations";;
-#require "pa_ppx.import";;
-Pa_ppx_base.Pa_passthru.debug := true ;;
-Pa_ppx_import.add_include "." ;;
-Pa_ppx_import.add_package "camlp5,fmt" ;;
-
-#trace Pa_ppx_import.reparse_cmi ;;
-
-{|
-[%%import: Sexp.sexp]
- |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
-
+#require "sexp_menhir_example.parser";;
 
 (*
 ;;; Local Variables: ***

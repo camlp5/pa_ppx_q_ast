@@ -14,8 +14,8 @@ export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug \
 	 -ppopt -pa_import-package -ppopt $(PACKAGES)
 
 
-ML= sexp.ml parser.ml lexer.ml
-MLI= parser.mli lexer.mli
+ML= sexp.ml sexp_parser.ml sexp_lexer.ml sexp_parse.ml
+MLI= sexp_parser.mli sexp_lexer.mli
 
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
@@ -27,15 +27,15 @@ all: $(CMO) $(CMX)
 
 doc: $(CMT) $(CMTI)
 
-parser.ml: parser.mly
-	menhir --infer-write-query parser_mock.ml $<
-	perl -p -e 's,# \d+.*,,' parser_mock.ml > parser_mock_nolines.ml
-	ocamlfind ocamlc -package camlp5 -c parser_mock_nolines.ml
-	ocamlfind ocamlc -package camlp5 -i parser_mock.ml > parser_mock.mli
-	menhir --explain --infer-read-reply parser_mock.mli $<
+sexp_parser.ml: sexp_parser.mly
+	menhir --infer-write-query sexp_parser_mock.ml $<
+	perl -p -e 's,# \d+.*,,' sexp_parser_mock.ml > sexp_parser_mock_nolines.ml
+	ocamlfind ocamlc -package camlp5 -c sexp_parser_mock_nolines.ml
+	ocamlfind ocamlc -package camlp5 -i sexp_parser_mock.ml > sexp_parser_mock.mli
+	menhir --explain --infer-read-reply sexp_parser_mock.mli $<
 
-lexer.ml: lexer.mll
-	ocamllex lexer.mll
+sexp_lexer.ml: sexp_lexer.mll
+	ocamllex sexp_lexer.mll
 
 TARGET_INSTALL_FILES=$(FILES_TARGET_INSTALL_FILES)
 install:: default_install

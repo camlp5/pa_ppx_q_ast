@@ -13,16 +13,16 @@ module MenhirBasics = struct
     | EOF
     | DOT
     | ATOM of (
-# 30 "parser.mly"
+# 30 "sexp_parser.mly"
        (string)
-# 19 "parser.ml"
+# 19 "sexp_parser.ml"
   )
   
 end
 
 include MenhirBasics
 
-# 4 "parser.mly"
+# 4 "sexp_parser.mly"
   
 
 open Sexp
@@ -43,7 +43,7 @@ let ghost_loc (startpos, endpos) = {
 }
 
 
-# 47 "parser.ml"
+# 47 "sexp_parser.ml"
 
 type ('s, 'r) _menhir_state = 
   | MenhirState00 : ('s, _menhir_box_parse_sexp) _menhir_state
@@ -82,9 +82,9 @@ and _menhir_box_parse_sexp =
 let _menhir_action_1 =
   fun _1 ->
     (
-# 80 "parser.mly"
+# 80 "sexp_parser.mly"
     ( _1 )
-# 88 "parser.ml"
+# 88 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_2 =
@@ -93,17 +93,17 @@ let _menhir_action_2 =
     let _symbolstartpos = _startpos__1_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 86 "parser.mly"
+# 86 "sexp_parser.mly"
       ( Nil (make_loc _sloc) )
-# 99 "parser.ml"
+# 99 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_3 =
   fun l ->
     (
-# 88 "parser.mly"
+# 88 "sexp_parser.mly"
       ( l )
-# 107 "parser.ml"
+# 107 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_4 =
@@ -112,9 +112,9 @@ let _menhir_action_4 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 93 "parser.mly"
+# 93 "sexp_parser.mly"
     ( Cons (make_loc _sloc, l, Nil (make_loc _sloc)) )
-# 118 "parser.ml"
+# 118 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_5 =
@@ -123,9 +123,9 @@ let _menhir_action_5 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 95 "parser.mly"
+# 95 "sexp_parser.mly"
     ( Cons (make_loc _sloc, l, r) )
-# 129 "parser.ml"
+# 129 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_action_6 =
@@ -134,9 +134,9 @@ let _menhir_action_6 =
     let _symbolstartpos = _startpos_l_ in
     let _sloc = (_symbolstartpos, _endpos) in
     (
-# 97 "parser.mly"
+# 97 "sexp_parser.mly"
     ( Cons (make_loc _sloc, l, r) )
-# 140 "parser.ml"
+# 140 "sexp_parser.ml"
      : (Sexp.sexp))
 
 let _menhir_print_token : token -> string =
@@ -278,7 +278,7 @@ let parse_sexp =
     let MenhirBox_parse_sexp v = _menhir_run_00 _menhir_stack _menhir_lexbuf _menhir_lexer in
     v
 
-# 100 "parser.mly"
+# 100 "sexp_parser.mly"
   
 
-# 285 "parser.ml"
+# 285 "sexp_parser.ml"

@@ -18,7 +18,7 @@
 {
 open Lexing
 open Misc
-open Parser
+open Sexp_parser
 
 type error =
   | Illegal_character of char
