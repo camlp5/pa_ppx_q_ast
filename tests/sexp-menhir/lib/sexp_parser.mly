@@ -20,6 +20,8 @@ let ghost_loc (startpos, endpos) = {
   Location.loc_ghost = true;
 }
 
+let vaval x = Ploc.VaVal x
+
 %}
 
 /* Tokens */
@@ -29,12 +31,17 @@ let ghost_loc (startpos, endpos) = {
 %token DOT "."
 %token <string> ATOM        "atom" (* just an example *)
 %token EOF                    ""
+%token <string * Location.t> ANTI
+%token <string * Location.t> ANTI_ATOM
 
 /* Entry points */
 
 
 %type <Sexp.Normal.sexp> parse_sexp
 %start parse_sexp
+
+%type <Sexp.Pattern.sexp> parse_pattern_sexp
+%start parse_pattern_sexp
 
 %%
 
@@ -73,10 +80,27 @@ reversed_nonempty_llist(X):
   xs = rev(reversed_nonempty_llist(X))
     { xs }
 
+%inline vaval(X):
+   X
+   { vaval $1 }
+;
+
+%inline vala(X,anti):
+   X
+     { vaval $1 }
+  | anti
+     { Ploc.VaAnt (fst $1) }
+;
+
 (* Entry points. *)
 
 parse_sexp:
   sexp EOF
+    { $1 }
+;
+
+parse_pattern_sexp:
+  pattern_sexp EOF
     { $1 }
 ;
 
@@ -97,6 +121,25 @@ sexp_list:
     { Normal.Cons (make_loc $sloc, l, r) }
 | l=sexp DOT r=sexp
     { Normal.Cons (make_loc $sloc, l, r) }
+;
+
+pattern_sexp: LPAREN RPAREN
+      { Pattern.Nil (make_loc $sloc) }
+| LPAREN l=pattern_sexp_list RPAREN
+      { l }
+| a=vala(ATOM, ANTI_ATOM)
+      { Pattern.Atom (make_loc $sloc, a) }
+;
+
+pattern_sexp_list:
+  l=pattern_sexp
+    { Pattern.Cons (make_loc $sloc, l, Pattern.Nil (make_loc $sloc)) }
+| l=pattern_sexp r=pattern_sexp_list
+    { Pattern.Cons (make_loc $sloc, l, r) }
+| l=pattern_sexp DOT r=pattern_sexp
+    { Pattern.Cons (make_loc $sloc, l, r) }
+| a=ANTI
+    { Pattern.Xtra (snd a, fst a) }
 ;
 
 %%

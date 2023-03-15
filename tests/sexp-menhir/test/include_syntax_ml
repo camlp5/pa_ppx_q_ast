@@ -16,7 +16,11 @@ let pp_patt ty = Fmt.(pf stdout "#<patt< %s >>" (Eprinter.apply Pcaml.pr_patt Pp
 
 print_string "================ START ================\n";; flush stdout ;;
 
-#require "sexp_menhir_example.parser";;
+#require "sexp_menhir_example.parser_quotations";;
+#require "pa_ppx_quotation2extension";;
+
+{| (a b c) |} |> Sexp_parse.sexp ;;
+{| (a $atom:b$ c) |} |> Sexp_parse.pattern_sexp ;;
 
 (*
 ;;; Local Variables: ***

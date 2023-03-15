@@ -8,3 +8,11 @@ type sexp =
   | Cons of Location.t * sexp * sexp
   | Nil of Location.t
 end
+
+module Pattern = struct
+type sexp =
+    Atom of Location.t * string Ploc.vala
+  | Cons of Location.t * sexp * sexp
+  | Nil of Location.t
+  | Xtra of Location.t * string
+end

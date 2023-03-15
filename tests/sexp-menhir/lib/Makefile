@@ -14,7 +14,7 @@ export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug \
 	 -ppopt -pa_import-package -ppopt $(PACKAGES)
 
 
-ML= sexp.ml sexp_parser.ml sexp_lexer.ml sexp_parse.ml
+ML= sexp.ml sexp_parser.ml sexp_lexer.ml sexp_parse.ml q_ast_sexp.ml
 MLI= sexp_parser.mli sexp_lexer.mli
 
 ALLSRC=$(ML) $(MLI)

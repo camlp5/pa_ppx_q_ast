@@ -7,6 +7,8 @@ type token =
   | EOF
   | DOT
   | ATOM of (string)
+  | ANTI_ATOM of (string * Location.t)
+  | ANTI of (string * Location.t)
 
 (* This exception is raised by the monolithic API functions. *)
 
@@ -15,3 +17,5 @@ exception Error
 (* The monolithic API. *)
 
 val parse_sexp: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Sexp.Normal.sexp)
+
+val parse_pattern_sexp: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Sexp.Pattern.sexp)

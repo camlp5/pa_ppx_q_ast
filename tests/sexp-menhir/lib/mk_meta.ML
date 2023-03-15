@@ -29,7 +29,7 @@ package "parser" (
 
   package "link" (
   requires(byte) = "camlp5,fmt,sexp_menhir_example.runtime"
-  archive(byte) = "pa_sexp.cmo"
+  archive(byte) = "sexp_parser.cmo sexp_lexer.cmo sexp_parse.cmo"
   )
   requires = "camlp5,fmt,sexp_menhir_example.runtime"
 )
