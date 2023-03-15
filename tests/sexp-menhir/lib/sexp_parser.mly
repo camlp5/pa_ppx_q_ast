@@ -33,7 +33,7 @@ let ghost_loc (startpos, endpos) = {
 /* Entry points */
 
 
-%type <Sexp.sexp> parse_sexp
+%type <Sexp.Normal.sexp> parse_sexp
 %start parse_sexp
 
 %%
@@ -83,20 +83,20 @@ parse_sexp:
 (* -------------------------------------------------------------------------- *)
 
 sexp: LPAREN RPAREN
-      { Nil (make_loc $sloc) }
+      { Normal.Nil (make_loc $sloc) }
 | LPAREN l=sexp_list RPAREN
       { l }
 | a=ATOM
-      { Atom (make_loc $sloc, a) }
+      { Normal.Atom (make_loc $sloc, a) }
 ;
 
 sexp_list:
   l=sexp
-    { Cons (make_loc $sloc, l, Nil (make_loc $sloc)) }
+    { Normal.Cons (make_loc $sloc, l, Normal.Nil (make_loc $sloc)) }
 | l=sexp r=sexp_list
-    { Cons (make_loc $sloc, l, r) }
+    { Normal.Cons (make_loc $sloc, l, r) }
 | l=sexp DOT r=sexp
-    { Cons (make_loc $sloc, l, r) }
+    { Normal.Cons (make_loc $sloc, l, r) }
 ;
 
 %%

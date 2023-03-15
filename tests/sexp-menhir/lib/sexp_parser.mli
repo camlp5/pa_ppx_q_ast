@@ -14,4 +14,4 @@ exception Error
 
 (* The monolithic API. *)
 
-val parse_sexp: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Sexp.sexp)
+val parse_sexp: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Sexp.Normal.sexp)

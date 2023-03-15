@@ -68,7 +68,7 @@ type ('s, 'r) _menhir_state =
 
 
 and ('s, 'r) _menhir_cell1_sexp = 
-  | MenhirCell1_sexp of 's * ('s, 'r) _menhir_state * (Sexp.sexp) * Lexing.position * Lexing.position
+  | MenhirCell1_sexp of 's * ('s, 'r) _menhir_state * (Sexp.Normal.sexp) * Lexing.position * Lexing.position
 
 and ('s, 'r) _menhir_cell1_DOT = 
   | MenhirCell1_DOT of 's * ('s, 'r) _menhir_state
@@ -77,7 +77,7 @@ and ('s, 'r) _menhir_cell1_LPAREN =
   | MenhirCell1_LPAREN of 's * ('s, 'r) _menhir_state * Lexing.position
 
 and _menhir_box_parse_sexp = 
-  | MenhirBox_parse_sexp of (Sexp.sexp) [@@unboxed]
+  | MenhirBox_parse_sexp of (Sexp.Normal.sexp) [@@unboxed]
 
 let _menhir_action_1 =
   fun _1 ->
@@ -85,7 +85,7 @@ let _menhir_action_1 =
 # 80 "sexp_parser.mly"
     ( _1 )
 # 88 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_2 =
   fun _endpos__2_ _startpos__1_ ->
@@ -94,9 +94,9 @@ let _menhir_action_2 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 86 "sexp_parser.mly"
-      ( Nil (make_loc _sloc) )
+      ( Normal.Nil (make_loc _sloc) )
 # 99 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_3 =
   fun l ->
@@ -104,7 +104,7 @@ let _menhir_action_3 =
 # 88 "sexp_parser.mly"
       ( l )
 # 107 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_4 =
   fun _endpos_a_ _startpos_a_ a ->
@@ -113,9 +113,9 @@ let _menhir_action_4 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 90 "sexp_parser.mly"
-      ( Atom (make_loc _sloc, a) )
+      ( Normal.Atom (make_loc _sloc, a) )
 # 118 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_5 =
   fun _endpos_l_ _startpos_l_ l ->
@@ -124,9 +124,9 @@ let _menhir_action_5 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 95 "sexp_parser.mly"
-    ( Cons (make_loc _sloc, l, Nil (make_loc _sloc)) )
+    ( Normal.Cons (make_loc _sloc, l, Normal.Nil (make_loc _sloc)) )
 # 129 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_6 =
   fun _endpos_r_ _startpos_l_ l r ->
@@ -135,9 +135,9 @@ let _menhir_action_6 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 97 "sexp_parser.mly"
-    ( Cons (make_loc _sloc, l, r) )
+    ( Normal.Cons (make_loc _sloc, l, r) )
 # 140 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_action_7 =
   fun _endpos_r_ _startpos_l_ l r ->
@@ -146,9 +146,9 @@ let _menhir_action_7 =
     let _sloc = (_symbolstartpos, _endpos) in
     (
 # 99 "sexp_parser.mly"
-    ( Cons (make_loc _sloc, l, r) )
+    ( Normal.Cons (make_loc _sloc, l, r) )
 # 151 "sexp_parser.ml"
-     : (Sexp.sexp))
+     : (Sexp.Normal.sexp))
 
 let _menhir_print_token : token -> string =
   fun _tok ->
