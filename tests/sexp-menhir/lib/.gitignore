@@ -2,5 +2,5 @@
 *.o
 calc
 calc.opt
-parser.conflicts
+sexp_parser.conflicts
 *mock*

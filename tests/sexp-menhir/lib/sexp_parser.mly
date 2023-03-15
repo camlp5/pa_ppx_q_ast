@@ -129,6 +129,8 @@ pattern_sexp: LPAREN RPAREN
       { l }
 | a=vala(ATOM, ANTI_ATOM)
       { Pattern.Atom (make_loc $sloc, a) }
+| a=ANTI
+    { Pattern.Xtra (snd a, fst a) }
 ;
 
 pattern_sexp_list:
@@ -138,8 +140,6 @@ pattern_sexp_list:
     { Pattern.Cons (make_loc $sloc, l, r) }
 | l=pattern_sexp DOT r=pattern_sexp
     { Pattern.Cons (make_loc $sloc, l, r) }
-| a=ANTI
-    { Pattern.Xtra (snd a, fst a) }
 ;
 
 %%

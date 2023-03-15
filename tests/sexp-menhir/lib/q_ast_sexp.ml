@@ -10,24 +10,6 @@ open Pcaml
 open Pa_ppx_base
 open Q_ast_base
 
-module Regular = struct
-[%%import: Sexp.Normal.sexp
-  [@add type location = [%import: Location.t]
-  ]
-  [@with Location.t := location]
-]
-[@@deriving q_ast {
-       default_data_source_module = Sexp.Normal
-     ; loc_mode = CustomLoc { loc_varname = __loc__ ; loc_type = [%typ: location] ; loc_function_name = location }
-     ; entrypoints = [
-         { name = "sexp" ; from_string = Sexp_parse.sexp ; type_name = sexp }
-       ]
-}]
-
-end
-
-module Pattern = struct
-
 module MetaE = struct
   include Q_ast_base.E_MetaSig
   let int n = let loc = Ploc.dummy in <:expr< $int:string_of_int n$ >>
@@ -74,8 +56,7 @@ end
          }
     }
      ; entrypoints = [
-         { name = "pattern_sexp" ; from_string = Sexp_parse.pattern_sexp ; type_name = sexp }
+         { name = "sexp" ; from_string = Sexp_parse.pattern_sexp ; type_name = sexp }
        ]
 }]
 
-end

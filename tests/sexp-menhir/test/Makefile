@@ -16,7 +16,10 @@ ML=\
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-all test: $(CMO) $(CMX)
+all: $(CMO) $(CMX)
+
+test:: all example.asciidoc.TEST
+
 
 doc: $(CMT) $(CMTI)
 
