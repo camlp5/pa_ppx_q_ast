@@ -21,11 +21,46 @@
 # #install_printer pp_hum_pattern_sexp ;;
 ```
 
-== Examples
+== Parsing Examples
 
 ```ocaml
 # {| (a b c) |} |> Sexp_parse.sexp ;;
 - : Sexp.Normal.sexp = <sexp< (a b c) >>
 # {| (a $atom:b$ c) |} |> Sexp_parse.pattern_sexp ;;
 - : Sexp.Pattern.sexp = <pattern_sexp< (a $atom:b$ c) >>
+```
+== Antiquotation Examples
+
+```ocaml
+# let __loc__ = Location.none in
+  (match [%sexp {| (a b c) |}] with
+  [%sexp {| ($atom:a$ . $b$) |}] -> (a,b))[@warning "-8"] ;;
+- : string * Sexp.Normal.sexp = ("a", <sexp< (b c) >>)
+```
+
+== A more-complicated example: flattening an sexp
+
+The Flatten function
+
+```ocaml
+# let flatten e =
+  let rec flatrec = (function
+      [%sexp.loc {| () |}] -> [%sexp {| () |}]
+    | [%sexp.loc {| $atom:a$ |}] -> [%sexp {| ($atom:a$) |}]
+    | [%sexp.loc {| (($a$ . $b$) . $c$) |}] -> flatrec [%sexp.loc {| ($a$ . ($b$ . $c$)) |}]
+    | [%sexp.loc {| (() . $b$) |}] -> flatrec b
+    | [%sexp.loc {| ($atom:a$ . $b$) |}] ->
+       let b = flatrec b in
+       [%sexp {| ($atom:a$ . $b$) |}])[@warning "-8"]
+  in flatrec e
+val flatten : Sexp.Normal.sexp -> Sexp.Normal.sexp = <fun>
+```
+
+Let's use it
+
+```ocaml
+# flatten ({| (a ((b)) c) |} |> Sexp_parse.sexp) ;;
+- : Sexp.Normal.sexp = <sexp< (a b c) >>
+# flatten ({| (a ((b c) d) c . e) |} |> Sexp_parse.sexp) ;;
+- : Sexp.Normal.sexp = <sexp< (a b c d c e) >>
 ```
