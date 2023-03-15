@@ -31,8 +31,8 @@ let vaval x = Ploc.VaVal x
 %token DOT "."
 %token <string> ATOM        "atom" (* just an example *)
 %token EOF                    ""
-%token <string * Location.t> ANTI
-%token <string * Location.t> ANTI_ATOM
+%token <string> ANTI
+%token <string> ANTI_ATOM
 
 /* Entry points */
 
@@ -89,7 +89,7 @@ reversed_nonempty_llist(X):
    X
      { vaval $1 }
   | anti
-     { Ploc.VaAnt (fst $1) }
+     { Ploc.VaAnt $1 }
 ;
 
 (* Entry points. *)
@@ -130,7 +130,7 @@ pattern_sexp: LPAREN RPAREN
 | a=vala(ATOM, ANTI_ATOM)
       { Pattern.Atom (make_loc $sloc, a) }
 | a=ANTI
-    { Pattern.Xtra (snd a, fst a) }
+    { Pattern.Xtra (make_loc $sloc, a) }
 ;
 
 pattern_sexp_list:

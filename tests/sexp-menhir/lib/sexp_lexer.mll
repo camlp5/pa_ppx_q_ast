@@ -18,6 +18,7 @@
 {
 open Lexing
 open Misc
+open Sexp
 open Sexp_parser
 
 type error =
@@ -39,7 +40,6 @@ let update_loc lexbuf file line absolute chars =
     pos_lnum = if absolute then line else pos.pos_lnum + line;
     pos_bol = pos.pos_cnum - chars;
   }
-
 }
 
 (* The table of keywords *)
@@ -66,12 +66,12 @@ rule token = parse
   | "$" (identchar [^ ':' '$']* as payload) "$"
      {
        let loc = Location.curr lexbuf in
-       ANTI (payload, loc)
+       ANTI (make_antiquotation "" loc payload)
      }
   | "$" "atom:" ([^ ':' '$']* as payload) "$"
      {
        let loc = Location.curr lexbuf in
-       ANTI_ATOM (payload, loc)
+       ANTI_ATOM (make_antiquotation "atom" loc payload)
      }
 
   | eof { EOF }

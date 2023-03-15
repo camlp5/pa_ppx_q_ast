@@ -19,12 +19,12 @@ module MenhirBasics = struct
   )
     | ANTI_ATOM of (
 # 35 "sexp_parser.mly"
-       (string * Location.t)
+       (string)
 # 24 "sexp_parser.ml"
   )
     | ANTI of (
 # 34 "sexp_parser.mly"
-       (string * Location.t)
+       (string)
 # 29 "sexp_parser.ml"
   )
   
@@ -173,7 +173,7 @@ let _menhir_action_07 =
   fun _1 _endpos__1_ _startpos__1_ ->
     let a = 
 # 92 "sexp_parser.mly"
-     ( Ploc.VaAnt (fst _1) )
+     ( Ploc.VaAnt _1 )
 # 178 "sexp_parser.ml"
      in
     let (_endpos_a_, _startpos_a_) = (_endpos__1_, _startpos__1_) in
@@ -187,11 +187,14 @@ let _menhir_action_07 =
      : (Sexp.Pattern.sexp))
 
 let _menhir_action_08 =
-  fun a ->
+  fun _endpos_a_ _startpos_a_ a ->
+    let _endpos = _endpos_a_ in
+    let _symbolstartpos = _startpos_a_ in
+    let _sloc = (_symbolstartpos, _endpos) in
     (
 # 133 "sexp_parser.mly"
-    ( Pattern.Xtra (snd a, fst a) )
-# 195 "sexp_parser.ml"
+    ( Pattern.Xtra (make_loc _sloc, a) )
+# 198 "sexp_parser.ml"
      : (Sexp.Pattern.sexp))
 
 let _menhir_action_09 =
@@ -202,7 +205,7 @@ let _menhir_action_09 =
     (
 # 138 "sexp_parser.mly"
     ( Pattern.Cons (make_loc _sloc, l, Pattern.Nil (make_loc _sloc)) )
-# 206 "sexp_parser.ml"
+# 209 "sexp_parser.ml"
      : (Sexp.Pattern.sexp))
 
 let _menhir_action_10 =
@@ -213,7 +216,7 @@ let _menhir_action_10 =
     (
 # 140 "sexp_parser.mly"
     ( Pattern.Cons (make_loc _sloc, l, r) )
-# 217 "sexp_parser.ml"
+# 220 "sexp_parser.ml"
      : (Sexp.Pattern.sexp))
 
 let _menhir_action_11 =
@@ -224,7 +227,7 @@ let _menhir_action_11 =
     (
 # 142 "sexp_parser.mly"
     ( Pattern.Cons (make_loc _sloc, l, r) )
-# 228 "sexp_parser.ml"
+# 231 "sexp_parser.ml"
      : (Sexp.Pattern.sexp))
 
 let _menhir_action_12 =
@@ -235,7 +238,7 @@ let _menhir_action_12 =
     (
 # 110 "sexp_parser.mly"
       ( Normal.Nil (make_loc _sloc) )
-# 239 "sexp_parser.ml"
+# 242 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_action_13 =
@@ -243,7 +246,7 @@ let _menhir_action_13 =
     (
 # 112 "sexp_parser.mly"
       ( l )
-# 247 "sexp_parser.ml"
+# 250 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_action_14 =
@@ -254,7 +257,7 @@ let _menhir_action_14 =
     (
 # 114 "sexp_parser.mly"
       ( Normal.Atom (make_loc _sloc, a) )
-# 258 "sexp_parser.ml"
+# 261 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_action_15 =
@@ -265,7 +268,7 @@ let _menhir_action_15 =
     (
 # 119 "sexp_parser.mly"
     ( Normal.Cons (make_loc _sloc, l, Normal.Nil (make_loc _sloc)) )
-# 269 "sexp_parser.ml"
+# 272 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_action_16 =
@@ -276,7 +279,7 @@ let _menhir_action_16 =
     (
 # 121 "sexp_parser.mly"
     ( Normal.Cons (make_loc _sloc, l, r) )
-# 280 "sexp_parser.ml"
+# 283 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_action_17 =
@@ -287,7 +290,7 @@ let _menhir_action_17 =
     (
 # 123 "sexp_parser.mly"
     ( Normal.Cons (make_loc _sloc, l, r) )
-# 291 "sexp_parser.ml"
+# 294 "sexp_parser.ml"
      : (Sexp.Normal.sexp))
 
 let _menhir_print_token : token -> string =
@@ -363,7 +366,7 @@ include struct
           let _endpos = _menhir_lexbuf.Lexing.lex_curr_p in
           let _tok = _menhir_lexer _menhir_lexbuf in
           let (_endpos_a_, _startpos_a_, a) = (_endpos, _startpos_2, _v) in
-          let _v = _menhir_action_08 a in
+          let _v = _menhir_action_08 _endpos_a_ _startpos_a_ a in
           _menhir_run_08 _menhir_stack _menhir_lexbuf _menhir_lexer _endpos_a_ _startpos_a_ _v MenhirState01 _tok
       | _ ->
           _eRR ()
@@ -446,10 +449,11 @@ include struct
               let _v = _menhir_action_07 _1 _endpos__1_ _startpos__1_ in
               _menhir_run_10 _menhir_stack _menhir_lexbuf _menhir_lexer _endpos__1_ _v _tok
           | ANTI _v_8 ->
+              let _startpos_9 = _menhir_lexbuf.Lexing.lex_start_p in
               let _endpos_10 = _menhir_lexbuf.Lexing.lex_curr_p in
               let _tok = _menhir_lexer _menhir_lexbuf in
-              let (_endpos_a_, a) = (_endpos_10, _v_8) in
-              let _v = _menhir_action_08 a in
+              let (_endpos_a_, _startpos_a_, a) = (_endpos_10, _startpos_9, _v_8) in
+              let _v = _menhir_action_08 _endpos_a_ _startpos_a_ a in
               _menhir_run_10 _menhir_stack _menhir_lexbuf _menhir_lexer _endpos_a_ _v _tok
           | _ ->
               _eRR ())
@@ -475,7 +479,7 @@ include struct
           let _endpos_22 = _menhir_lexbuf.Lexing.lex_curr_p in
           let _tok = _menhir_lexer _menhir_lexbuf in
           let (_endpos_a_, _startpos_a_, a) = (_endpos_22, _startpos_21, _v_20) in
-          let _v = _menhir_action_08 a in
+          let _v = _menhir_action_08 _endpos_a_ _startpos_a_ a in
           _menhir_run_08 _menhir_stack _menhir_lexbuf _menhir_lexer _endpos_a_ _startpos_a_ _v MenhirState08 _tok
       | RPAREN ->
           let (_endpos_l_, _startpos_l_, l) = (_endpos, _startpos, _v) in
@@ -505,9 +509,11 @@ include struct
           let _v = _menhir_action_07 _1 _endpos__1_ _startpos__1_ in
           _menhir_run_12 _menhir_stack _v _tok
       | ANTI _v ->
+          let _startpos = _menhir_lexbuf.Lexing.lex_start_p in
+          let _endpos = _menhir_lexbuf.Lexing.lex_curr_p in
           let _tok = _menhir_lexer _menhir_lexbuf in
-          let a = _v in
-          let _v = _menhir_action_08 a in
+          let (_endpos_a_, _startpos_a_, a) = (_endpos, _startpos, _v) in
+          let _v = _menhir_action_08 _endpos_a_ _startpos_a_ a in
           _menhir_run_12 _menhir_stack _v _tok
       | _ ->
           _eRR ()
@@ -667,4 +673,4 @@ let parse_pattern_sexp =
 # 145 "sexp_parser.mly"
   
 
-# 671 "sexp_parser.ml"
+# 677 "sexp_parser.ml"

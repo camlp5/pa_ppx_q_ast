@@ -21,13 +21,17 @@ print_string "================ START ================\n";; flush stdout ;;
 
 let pp_hum_sexp se = Fmt.(pf stdout "<sexp< %a >>" Sexp.Normal.pp_hum se) ;;
 #install_printer pp_hum_sexp ;;
-
+(*
 let pp_hum_pattern_sexp se = Fmt.(pf stdout "<pattern_sexp< %a >>" Sexp.Pattern.pp_hum se) ;;
 #install_printer pp_hum_pattern_sexp ;;
-
+ *)
 
 {| (a b c) |} |> Sexp_parse.sexp ;;
 {| (a $atom:b$ c) |} |> Sexp_parse.pattern_sexp ;;
+
+{|
+<:sexp< ($a$ $atom:b$) >>
+ |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
 
 
 (*

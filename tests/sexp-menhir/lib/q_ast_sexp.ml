@@ -15,11 +15,12 @@ module MetaE = struct
   let int n = let loc = Ploc.dummy in <:expr< $int:string_of_int n$ >>
   open Pa_ppx_base
   open MLast
-    let xtr s = <:expr< $lid:s$ >>
     let vala elem x =
-      match x with
-        Ploc.VaVal p -> elem p
-      | Ploc.VaAnt s -> xtr s
+      match Pa_ppx_q_ast_runtime.MetaE.vala elem x with
+        <:expr< Ploc.VaVal $e$ >> -> e
+      | e -> Ploc.raise (loc_of_expr e)
+               (Failure Fmt.(str "Sexp_menhir_example.NoVala.vala: unexpected result expr:@ %a"
+                               Pp_MLast.pp_expr e))
 end
 
 module MetaP = struct
@@ -27,14 +28,12 @@ module MetaP = struct
   let int n = let loc = Ploc.dummy in <:patt< $int:string_of_int n$ >>
   open Pa_ppx_base
   open MLast
-    let xtr = function
-        "_" -> <:patt< _ >>
-       | s -> <:patt< $lid:s$ >>
     let vala elem x =
-      match x with
-        Ploc.VaVal p -> elem p
-      | Ploc.VaAnt "_" -> <:patt< _ >>
-      | Ploc.VaAnt s -> xtr s
+      match Pa_ppx_q_ast_runtime.MetaP.vala elem x with
+        <:patt< Ploc.VaVal $e$ >> -> e
+      | e -> Ploc.raise (loc_of_patt e)
+               (Failure Fmt.(str "Sexp_menhir_example.NoVala.vala: unexpected result patt:@ %a"
+                               Pp_MLast.pp_patt e))
 end
 
 
@@ -52,9 +51,9 @@ end
      ; pertype = {
          sexp = {
            custom_branches_code = function
-           | Xtra (loc, s) → C.xtr s
+           | Xtra (loc, s) → C.xtr (Sexp.ploc_of_location loc) s
          }
-    }
+       }
      ; entrypoints = [
          { name = "sexp" ; from_string = Sexp_parse.pattern_sexp ; type_name = sexp }
        ]

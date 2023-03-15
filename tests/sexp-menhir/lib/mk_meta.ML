@@ -16,7 +16,7 @@ description = "sexp example parsing & quotation support"
 package "runtime" (
   archive(toploop) = "sexp.cmo"
   archive(syntax,preprocessor,-native) = "sexp.cmo"
-  requires = ""
+  requires = "pa_ppx_regexp"
 )
 
 package "parser" (

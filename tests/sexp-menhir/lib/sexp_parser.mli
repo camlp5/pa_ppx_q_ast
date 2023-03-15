@@ -7,8 +7,8 @@ type token =
   | EOF
   | DOT
   | ATOM of (string)
-  | ANTI_ATOM of (string * Location.t)
-  | ANTI of (string * Location.t)
+  | ANTI_ATOM of (string)
+  | ANTI of (string)
 
 (* This exception is raised by the monolithic API functions. *)
 

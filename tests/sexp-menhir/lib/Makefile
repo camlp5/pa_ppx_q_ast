@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := camlp5,fmt,pa_ppx_q_ast
+PACKAGES := camlp5,fmt,pa_ppx_q_ast,pa_ppx.base
 TARGET_PACKAGE=sexp_menhir_example
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug \
 	-ppopt -pa_import-I -ppopt . \

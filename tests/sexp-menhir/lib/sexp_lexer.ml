@@ -2,6 +2,7 @@
  
 open Lexing
 open Misc
+open Sexp
 open Sexp_parser
 
 type error =
@@ -23,7 +24,6 @@ let update_loc lexbuf file line absolute chars =
     pos_lnum = if absolute then line else pos.pos_lnum + line;
     pos_bol = pos.pos_cnum - chars;
   }
-
 
 # 29 "sexp_lexer.ml"
 let __ocaml_lex_tables = {
@@ -218,7 +218,7 @@ let
 # 67 "sexp_lexer.mll"
      (
        let loc = Location.curr lexbuf in
-       ANTI (payload, loc)
+       ANTI (make_antiquotation "" loc payload)
      )
 # 224 "sexp_lexer.ml"
 
@@ -231,7 +231,7 @@ let
 # 72 "sexp_lexer.mll"
      (
        let loc = Location.curr lexbuf in
-       ANTI_ATOM (payload, loc)
+       ANTI_ATOM (make_antiquotation "atom" loc payload)
      )
 # 237 "sexp_lexer.ml"
 
