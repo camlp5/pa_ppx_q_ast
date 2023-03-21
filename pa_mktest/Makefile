@@ -11,7 +11,7 @@ PACKAGES := $(PACKAGES),pa_ppx.deriving,pa_ppx.deriving_plugins.show,pa_ppx.base
 TARGET_PACKAGE=pa_ppx_q_ast_mktest
 
 ML=\
-	pa_mktest.ml \
+	pa_ppx_mktest.ml \
 
 TOOLSML = mk_meta.ml
 ALLSRC=$(ML) $(TOOLSML)

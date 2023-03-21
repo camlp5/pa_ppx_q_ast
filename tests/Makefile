@@ -1,7 +1,12 @@
 # Makefile,v
 # Copyright (c) INRIA 2007-2017
 
+WD=$(shell pwd)
+TOP=..
+include $(TOP)/config/Makefile.sub
+
 TESTDIRS = \
+	mktest \
 	basic/lib basic/test \
 	sexp/lib sexp/test \
 	lam/lib lam/test \
@@ -19,8 +24,8 @@ test: all
 all:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) all; cd ../..; done
 
-clean:
+clean::
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ../..; done
 
-depend:
+depend::
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) depend; cd ../..; done
