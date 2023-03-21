@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.top
 WD=$(shell pwd)
 DESTDIR=
 
-SYSDIRS= pa_q_ast
+SYSDIRS= pa_q_ast pa_mkast
 
 TESTDIRS= tests
 
@@ -30,9 +30,16 @@ doc: all
 	tools/make-docs pa_ppx docs
 	make -C doc html
 
-install: sys
+META: sys
+	$(JOINMETA) \
+		-direct-include pa_q_ast \
+		-rewrite pa_ppx_q_ast_mkast:pa_ppx_q_ast.mkast \
+		-wrap-subdir pa_mkast:mkast \
+		> META
+
+install: META
 	$(OCAMLFIND) remove pa_ppx_q_ast || true
-	$(OCAMLFIND) install pa_ppx_q_ast local-install/lib/pa_ppx_q_ast/*
+	$(OCAMLFIND) install pa_ppx_q_ast META local-install/lib/*/*.*
 
 uninstall:
 	$(OCAMLFIND) remove pa_ppx_q_ast || true
