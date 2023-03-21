@@ -25,6 +25,7 @@ depends: [
   "pa_ppx_migrate"      { with-test & >= "0.08" }
   "pa_ppx_hashcons"      { >= "0.08" }
   "pa_ppx_unique"      { >= "0.08" }
+  "pa_ppx_regexp"      { >= "0.01" }
   "not-ocamlfind" { >= "0.01" }
   "pcre" { >= "7.4.3" }
   "ounit" {with-test}

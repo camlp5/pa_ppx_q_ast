@@ -3,6 +3,7 @@
 
 RM=rm
 
+DEBUG=-g
 NOT_OCAMLFIND=not-ocamlfind
 LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH --
 OCAMLFIND=ocamlfind
@@ -28,6 +29,7 @@ top: all
 ARCHIVE_TARGET_INSTALL_FILES= $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(TARGET:.cma=.cmi) $(TARGET:.cma=.cmx)
 FILES_TARGET_INSTALL_FILES= $(CMO) $(CMX) $(CMI) $(CMO:.cmo=.o)
 default_install:: META $(TARGET_INSTALL_FILES) $(DEFAULT_INSTALL_FILES)
+	touch META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff $(TARGET_PACKAGE) -destdir $(DESTDIR)/lib META $(DEFAULT_INSTALL_FILES) $(TARGET_INSTALL_FILES)
 
@@ -70,7 +72,7 @@ default_uninstall::
 toplevel::
 	$(LAUNCH) ocaml -nopromptcont
 
-.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
+.SUFFIXES: .cmo .cmi .ml .mll .mly .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
 	$(RM) -rf *.cm* *.o *.a *.byte *.opt *.log *.cache *.ppo *ppo.ml _build/* .cmt *.odoc META mk_meta.ml mk_meta
