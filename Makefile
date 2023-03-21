@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.top
 WD=$(shell pwd)
 DESTDIR=
 
-SYSDIRS= pa_q_ast pa_mkast
+SYSDIRS= pa_q_ast pa_mktest
 
 TESTDIRS= tests
 
@@ -33,8 +33,8 @@ doc: all
 META: sys
 	$(JOINMETA) \
 		-direct-include pa_q_ast \
-		-rewrite pa_ppx_q_ast_mkast:pa_ppx_q_ast.mkast \
-		-wrap-subdir pa_mkast:mkast \
+		-rewrite pa_ppx_q_ast_mktest:pa_ppx_q_ast.mktest \
+		-wrap-subdir pa_mktest:mktest \
 		> META
 
 install: META
