@@ -55,6 +55,7 @@
  [@with Asttypes.injectivity := injectivity]
 ][@@deriving quotation_test {
         location_type = [%typ: location]
+      ; loc_varname = __loc__
       ; test_types = [
         	expression
         ]

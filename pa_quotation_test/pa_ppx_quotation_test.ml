@@ -452,7 +452,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)
   ; ("superfluous_constructors", <:expr< [] >>)
-  ; ("loc_varname", <:expr< "loc" >>)
+  ; ("loc_varname", <:expr< loc >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []
