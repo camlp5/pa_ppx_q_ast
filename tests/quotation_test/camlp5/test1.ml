@@ -2,7 +2,8 @@
 [%%import: MLast.expr
     [@add [%%import: MLast.loc]]
     [@add [%%import: MLast.type_var]]
-][@@deriving quotation_test {
+]
+[@@deriving quotation_test {
         ignore_types = [
         	class_infos
               ; case_branch
@@ -20,3 +21,4 @@
         ]
       }
   ]
+

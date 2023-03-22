@@ -18,16 +18,11 @@ let pp_str_item ty = Fmt.(pf stdout "#<str_item< %s >>" (Eprinter.apply Pcaml.pr
 
 print_string "================ START ================\n";; flush stdout ;;
 
-#require "pa_ppx.base";;
-open Pa_ppx_base ;;
-open Ppxutil ;;
 #require "camlp5.parser_quotations";;
 #require "pa_ppx_q_ast_quotation_test";;
 #require "pa_ppx_q_ast_test_cleanup";;
 Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_test_cleanup.rewrite_str_item ;;
-
-let loc = Ploc.dummy ;;
 
 (*
 ;;; Local Variables: ***
