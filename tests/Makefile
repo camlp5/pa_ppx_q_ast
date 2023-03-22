@@ -6,7 +6,7 @@ TOP=..
 include $(TOP)/config/Makefile.sub
 
 TESTDIRS = \
-	mktest \
+	quotation_test/simple \
 	basic/lib basic/test \
 	sexp/lib sexp/test \
 	lam/lib lam/test \

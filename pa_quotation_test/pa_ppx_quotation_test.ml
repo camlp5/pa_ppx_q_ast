@@ -6,6 +6,7 @@
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
+open Pa_ppx_deriving ;
 
 value ignored_types = ref [] ;
 value add_ignored_type s = ignored_types.val := [s :: ignored_types.val] ;
@@ -223,7 +224,11 @@ and expr_of_cons_decl (loc, c, _, tl, rto, _) = do {
 value expr_list_of_type_decl loc td =
   let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
   if not (List.mem tname ignored_types.val) then
-    match td.MLast.tdDef with
+    let ty = match td.MLast.tdDef with [
+          <:ctyp< $_$ == $ty$ >> -> ty
+        | ty -> ty
+        ] in
+    match ty with
       [ <:ctyp< [ $list:cdl$ ] >> ->
         List.fold_right (fun cd el -> expr_of_cons_decl cd @ el) cdl []
       | <:ctyp< { $list:ldl$ } >> ->
@@ -255,17 +260,17 @@ value type_decls_gen_ast loc tdl =
   List.map (fun e -> <:str_item< $exp:e$ >>) el
 ;
 
-value str_item_gen_ast loc = fun [
-  <:str_item< type $_flag:nrfl$ $list:tdl$ >> ->
-    type_decls_gen_ast loc tdl
-| si -> Fmt.(raise_failwithf loc "pa_ppx_q_ast.mktest: unrecognized extension payload:\n@[%a@]" Pp_MLast.pp_str_item si)
+value str_item_gen_quotation_test name arg = fun [
+  <:str_item:< type $_flag:nrfl$ $list:tdl$ >> ->
+    let sil = type_decls_gen_ast loc tdl in
+    <:str_item< declare $list:sil$ end >>
+| si -> Fmt.(raise_failwithf (MLast.loc_of_str_item si) "pa_ppx_q_ast.mktest: unrecognized extension payload:\n@[%a@]" Pp_MLast.pp_str_item si)
 ]
 ;
 
 value rewrite_str_item arg = fun [
-  <:str_item:< [%%"test" $stri:si$ ;] >> as z ->
-  let sil = str_item_gen_ast loc si in
-    <:str_item< declare $list:sil$ end >>
+  <:str_item:< [%%"quotation_test" $stri:si$ ;] >> as z ->
+  str_item_gen_quotation_test "mktest" arg si
 | z -> z
 ]
 ;
@@ -274,11 +279,11 @@ value install () =
 let ef = EF.mk () in 
 let ef = EF.{ (ef) with
             str_item = extfun ef.str_item with [
-                <:str_item:< [%%test $stri:si$ ;] >> as z ->
+                <:str_item:< [%%quotation_test $stri:si$ ;] >> as z ->
     fun arg fallback ->
       Some (rewrite_str_item arg z)
   ] } in
-  Pa_passthru.(install { name = "pa_mkast"; ef =  ef ; pass = None ; before = [] ; after = [] })
+  Pa_passthru.(install { name = "pa_quotation_test"; ef =  ef ; pass = None ; before = [] ; after = [] })
 ;
 
 install();
@@ -288,3 +293,24 @@ Pcaml.add_option "-pa_ppx_q_ast.mktest-ignore-type" (Arg.String add_ignored_type
 
 Pcaml.add_option "-pa_ppx_q_ast.mktest-expand-type" (Arg.String add_expanded_type)
   "expand specified type";
+
+
+Pa_deriving.(Registry.add PI.{
+  name = "quotation_test"
+; alternates = []
+; options = [
+    "optional"
+  ]
+; default_options = let loc = Ploc.dummy in [
+    ("optional", <:expr< False >>)
+  ]
+; alg_attributes = []
+; expr_extensions = []
+; ctyp_extensions = []
+; expr = (fun arg e -> assert False)
+; ctyp = (fun arg e -> assert False)
+; str_item = str_item_gen_quotation_test
+; sig_item = (fun arg e -> assert False)
+})
+;
+

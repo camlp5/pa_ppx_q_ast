@@ -14,18 +14,18 @@ Arg.(parse [
 
 Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast_mktest" preprocessor:
 version = "%s"
-description = "pa_ppx_q_ast_mktest rewriter"
+description = "pa_ppx_q_ast_quotation_test rewriter"
 
-  requires(toploop) = "pa_ppx.base"
-  archive(toploop) = "pa_ppx_mktest.cmo"
+  requires(toploop) = "pa_ppx.base,pa_ppx.deriving"
+  archive(toploop) = "pa_ppx_quotation_test.cmo"
 
-    requires(syntax,preprocessor) = "pa_ppx.base"
-    archive(syntax,preprocessor,-native) = "pa_ppx_mktest.cmo"
-    archive(syntax,preprocessor,native) = "pa_ppx_mktest.cmx"
+    requires(syntax,preprocessor) = "pa_ppx.base,pa_ppx.deriving"
+    archive(syntax,preprocessor,-native) = "pa_ppx_quotation_test.cmo"
+    archive(syntax,preprocessor,native) = "pa_ppx_quotation_test.cmx"
 
   package "link" (
-  requires = "pa_ppx.base"
-  archive(byte) = "pa_ppx_mktest.cmo"
-  archive(native) = "pa_ppx_mktest.cmx"
+  requires = "pa_ppx.base,pa_ppx.deriving.link"
+  archive(byte) = "pa_ppx_quotation_test.cmo"
+  archive(native) = "pa_ppx_quotation_test.cmx"
   )
 |} version)
