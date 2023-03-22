@@ -54,16 +54,12 @@
  [@with Asttypes.variance := variance]
  [@with Asttypes.injectivity := injectivity]
 ][@@deriving quotation_test {
-        ignore_types = [
-        	class_infos
-              ; case_branch
-              ; longid_lident
-              ; payload
-              ; attribute_body
-              ; type_var
+        test_types = [
+        	expression
         ]
       ; expand_types = [
-          attributes
+          expression_desc
+        ; attributes
         ; payload
         ; generic_constructor
         ; extension_constructor
