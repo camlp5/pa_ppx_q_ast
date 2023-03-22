@@ -1,4 +1,4 @@
-*/*.cm*
+*.cm*
 */*.byte
 */*/*/*.byte
 */*.opt
@@ -6,8 +6,8 @@
 *.opt
 */camlp5.*
 tests-*/_build
-*/*.o
-*/*.a
+*.o
+*.a
 local-install
 */.depend.NEW
 META
