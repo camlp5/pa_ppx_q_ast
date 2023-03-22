@@ -34,9 +34,9 @@ META: sys
 	$(JOINMETA) \
 		-direct-include pa_q_ast \
 		-rewrite pa_ppx_q_ast_quotation_test:pa_ppx_q_ast.quotation_test \
-		-wrap-subdir pa_quotation_test:quotation_test \
+		-wrap-subdir quotation_test:pa_quotation_test \
 		-rewrite pa_ppx_q_ast_test_cleanup:pa_ppx_q_ast.test_cleanup \
-		-wrap-subdir pa_test_cleanup:test_cleanup \
+		-wrap-subdir test_cleanup:pa_test_cleanup \
 		> META
 
 install: META
