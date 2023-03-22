@@ -1,7 +1,8 @@
 (* quot_r.ml,v *)
 
 (* longid: Long identifiers for modules and module types *)
-
+[@@@"ocaml.text" "class_infos";];
+[@@@"ocaml.text" "longid";];
 <:extended_longident< $longid:x$ . $uid:s$ >> ;
 <:extended_longident< $longid:x$ . $_uid:s$ >> ;
 <:extended_longident< $longid:x1$ ( $longid:x2$ ) >> ;
@@ -9,7 +10,7 @@
 <:extended_longident< $_uid:s$ >> ;
 
 (* ctyp: Type expressions of the language. *)
-
+[@@@"ocaml.text" "ctyp";];
 (* access *)
 <:ctyp< $longid:x$ . $lid:s$ >>;
 <:ctyp< $longid:x$ . $_lid:s$ >>;
@@ -106,6 +107,7 @@ MLast.TyVrn loc lpv ools;
 <:ctyp< [% $_extension:x$ ] >> ;
 
 (* poly_variant: Polymorphic variants. *)
+[@@@"ocaml.text" "poly_variant";];
 
 (* constructor *)
 <:poly_variant< `$s$ of & $list:lt$ $algattrs:x$ >> ;
@@ -146,6 +148,7 @@ MLast.TyVrn loc lpv ools;
 <:poly_variant< $t$ >>;
 
 (* patt: Patterns of the language. *)
+[@@@"ocaml.text" "patt";];
 
 (* access *)
 <:patt< $longid:x$ . $p$ >>;
@@ -263,6 +266,7 @@ MLast.PaUnp loc os omt;
 <:patt< [% $_extension:x$ ] >> ;
 
 (* expr: Expressions of the language. *)
+[@@@"ocaml.text" "expr";];
 
 (* access *)
 <:expr< $longid:x$ >>;
@@ -479,6 +483,8 @@ MLast.ExRec loc lpe oe;
 
 (* unreachable *)
 <:expr< . >> ;
+[@@@"ocaml.text" "case_branch";];
+[@@@"ocaml.text" "module_type";];
 
 (* access *)
 <:module_type< $longid:x$ >>;
@@ -523,6 +529,8 @@ MLast.MtFun loc (Ploc.VaVal (Some (Ploc.VaVal None, smtf2))) mt;
 
 <:module_type< $mt$ [@ $_attribute:x$ ] >> ;
 <:module_type< [% $_extension:x$ ] >> ;
+[@@@"ocaml.text" "functor_parameter";];
+[@@@"ocaml.text" "sig_item";];
 
 (* class *)
 <:sig_item< class $list:lcict$ >>;
@@ -840,6 +848,7 @@ MLast.MtFun loc (Ploc.VaVal (Some (Ploc.VaVal None, smtf2))) mt;
 <:sig_item< [%% $_extension:x1$ ] $_itemattrs:x2$ >> ;
 
 (* with_constr: "With" possibly following a module type. *)
+[@@@"ocaml.text" "with_constr";];
 
 (* with module *)
 <:with_constr< module $longid:x$ = $me$ >>;
@@ -880,6 +889,7 @@ MLast.MtFun loc (Ploc.VaVal (Some (Ploc.VaVal None, smtf2))) mt;
 <:with_constr< type $lilongid:x$ $_list:ltv$ := $t$ >>;
 <:with_constr< type $_lilongid:x$ $list:ltv$ := $t$ >>;
 <:with_constr< type $_lilongid:x$ $_list:ltv$ := $t$ >>;
+[@@@"ocaml.text" "module_expr";];
 
 (* access *)
 <:module_expr< $me1$ . $me2$ >>;
@@ -930,6 +940,7 @@ MLast.MeUnp loc e omt1 omt2;
 
 (* str_item: Structure items, i.e. phrases in a ".ml" file or "struct" *)
 (* str_item:   elements. *)
+[@@@"ocaml.text" "str_item";];
 
 (* class declaration *)
 <:str_item< class $list:lcice$ >>;
@@ -1258,6 +1269,7 @@ MLast.MeUnp loc e omt1 omt2;
 <:str_item< [%% $_extension:x1$ ] $_itemattrs:x2$ >> ;
 
 (* type_decl: What is after 'type' or 'and' in a type declaration. *)
+[@@@"ocaml.text" "type_decl";];
 
 <:type_decl< $lid:lsf2$ $list:ltv$ = private $t$ $list:ltt$ $itemattrs:x$ >>;
 <:type_decl< $lid:lsf2$ $list:ltv$ = private $t$ $list:ltt$ $_itemattrs:x$ >>;
@@ -1668,6 +1680,7 @@ MLast.MeUnp loc e omt1 omt2;
 <:type_decl<$_tp:ls$ $_list:ltv$ $_isdecl:b1$ $_priv:b2$ $t$ $_list:ltt$ $_itemattrs:x$ >>;
 
 (* generic constructor *)
+[@@@"ocaml.text" "generic_constructor";];
 
 <:constructor< $uid:s$ of $list:ls$ . $list:lt$ $algattrs:x$ >>;
 <:constructor< $uid:s$ of $list:ls$ . $list:lt$ $_algattrs:x$ >>;
@@ -1742,6 +1755,7 @@ MLast.MeUnp loc e omt1 omt2;
 <:constructor< $_uid:s$ of $_list:ls$ . $_list:lt$ $_rto:ot$ $_algattrs:x$ >>;
 
 (* extension constructor *)
+[@@@"ocaml.text" "extension_constructor";];
 
 <:extension_constructor< $uid:xf2$ of $list:xf3$ . $list:xf4$ $algattrs:xf6$ >> ;
 <:extension_constructor< $uid:xf2$ of $list:xf3$ . $list:xf4$ $_algattrs:xf6$ >> ;
@@ -1825,6 +1839,7 @@ MLast.MeUnp loc e omt1 omt2;
 <:extension_constructor< $_uid:s$ = $_longid:x1$ $_algattrs:x2$ >> ;
 
 (* type extension *)
+[@@@"ocaml.text" "type_extension";];
 
 <:type_extension< $lilongid:x1$ $list:ltv$ += private [ $list:lx$ ] $itemattrs:x2$ >> ;
 <:type_extension< $lilongid:x1$ $list:ltv$ += private [ $list:lx$ ] $_itemattrs:x2$ >> ;
@@ -1891,6 +1906,7 @@ MLast.MeUnp loc e omt1 omt2;
 <:type_extension< $_lilongid:x1$ $_list:ltv$ += $_priv:b$ [ $list:lx$ ] $_itemattrs:x2$ >> ;
 <:type_extension< $_lilongid:x1$ $_list:ltv$ += $_priv:b$ [ $_list:lx$ ] $itemattrs:x2$ >> ;
 <:type_extension< $_lilongid:x1$ $_list:ltv$ += $_priv:b$ [ $_list:lx$ ] $_itemattrs:x2$ >> ;
+[@@@"ocaml.text" "class_type";];
 
 (* access *)
 <:class_type< $longid:x$ . $lid:s$ >>;
@@ -1931,6 +1947,7 @@ MLast.MeUnp loc e omt1 omt2;
 
 (* sig_item: Signature items, i.e. phrases in a ".mli" file or elements *)
 (* sig_item:   inside "sig ... end". *)
+[@@@"ocaml.text" "class_sig_item";];
 
 (* type constraint *)
 <:class_sig_item< type $t1$ = $t2$ $itemattrs:x$ >>;
@@ -2054,6 +2071,7 @@ MLast.MeUnp loc e omt1 omt2;
 
 <:class_sig_item< [@@@ $_attribute:x$ ] >> ;
 <:class_sig_item< [%% $_extension:x$ ] >> ;
+[@@@"ocaml.text" "class_expr";];
 
 (* application *)
 <:class_expr< $ce$ $exp:e$ >>;
@@ -2102,6 +2120,7 @@ MLast.MeUnp loc e omt1 omt2;
 
 <:class_expr< $ce$ [@ $_attribute:x$ ] >> ;
 <:class_expr< [% $_extension:x$ ] >> ;
+[@@@"ocaml.text" "class_str_item";];
 
 (* type constraint *)
 <:class_str_item< type $t1$ = $t2$ $itemattrs:x$ >>;
@@ -2515,6 +2534,9 @@ MLast.MeUnp loc e omt1 omt2;
 <:class_str_item< [%% $_extension:x$ ] >> ;
 
 (* PPX attribute body *)
+[@@@"ocaml.text" "longid_lident";];
+[@@@"ocaml.text" "payload";];
+[@@@"ocaml.text" "attribute_body";];
 
 <:attribute_body< $attrid:(loc, lsf2)$ $structure:lsi$ >>;
 <:attribute_body< $attrid:(loc, lsf2)$ $_structure:lsi$ >>;
@@ -2544,3 +2566,8 @@ MLast.MeUnp loc e omt1 omt2;
 <:attribute_body< $_attrid:ls$ ? $_patt:p$ when $expr:e$ >>;
 <:attribute_body< $_attrid:ls$ ? $_patt:p$ when $_expr:e$ >>;
 (ls, MLast.PaAttr loc p oe);
+[@@@"ocaml.text" "attribute";];
+[@@@"ocaml.text" "attributes_no_anti";];
+[@@@"ocaml.text" "attributes";];
+[@@@"ocaml.text" "loc";];
+[@@@"ocaml.text" "type_var";];
