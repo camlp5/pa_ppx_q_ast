@@ -54,9 +54,13 @@
  [@with Asttypes.variance := variance]
  [@with Asttypes.injectivity := injectivity]
 ][@@deriving quotation_test {
-        test_types = [
+        location_type = [%typ: location]
+      ; test_types = [
         	expression
         ]
+      ; default_expression = {
+          location_stack = []
+        }
       ; expand_types = [
           expression_desc
         ; attributes

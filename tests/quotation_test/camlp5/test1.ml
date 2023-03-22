@@ -4,7 +4,8 @@
     [@add [%%import: MLast.type_var]]
 ]
 [@@deriving quotation_test {
-        test_types = [
+       location_type = [%typ: loc]
+     ; test_types = [
         	longid
               ; ctyp
               ; poly_variant

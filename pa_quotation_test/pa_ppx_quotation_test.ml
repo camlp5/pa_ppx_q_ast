@@ -63,6 +63,8 @@ type t = {
 ; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
+; default_expression : alist lident expr[@default [];]
+; location_type : option ctyp
 } [@@deriving params {
          formal_args = {
        t = [ type_decls ]
@@ -94,20 +96,24 @@ value build_context_from_cmdline tdl =
   ; expansion_dict = compute_expansion_dict type_decls expanded_types.val
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
+  ; default_expression = []
+  ; location_type = None
   }
 ;
 
 Pcaml.strict_mode.val := True;
 
-value rec pfx short t =
+value rec pfx rc short t =
   let t =
     match t with
     [ <:ctyp< Ploc.vala $t$ >> -> t
     | t -> t ]
   in
+  if match rc.location_type with [ None -> False | Some lty -> Reloc.eq_ctyp t lty ] then
+    if short then "l" else "loc"
+  else
   match t with
-  [ <:ctyp< loc >> -> if short then "l" else "loc"
-  | <:ctyp< bool >> -> "b"
+  [ <:ctyp< bool >> -> "b"
   | <:ctyp< class_expr >> -> "ce"
   | <:ctyp< class_sig_item >> -> "csi"
   | <:ctyp< class_str_item >> -> "csi"
@@ -124,21 +130,21 @@ value rec pfx short t =
   | <:ctyp< type_decl >> -> "td"
   | <:ctyp< type_var >> -> "tv"
   | <:ctyp< with_constr >> -> "wc"
-  | <:ctyp< class_infos $t$ >> -> "ci" ^ pfx True t
-  | <:ctyp< list $t$ >> -> "l" ^ pfx True t
-  | <:ctyp< option $t$ >> -> pfx True t
-  | <:ctyp< ($list:tl$) >> -> String.concat "" (List.map (pfx True) tl)
+  | <:ctyp< class_infos $t$ >> -> "ci" ^ pfx rc True t
+  | <:ctyp< list $t$ >> -> "l" ^ pfx rc True t
+  | <:ctyp< option $t$ >> -> pfx rc True t
+  | <:ctyp< ($list:tl$) >> -> String.concat "" (List.map (pfx rc True) tl)
   | _ -> "x" ]
 ;
 
-value prefix_of_type = pfx False;
+value prefix_of_type rc = pfx rc False;
 
-value name_of_vars proj_t xl =
+value name_of_vars rc proj_t xl =
   let (rev_tnl, env) =
     List.fold_left
       (fun (rev_tnl, env) x ->
          let t = proj_t x in
-         let pt = prefix_of_type t in
+         let pt = prefix_of_type rc t in
          let (n, env) =
            loop env where rec loop =
              fun
@@ -186,8 +192,17 @@ value expr_list_cross_product (ll : list (list MLast.expr)) = cross_product ll ;
 value rec expr_list_of_type_gen loc rc f n (modli, x) =
   expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x))
 and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
+  if match rc.location_type with [
+         None -> False
+       | Some lty -> Reloc.eq_ctyp lty x
+       ] then
+    f <:expr< loc >>
+  else
   match x with
-  [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.expansion_dict ->
+  [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.default_expression ->
+    let e = List.assoc tname rc.default_expression in
+    [e]
+  | <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.expansion_dict ->
       let modli_opt = match List.assoc tname rc.module_dict with [
             exception Not_found ->
                       None
@@ -202,8 +217,6 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
       f <:expr< True >> @
       f <:expr< False >> @
       f <:expr< $lid:n$ >>
-  | <:ctyp< loc >> ->
-      f <:expr< loc >>
 
   | <:ctyp< { $list:_$ }>> as ct -> expr_list_of_record_ctyp rc f (modli, ct)
 
@@ -233,7 +246,7 @@ and expr_list_of_record_ctyp rc (f : MLast.expr -> list MLast.expr) (modli, ty) 
           None -> Fmt.(raise_failwithf loc "expr_list_of_record_ctyp: no module supplied for type %a" Pp_MLast.pp_ctyp ty)
         | Some li -> li
         ] in
-    let ldnl = name_of_vars (fun (loc, l, mf, t, _) -> t) ldl in
+    let ldnl = name_of_vars rc (fun (loc, l, mf, t, _) -> t) ldl in
     let pell =
       loop ldnl where rec loop =
       fun
@@ -271,7 +284,7 @@ and expr_of_cons_decl rc (modli, (loc, c, _, tl, rto, _)) = do {
   if String.length c = 5 && String.sub c 2 3 = "Xtr" then []
   else do {
     let tl = Pcaml.unvala tl in
-    let tnl = name_of_vars (fun t -> t) tl in
+    let tnl = name_of_vars rc (fun t -> t) tl in
     let exprs1 (t, tn) =
       expr_list_of_type_gen loc rc (fun x -> [x]) tn (None, t) in
     let ell = List.map exprs1 tnl in
@@ -329,7 +342,7 @@ value expr_list_of_type_decl loc rc td =
                         Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
             | x -> x
             ] in
-        let ldnl = name_of_vars (fun (loc, l, mf, t, _) -> t) ldl in
+        let ldnl = name_of_vars rc (fun (loc, l, mf, t, _) -> t) ldl in
         let pell =
           loop ldnl where rec loop =
           fun
@@ -342,7 +355,7 @@ value expr_list_of_type_decl loc rc td =
         in
         List.map (fun pel -> <:expr< {$list:pel$} >>) pell
       | <:ctyp< ( $list:tl$ ) >> ->
-        let nl = name_of_vars (fun t -> t) tl in
+        let nl = name_of_vars rc (fun t -> t) tl in
         let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc rc (fun x -> [x]) n (None, t)) nl in
         let el = expr_list_cross_product ell in
         List.map (fun l -> <:expr< ( $list:l$ ) >>) el
@@ -414,11 +427,15 @@ Pa_deriving.(Registry.add PI.{
   ; "test_types"
   ; "expand_types"
   ; "type_module_map"
+  ; "default_expression"
+  ; "location_type"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
+  ; ("default_expression", <:expr< () >>)
+  ; ("location_type", <:expr< None >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []
