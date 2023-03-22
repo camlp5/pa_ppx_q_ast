@@ -1,5 +1,5 @@
-pa_mkast.cmo pa_mkast.cmi pa_mkast.cmx: 
-pa_mkast.cmo :
-pa_mkast.cmx :
+pa_ppx_quotation_test.cmo pa_ppx_quotation_test.cmi pa_ppx_quotation_test.cmx: 
+pa_ppx_quotation_test.cmo :
+pa_ppx_quotation_test.cmx :
 mk_meta.cmo :
 mk_meta.cmx :

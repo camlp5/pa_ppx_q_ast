@@ -1,5 +1,5 @@
-pa_mkast.cmo pa_mkast.cmi pa_mkast.cmx: 
-pa_mkast.cmo :
-pa_mkast.cmx :
+pa_ppx_test_cleanup.cmo pa_ppx_test_cleanup.cmi pa_ppx_test_cleanup.cmx: 
+pa_ppx_test_cleanup.cmo :
+pa_ppx_test_cleanup.cmx :
 mk_meta.cmo :
 mk_meta.cmx :
