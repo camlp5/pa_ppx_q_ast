@@ -17,18 +17,31 @@ value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
 value expanded_type n = List.mem n expanded_types.val ;
 
-value expansion_dict = ref [] ;
-value add_expansion n v = expansion_dict.val := [(n,v) :: expansion_dict.val] ;
-value expand_type n = List.assoc n expansion_dict.val ;
-value has_expansion n = List.mem_assoc n expansion_dict.val ;
-
+value compute_expansion_dict type_decls expand_types =
+  type_decls
+  |> List.filter_map (fun (n, td) ->
+         if List.mem n expand_types then
+           let ty = match td.tdDef with [
+                 <:ctyp< $_$ == $ty$ >> -> ty
+               | ty -> ty
+               ] in
+           Some (n, ty)
+         else None)
+;
 
 type t = {
-    optional : bool [@default False;]
-  ; plugin_name : string [@default "";]
-  ; ignore_types : list lident [@default [];]
-  ; expand_types : list lident [@default [];]
-  } [@@deriving params;]
+  optional : bool [@default False;]
+; plugin_name : string [@default "";]
+; ignore_types : list lident [@default [];]
+; expand_types : list lident [@default [];]
+; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types;]
+} [@@deriving params {
+         formal_args = {
+       t = [ type_decls ]
+     ; pertype_t = [ default_data_source_module
+                   ; default_quotation_source_module ]
+         }
+           };]
 ;
 
 value build_context loc ctxt tdl =
@@ -38,7 +51,7 @@ value build_context loc ctxt tdl =
   let optarg =
     let l = List.map (fun (k, e) -> (<:patt< $lid:k$ >>, e)) (Ctxt.options ctxt) in
     <:expr< { $list:l$ } >> in
-  params optarg
+  params type_decls optarg
 ;
 
 Pcaml.strict_mode.val := True;
@@ -127,14 +140,14 @@ value cross_product ll =
 
 value expr_list_cross_product (ll : list (list MLast.expr)) = cross_product ll ;
 
-value rec expr_list_of_type_gen loc f n x =
-  expr_list_of_type_gen_uncurried (loc, f, n, x)
-and expr_list_of_type_gen_uncurried (loc, f, n, x) =
+value rec expr_list_of_type_gen loc rc f n x =
+  expr_list_of_type_gen_uncurried rc (loc, f, n, x)
+and expr_list_of_type_gen_uncurried rc (loc, f, n, x) =
   match x with
-  [ <:ctyp< $lid:tname$ >> when has_expansion tname ->
-    expr_list_of_type_gen loc f n (expand_type tname)
+  [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.expansion_dict ->
+    expr_list_of_type_gen loc rc f n (List.assoc tname rc.expansion_dict)
   | <:ctyp< Ploc.vala $t$ >> ->
-      expr_list_of_type_gen loc (fun e -> f <:expr< Ploc.VaVal $e$ >>) n t @
+      expr_list_of_type_gen loc rc (fun e -> f <:expr< Ploc.VaVal $e$ >>) n t @
       let n = add_o n t in
       f <:expr< $lid:n$ >>
   | <:ctyp< bool >> ->
@@ -144,12 +157,12 @@ and expr_list_of_type_gen_uncurried (loc, f, n, x) =
   | <:ctyp< loc >> ->
       f <:expr< loc >>
 
-  | <:ctyp< { $list:_$ }>> as ct -> expr_list_of_record_ctyp f ct
+  | <:ctyp< { $list:_$ }>> as ct -> expr_list_of_record_ctyp rc f ct
 
-  | <:ctyp< [ $list:_$ ]>> as ct -> expr_list_of_variant_ctyp f ct
+  | <:ctyp< [ $list:_$ ]>> as ct -> expr_list_of_variant_ctyp rc f ct
 
   | <:ctyp< ( $list:l$ )>> -> 
-    let ll = List.mapi (fun i t -> expr_list_of_type_gen loc (fun x -> [x]) (n^"f"^(string_of_int (i+1))) t) l in
+    let ll = List.mapi (fun i t -> expr_list_of_type_gen loc rc (fun x -> [x]) (n^"f"^(string_of_int (i+1))) t) l in
     let l = expr_list_cross_product ll in
     List.concat (List.map (fun l -> f <:expr< ( $list:l$ ) >>) l)
 
@@ -158,9 +171,9 @@ and expr_list_of_type_gen_uncurried (loc, f, n, x) =
       match t with
       [ <:ctyp< Ploc.vala (list $t$) >> ->
           let f _ = f <:expr< Some (Ploc.VaVal []) >> in
-          expr_list_of_type_gen loc f n t
+          expr_list_of_type_gen loc rc f n t
       | _ -> [] ] @
-      expr_list_of_type_gen loc (fun e -> f <:expr< Some $e$ >>) n t @
+      expr_list_of_type_gen loc rc (fun e -> f <:expr< Some $e$ >>) n t @
       let n = add_o ("o" ^ n) t in
       f <:expr< $lid:n$ >>
   | <:ctyp< override_flag >> ->
@@ -169,7 +182,7 @@ and expr_list_of_type_gen_uncurried (loc, f, n, x) =
   | _ ->
       f <:expr< $lid:n$ >> ]
 
-and expr_list_of_record_ctyp (f : MLast.expr -> list MLast.expr) = fun [
+and expr_list_of_record_ctyp rc (f : MLast.expr -> list MLast.expr) = fun [
   <:ctyp:< { $list:ldl$ } >> ->
     let ldnl = name_of_vars (fun (loc, l, mf, t, _) -> t) ldl in
     let pell =
@@ -179,35 +192,35 @@ and expr_list_of_record_ctyp (f : MLast.expr -> list MLast.expr) = fun [
           let p = <:patt< MLast . $lid:l$ >> in
           let pell = loop ldnl in
           let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-          patt_expr_list_of_type loc f n t
+          patt_expr_list_of_type loc rc f n t
         | [] -> [[]] ]
     in
     List.concat (List.map (fun pel -> f <:expr< {$list:pel$} >>) pell)
 | ct -> Ploc.raise (MLast.loc_of_ctyp ct) (Failure "expr_list_of_record_ctyp: not a record ctyp")
 ]
 
-and expr_list_of_variant_ctyp (f : MLast.expr -> list MLast.expr) = fun [
+and expr_list_of_variant_ctyp rc (f : MLast.expr -> list MLast.expr) = fun [
   <:ctyp:< [ $list:cdl$ ] >> ->
-    let el = List.fold_right (fun cd el -> expr_of_cons_decl cd @ el) cdl [] in
+    let el = List.fold_right (fun cd el -> expr_of_cons_decl rc cd @ el) cdl [] in
     List.concat (List.map f el)
 | ct -> Ploc.raise (MLast.loc_of_ctyp ct) (Failure "expr_list_of_variant_ctyp: not a variant ctyp")
 ]
 
-and expr_list_of_type loc (f : MLast.expr -> list MLast.expr) n ty =
-  expr_list_of_type_gen loc f n ty
+and expr_list_of_type loc rc (f : MLast.expr -> list MLast.expr) n ty =
+  expr_list_of_type_gen loc rc f n ty
 
-and patt_expr_list_of_type loc (f : MLast.expr -> list (list (MLast.patt * MLast.expr))) n ty =
-  let el = expr_list_of_type loc (fun x -> [x]) n ty in
+and patt_expr_list_of_type loc rc (f : MLast.expr -> list (list (MLast.patt * MLast.expr))) n ty =
+  let el = expr_list_of_type loc rc (fun x -> [x]) n ty in
   List.concat (List.map f el)
 
-and expr_of_cons_decl (loc, c, _, tl, rto, _) = do {
+and expr_of_cons_decl rc (loc, c, _, tl, rto, _) = do {
   let c = Pcaml.unvala c in
   if String.length c = 5 && String.sub c 2 3 = "Xtr" then []
   else do {
     let tl = Pcaml.unvala tl in
     let tnl = name_of_vars (fun t -> t) tl in
     let exprs1 (t, tn) =
-      expr_list_of_type_gen loc (fun x -> [x]) tn t in
+      expr_list_of_type_gen loc rc (fun x -> [x]) tn t in
     let ell = List.map exprs1 tnl in
     let el = expr_list_cross_product ell in
     let mkapp l =
@@ -242,16 +255,16 @@ and expr_of_cons_decl (loc, c, _, tl, rto, _) = do {
   }
 };
 
-value expr_list_of_type_decl loc td =
+value expr_list_of_type_decl loc rc td =
   let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
-  if not (List.mem tname ignored_types.val) then
+  if not (List.mem tname rc.ignore_types) then
     let ty = match td.MLast.tdDef with [
           <:ctyp< $_$ == $ty$ >> -> ty
         | ty -> ty
         ] in
     match ty with
       [ <:ctyp< [ $list:cdl$ ] >> ->
-        List.fold_right (fun cd el -> expr_of_cons_decl cd @ el) cdl []
+        List.fold_right (fun cd el -> expr_of_cons_decl rc cd @ el) cdl []
       | <:ctyp< { $list:ldl$ } >> ->
         let ldnl = name_of_vars (fun (loc, l, mf, t, _) -> t) ldl in
         let pell =
@@ -261,13 +274,13 @@ value expr_list_of_type_decl loc td =
               let p = <:patt< MLast . $lid:l$ >> in
               let pell = loop ldnl in
               let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-              patt_expr_list_of_type loc f n t
+              patt_expr_list_of_type loc rc f n t
             | [] -> [[]] ]
         in
         List.map (fun pel -> <:expr< {$list:pel$} >>) pell
       | <:ctyp< ( $list:tl$ ) >> ->
         let nl = name_of_vars (fun t -> t) tl in
-        let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc (fun x -> [x]) n t) nl in
+        let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc rc (fun x -> [x]) n t) nl in
         let el = expr_list_cross_product ell in
         List.map (fun l -> <:expr< ( $list:l$ ) >>) el
 
@@ -275,10 +288,16 @@ value expr_list_of_type_decl loc td =
   else []
 ;
 
+value type_decl_gen_ast loc rc td =
+  let loc = loc_of_type_decl td in
+  let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
+  let el = expr_list_of_type_decl loc rc td in
+  let sil = List.map (fun e -> <:str_item< $exp:e$ >>) el in
+  [<:str_item< [@@@"ocaml.text" $str:tname$; ] >> :: sil]
+;
+
 value type_decls_gen_ast loc rc tdl =
-  let ell = List.map (fun td -> expr_list_of_type_decl loc td) tdl in
-  let el = List.flatten ell in
-  List.map (fun e -> <:str_item< $exp:e$ >>) el
+  tdl |> List.concat_map (type_decl_gen_ast loc rc)
 ;
 
 value str_item_gen_quotation_test name arg = fun [
