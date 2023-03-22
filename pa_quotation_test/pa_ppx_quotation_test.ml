@@ -10,8 +10,8 @@ open Ppxutil ;
 open Pa_ppx_deriving ;
 open Pa_ppx_params_runtime.Runtime ;
 
-value ignored_types = ref [] ;
-value add_ignored_type s = ignored_types.val := [s :: ignored_types.val] ;
+value test_types = ref [] ;
+value add_test_type s = test_types.val := [s :: test_types.val] ;
 
 value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
@@ -58,7 +58,7 @@ value compute_module_dict type_decls type_module_map =
 type t = {
   optional : bool [@default False;]
 ; plugin_name : string [@default "";]
-; ignore_types : list lident [@default [];]
+; test_types : list lident
 ; expand_types : list lident [@default [];]
 ; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types;]
 ; type_module_map : alist lident longid[@default [];]
@@ -80,6 +80,21 @@ value build_context loc ctxt tdl =
     let l = List.map (fun (k, e) -> (<:patt< $lid:k$ >>, e)) (Ctxt.options ctxt) in
     <:expr< { $list:l$ } >> in
   params type_decls optarg
+;
+
+value build_context_from_cmdline tdl =
+  let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
+      (tdNam |> uv |> snd |> uv, td)
+    ) tdl in
+  {
+    optional = False
+  ; plugin_name = "pa_quotation_test"
+  ; test_types = test_types.val
+  ; expand_types = expanded_types.val
+  ; expansion_dict = compute_expansion_dict type_decls expanded_types.val
+  ; type_module_map = []
+  ; module_dict = compute_module_dict type_decls []
+  }
 ;
 
 Pcaml.strict_mode.val := True;
@@ -295,7 +310,7 @@ and expr_of_cons_decl rc (modli, (loc, c, _, tl, rto, _)) = do {
 
 value expr_list_of_type_decl loc rc td =
   let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
-  if not (List.mem tname rc.ignore_types) then
+  if List.mem tname rc.test_types then
     let ty = match td.MLast.tdDef with [
           <:ctyp< $_$ == $ty$ >> -> ty
         | ty -> ty
@@ -348,18 +363,26 @@ value type_decls_gen_ast loc rc tdl =
   tdl |> List.concat_map (type_decl_gen_ast loc rc)
 ;
 
-value str_item_gen_quotation_test name arg = fun [
+value pp_str_item pps ty = Fmt.(pf pps "#<str_item< %s >>" (Eprinter.apply Pcaml.pr_str_item Pprintf.empty_pc ty)) ;
+
+value type_decls_gen_quotation_test loc arg rc tdl =
+  let sil = type_decls_gen_ast loc rc tdl in
+  <:str_item< declare $list:sil$ end >>
+;
+
+value derive_quotation_test name arg = fun [
   <:str_item:< type $_flag:nrfl$ $list:tdl$ >> ->
     let rc = build_context loc arg tdl in
-    let sil = type_decls_gen_ast loc rc tdl in
-    <:str_item< declare $list:sil$ end >>
-| si -> Fmt.(raise_failwithf (MLast.loc_of_str_item si) "pa_ppx_q_ast.mktest: unrecognized extension payload:\n@[%a@]" Pp_MLast.pp_str_item si)
+    type_decls_gen_quotation_test loc arg rc tdl
+| si -> Fmt.(raise_failwithf (MLast.loc_of_str_item si) "pa_ppx_q_ast.quotation_test: unrecognized extension payload:\n@[%a@]"
+               pp_str_item si)
 ]
 ;
 
 value rewrite_str_item arg = fun [
-  <:str_item:< [%%"quotation_test" $stri:si$ ;] >> as z ->
-  str_item_gen_quotation_test "mktest" arg si
+  <:str_item:< [%%"quotation_test" type $list:tdl$ ;] >> as z ->
+  let rc = build_context_from_cmdline tdl in
+  type_decls_gen_quotation_test loc arg rc tdl
 | z -> z
 ]
 ;
@@ -377,10 +400,10 @@ let ef = EF.{ (ef) with
 
 install();
 
-Pcaml.add_option "-pa_ppx_q_ast.mktest-ignore-type" (Arg.String add_ignored_type)
-  "ignore specified type";
+Pcaml.add_option "-pa_ppx_q_ast.quotation_test-test-type" (Arg.String add_test_type)
+  "test specified type (generate patterns for it)";
 
-Pcaml.add_option "-pa_ppx_q_ast.mktest-expand-type" (Arg.String add_expanded_type)
+Pcaml.add_option "-pa_ppx_q_ast.quotation_test-expand-type" (Arg.String add_expanded_type)
   "expand specified type";
 
 Pa_deriving.(Registry.add PI.{
@@ -388,13 +411,12 @@ Pa_deriving.(Registry.add PI.{
 ; alternates = []
 ; options = [
     "optional"
-  ; "ignore_types"
+  ; "test_types"
   ; "expand_types"
   ; "type_module_map"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
-  ; ("ignore_types", <:expr< [] >>)
   ; ("expand_types", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ]
@@ -403,7 +425,7 @@ Pa_deriving.(Registry.add PI.{
 ; ctyp_extensions = []
 ; expr = (fun arg e -> assert False)
 ; ctyp = (fun arg e -> assert False)
-; str_item = str_item_gen_quotation_test
+; str_item = derive_quotation_test
 ; sig_item = (fun arg e -> assert False)
 })
 ;

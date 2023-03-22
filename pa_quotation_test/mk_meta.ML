@@ -12,7 +12,7 @@ Arg.(parse [
      "mk_meta -destdir <dir>")
 ;;
 
-Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast_mktest" preprocessor:
+Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast_quotation_test" preprocessor:
 version = "%s"
 description = "pa_ppx_q_ast_quotation_test rewriter"
 
