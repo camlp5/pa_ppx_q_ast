@@ -65,6 +65,9 @@ type t = {
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
 ; location_type : option ctyp
+; target_is_pattern_ast : bool [@default False;]
+; superfluous_constructors : list uident [@default [];]
+; loc_varname : lident [@default "loc";]
 } [@@deriving params {
          formal_args = {
        t = [ type_decls ]
@@ -98,6 +101,9 @@ value build_context_from_cmdline tdl =
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
   ; location_type = None
+  ; target_is_pattern_ast = False
+  ; superfluous_constructors = []
+  ; loc_varname = "loc"
   }
 ;
 
@@ -189,6 +195,12 @@ value cross_product ll =
 
 value expr_list_cross_product (ll : list (list MLast.expr)) = cross_product ll ;
 
+value handle_vala loc rc f e =
+  if rc.target_is_pattern_ast then
+    f <:expr< Ploc.VaVal $e$ >>
+  else f e
+;
+
 value rec expr_list_of_type_gen loc rc f n (modli, x) =
   expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x))
 and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
@@ -196,7 +208,7 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
          None -> False
        | Some lty -> Reloc.eq_ctyp lty x
        ] then
-    f <:expr< loc >>
+    f <:expr< $lid:rc.loc_varname$ >>
   else
   match x with
   [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.default_expression ->
@@ -210,7 +222,7 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
           ] in
     expr_list_of_type_gen loc rc f n (modli_opt, List.assoc tname rc.expansion_dict)
   | <:ctyp< Ploc.vala $t$ >> ->
-      expr_list_of_type_gen loc rc (fun e -> f <:expr< Ploc.VaVal $e$ >>) n (None, t) @
+      expr_list_of_type_gen loc rc (handle_vala loc rc f) n (None, t) @
       let n = add_o n t in
       f <:expr< $lid:n$ >>
   | <:ctyp< bool >> ->
@@ -281,7 +293,7 @@ and expr_of_cons_decl rc (modli, (loc, c, _, tl, rto, _)) = do {
       | Some li -> li
       ] in
   let c = Pcaml.unvala c in
-  if String.length c = 5 && String.sub c 2 3 = "Xtr" then []
+  if List.mem c rc.superfluous_constructors then []
   else do {
     let tl = Pcaml.unvala tl in
     let tnl = name_of_vars rc (fun t -> t) tl in
@@ -429,13 +441,18 @@ Pa_deriving.(Registry.add PI.{
   ; "type_module_map"
   ; "default_expression"
   ; "location_type"
+  ; "target_is_pattern_ast"
+  ; "superfluous_constructors"
+  ; "loc_varname"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
-  ; ("location_type", <:expr< None >>)
+  ; ("target_is_pattern_ast", <:expr< False >>)
+  ; ("superfluous_constructors", <:expr< [] >>)
+  ; ("loc_varname", <:expr< "loc" >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []

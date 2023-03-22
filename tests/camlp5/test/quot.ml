@@ -3,7 +3,9 @@
     [@add [%%import: MLast.loc]]
     [@add [%%import: MLast.type_var]]
 ][@@deriving quotation_test {
-        test_types = [
+        target_is_pattern_ast = true
+      ; location_type = [%typ: loc]
+      ; test_types = [
         	longid
               ; ctyp
               ; poly_variant
@@ -30,6 +32,18 @@
         ; generic_constructor
         ; extension_constructor
         ; type_extension
+        ]
+      ; superfluous_constructors = [
+          CeXtr
+        ; CtXtr
+        ; StXtr
+        ; SgXtr
+        ; MeXtr
+        ; MtXtr
+        ; LiXtr
+        ; TyXtr
+        ; ExXtr
+        ; PaXtr
         ]
       }
   ]
