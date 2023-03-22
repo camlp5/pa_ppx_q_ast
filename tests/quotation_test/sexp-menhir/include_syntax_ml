@@ -1,0 +1,32 @@
+#use "topfind.camlp5";;
+#camlp5o ;;
+#require "pa_ppx.testutils";;
+open Pa_ppx_testutils.Papr_util ;;
+
+#require "camlp5.pr_o" ;;
+
+let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty));;
+let pp_expr ty = Fmt.(pf stdout "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty));;
+let pp_patt ty = Fmt.(pf stdout "#<patt< %s >>" (Eprinter.apply Pcaml.pr_patt Pprintf.empty_pc ty));;
+let pp_str_item ty = Fmt.(pf stdout "#<str_item< %s >>" (Eprinter.apply Pcaml.pr_str_item Pprintf.empty_pc ty));;
+
+#install_printer pp_ctyp ;;
+#install_printer pp_expr ;;
+#install_printer pp_patt ;;
+#install_printer pp_str_item ;;
+
+
+print_string "================ START ================\n";; flush stdout ;;
+
+#require "camlp5.parser_quotations";;
+#require "pa_ppx_q_ast_quotation_test";;
+#require "pa_ppx_q_ast_test_cleanup";;
+Pa_ppx_base.Pa_passthru.debug := true ;;
+#trace Pa_ppx_test_cleanup.rewrite_str_item ;;
+
+(*
+;;; Local Variables: ***
+;;; mode:tuareg ***
+;;; End: ***
+
+*)
