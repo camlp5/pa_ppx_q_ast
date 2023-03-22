@@ -1,12 +1,14 @@
-(**pp -syntax camlp5r -package camlp5.parser_quotations,camlp5.extfun *)
+(**pp -syntax camlp5r -package camlp5.parser_quotations,camlp5.extfun,pa_ppx.deriving_plugins.params *)
 (* camlp5r *)
 (* pa_here.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
+open MLast;
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
 open Pa_ppx_deriving ;
+open Pa_ppx_params_runtime.Runtime ;
 
 value ignored_types = ref [] ;
 value add_ignored_type s = ignored_types.val := [s :: ignored_types.val] ;
@@ -19,6 +21,25 @@ value expansion_dict = ref [] ;
 value add_expansion n v = expansion_dict.val := [(n,v) :: expansion_dict.val] ;
 value expand_type n = List.assoc n expansion_dict.val ;
 value has_expansion n = List.mem_assoc n expansion_dict.val ;
+
+
+type t = {
+    optional : bool [@default False;]
+  ; plugin_name : string [@default "";]
+  ; ignore_types : list lident [@default [];]
+  ; expand_types : list lident [@default [];]
+  } [@@deriving params;]
+;
+
+value build_context loc ctxt tdl =
+  let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
+      (tdNam |> uv |> snd |> uv, td)
+    ) tdl in
+  let optarg =
+    let l = List.map (fun (k, e) -> (<:patt< $lid:k$ >>, e)) (Ctxt.options ctxt) in
+    <:expr< { $list:l$ } >> in
+  params optarg
+;
 
 Pcaml.strict_mode.val := True;
 
@@ -254,7 +275,7 @@ value expr_list_of_type_decl loc td =
   else []
 ;
 
-value type_decls_gen_ast loc tdl =
+value type_decls_gen_ast loc rc tdl =
   let ell = List.map (fun td -> expr_list_of_type_decl loc td) tdl in
   let el = List.flatten ell in
   List.map (fun e -> <:str_item< $exp:e$ >>) el
@@ -262,7 +283,8 @@ value type_decls_gen_ast loc tdl =
 
 value str_item_gen_quotation_test name arg = fun [
   <:str_item:< type $_flag:nrfl$ $list:tdl$ >> ->
-    let sil = type_decls_gen_ast loc tdl in
+    let rc = build_context loc arg tdl in
+    let sil = type_decls_gen_ast loc rc tdl in
     <:str_item< declare $list:sil$ end >>
 | si -> Fmt.(raise_failwithf (MLast.loc_of_str_item si) "pa_ppx_q_ast.mktest: unrecognized extension payload:\n@[%a@]" Pp_MLast.pp_str_item si)
 ]
@@ -294,15 +316,18 @@ Pcaml.add_option "-pa_ppx_q_ast.mktest-ignore-type" (Arg.String add_ignored_type
 Pcaml.add_option "-pa_ppx_q_ast.mktest-expand-type" (Arg.String add_expanded_type)
   "expand specified type";
 
-
 Pa_deriving.(Registry.add PI.{
   name = "quotation_test"
 ; alternates = []
 ; options = [
     "optional"
+  ; "ignore_types"
+  ; "expand_types"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
+  ; ("ignore_types", <:expr< [] >>)
+  ; ("expand_types", <:expr< [] >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []
