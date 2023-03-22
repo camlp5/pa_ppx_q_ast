@@ -1,14 +1,16 @@
-(**pp -syntax camlp5o -package sexp5_example.parser *)
+(**pp -syntax camlp5o -package sexp_menhir_example.parser *)
 (* camlp5o *)
 (* eg_sexp.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
 open Fmt ;;
 
-let nil = {| () |} |> Stream.of_string |> Grammar.Entry.parse Pa_sexp.sexp_eoi ;;
-let l = {| (a b (c . ()) . d) |} |> Stream.of_string |> Grammar.Entry.parse Pa_sexp.sexp_eoi ;;
+module Pattern = struct
 
-module NoVala = struct
-let nil = {| () |} |> Stream.of_string |> Grammar.Entry.parse Pa_sexp.sexp_novala_eoi ;;
-let l = {| (a b (c . ()) . d) |} |> Stream.of_string |> Grammar.Entry.parse Pa_sexp.sexp_novala_eoi ;;
+let nil = {| () |} |> Sexp_parse.pattern_sexp
+let l = {| (a b (c . ()) . d) |} |> Sexp_parse.pattern_sexp
 end
+
+let nil = {| () |} |> Sexp_parse.sexp
+let l = {| (a b (c . ()) . d) |} |> Sexp_parse.sexp
+
