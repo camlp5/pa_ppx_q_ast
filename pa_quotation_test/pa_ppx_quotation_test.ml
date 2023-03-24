@@ -210,37 +210,36 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
        ] then
     f <:expr< $lid:rc.loc_varname$ >>
   else
-  let (x, tyargs) = Ctyp.unapplist x in
-  match x with
-  [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.default_expression ->
+  match (x, Ctyp.unapplist x) with
+  [ (<:ctyp< $lid:tname$ >>, _) when List.mem_assoc tname rc.default_expression ->
     let e = List.assoc tname rc.default_expression in
     [e]
-  | <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.expansion_dict ->
+  | (_, (<:ctyp< $lid:tname$ >>, _)) when List.mem_assoc tname rc.expansion_dict ->
       let modli_opt = match List.assoc tname rc.module_dict with [
             exception Not_found ->
                       None
                     | x -> Some x
           ] in
     expr_list_of_type_gen loc rc f n (modli_opt, List.assoc tname rc.expansion_dict)
-  | <:ctyp< Ploc.vala $t$ >> ->
+  | (<:ctyp< Ploc.vala $t$ >>, _) ->
       expr_list_of_type_gen loc rc (handle_vala loc rc f) n (None, t) @
       let n = add_o n t in
       f <:expr< $lid:n$ >>
-  | <:ctyp< bool >> ->
+  | (<:ctyp< bool >>, _) ->
       f <:expr< True >> @
       f <:expr< False >> @
       f <:expr< $lid:n$ >>
 
-  | <:ctyp< { $list:_$ }>> as ct -> expr_list_of_record_ctyp rc f (modli, ct)
+  | ((<:ctyp< { $list:_$ }>> as ct), _) -> expr_list_of_record_ctyp rc f (modli, ct)
 
-  | <:ctyp< [ $list:_$ ]>> as ct -> expr_list_of_variant_ctyp rc f (modli, ct)
+  | ((<:ctyp< [ $list:_$ ]>> as ct), _) -> expr_list_of_variant_ctyp rc f (modli, ct)
 
-  | <:ctyp< ( $list:l$ )>> -> 
+  | (<:ctyp< ( $list:l$ )>>, _) -> 
     let ll = List.mapi (fun i t -> expr_list_of_type_gen loc rc (fun x -> [x]) (n^"f"^(string_of_int (i+1))) (None, t)) l in
     let l = expr_list_cross_product ll in
     List.concat (List.map (fun l -> f <:expr< ( $list:l$ ) >>) l)
 
-  | <:ctyp< option $t$ >> ->
+  | (<:ctyp< option $t$ >>, _) ->
       f <:expr< None >> @
       match t with
       [ <:ctyp< Ploc.vala (list $t$) >> ->
