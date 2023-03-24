@@ -17,7 +17,8 @@ value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
 value expanded_type n = List.mem n expanded_types.val ;
 
-value compute_expansion_dict type_decls expand_types : list (string * MLast.ctyp) =
+value compute_expansion_dict type_decls expand_types expand_types_per_constructor : list (string * MLast.ctyp) =
+  let expand_types = expand_types @ (List.concat_map snd expand_types_per_constructor) in
   type_decls
   |> List.filter_map (fun (n, td) ->
          if List.mem n expand_types then
@@ -60,7 +61,8 @@ type t = {
 ; plugin_name : string [@default "";]
 ; test_types : list lident
 ; expand_types : list lident [@default [];]
-; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types;]
+; expand_types_per_constructor : list (uident * (list lident)) [@default [];]
+; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types expand_types_per_constructor;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
@@ -77,7 +79,7 @@ type t = {
            };]
 ;
 
-value build_context loc ctxt tdl =
+value build_params loc ctxt tdl =
   let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
       (tdNam |> uv |> snd |> uv, td)
     ) tdl in
@@ -87,7 +89,7 @@ value build_context loc ctxt tdl =
   params type_decls optarg
 ;
 
-value build_context_from_cmdline tdl =
+value build_params_from_cmdline tdl =
   let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
       (tdNam |> uv |> snd |> uv, td)
     ) tdl in
@@ -96,7 +98,8 @@ value build_context_from_cmdline tdl =
   ; plugin_name = "pa_quotation_test"
   ; test_types = test_types.val
   ; expand_types = expanded_types.val
-  ; expansion_dict = compute_expansion_dict type_decls expanded_types.val
+  ; expand_types_per_constructor = []
+  ; expansion_dict = compute_expansion_dict type_decls expanded_types.val []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
@@ -214,13 +217,14 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
   [ (<:ctyp< $lid:tname$ >>, _) when List.mem_assoc tname rc.default_expression ->
     let e = List.assoc tname rc.default_expression in
     [e]
-  | (_, (<:ctyp< $lid:tname$ >>, _)) when List.mem_assoc tname rc.expansion_dict ->
-      let modli_opt = match List.assoc tname rc.module_dict with [
-            exception Not_found ->
-                      None
-                    | x -> Some x
-          ] in
-    expr_list_of_type_gen loc rc f n (modli_opt, List.assoc tname rc.expansion_dict)
+  | (_, (<:ctyp< $lid:tname$ >>, _)) when List.mem tname rc.expand_types ->
+     let _ = assert (List.mem_assoc tname rc.expansion_dict) in
+     let modli_opt = match List.assoc tname rc.module_dict with [
+           exception Not_found ->
+                     None
+                   | x -> Some x
+         ] in
+     expr_list_of_type_gen loc rc f n (modli_opt, List.assoc tname rc.expansion_dict)
   | (<:ctyp< Ploc.vala $t$ >>, _) ->
       expr_list_of_type_gen loc rc (handle_vala loc rc f) n (None, t) @
       let n = add_o n t in
@@ -407,7 +411,7 @@ value type_decls_gen_quotation_test loc arg rc tdl =
 
 value derive_quotation_test name arg = fun [
   <:str_item:< type $_flag:nrfl$ $list:tdl$ >> ->
-    let rc = build_context loc arg tdl in
+    let rc = build_params loc arg tdl in
     type_decls_gen_quotation_test loc arg rc tdl
 | si -> Fmt.(raise_failwithf (MLast.loc_of_str_item si) "pa_ppx_q_ast.quotation_test: unrecognized extension payload:\n@[%a@]"
                pp_str_item si)
@@ -416,7 +420,7 @@ value derive_quotation_test name arg = fun [
 
 value rewrite_str_item arg = fun [
   <:str_item:< [%%"quotation_test" type $list:tdl$ ;] >> as z ->
-  let rc = build_context_from_cmdline tdl in
+  let rc = build_params_from_cmdline tdl in
   type_decls_gen_quotation_test loc arg rc tdl
 | z -> z
 ]
@@ -448,6 +452,7 @@ Pa_deriving.(Registry.add PI.{
     "optional"
   ; "test_types"
   ; "expand_types"
+  ; "expand_types_per_constructor"
   ; "type_module_map"
   ; "default_expression"
   ; "location_type"
@@ -458,6 +463,7 @@ Pa_deriving.(Registry.add PI.{
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< [] >>)
+  ; ("expand_types_per_constructor", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)
