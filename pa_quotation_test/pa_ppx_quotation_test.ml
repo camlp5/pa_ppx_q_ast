@@ -17,7 +17,7 @@ value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
 value expanded_type n = List.mem n expanded_types.val ;
 
-value compute_expansion_dict type_decls expand_types =
+value compute_expansion_dict type_decls expand_types : list (string * MLast.ctyp) =
   type_decls
   |> List.filter_map (fun (n, td) ->
          if List.mem n expand_types then
@@ -210,6 +210,7 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, (modli, x)) =
        ] then
     f <:expr< $lid:rc.loc_varname$ >>
   else
+  let (x, tyargs) = Ctyp.unapplist x in
   match x with
   [ <:ctyp< $lid:tname$ >> when List.mem_assoc tname rc.default_expression ->
     let e = List.assoc tname rc.default_expression in
