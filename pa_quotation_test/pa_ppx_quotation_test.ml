@@ -7,6 +7,7 @@ open MLast;
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
+open Pa_ppx_utils ;
 open Pa_ppx_deriving ;
 open Pa_ppx_params_runtime.Runtime ;
 
@@ -17,16 +18,27 @@ value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
 value expanded_type n = List.mem n expanded_types.val ;
 
-value compute_expansion_dict type_decls expand_types expand_types_per_constructor : list (string * MLast.ctyp) =
+value extract_expansion (n,td) =
+  let ty = match td.tdDef with [
+        <:ctyp< $_$ == $ty$ >> -> ty
+      | ty -> ty
+      ] in
+  let tyvars =
+    td.tdPrm |> uv
+    |> List.map (fun tv ->
+           match uv (fst tv) with [
+               None -> Fmt.(failwithf "Pa_ppx_quotation_test.extract_expansion: unnamed type-var for type-decl %s" n)
+             | Some v -> v
+         ]) in
+  (n, (tyvars, ty))
+;
+
+value compute_expansion_dict type_decls expand_types expand_types_per_constructor : list (string * (list string * MLast.ctyp)) =
   let expand_types = expand_types @ (List.concat_map snd expand_types_per_constructor) in
   type_decls
   |> List.filter_map (fun (n, td) ->
          if List.mem n expand_types then
-           let ty = match td.tdDef with [
-                 <:ctyp< $_$ == $ty$ >> -> ty
-               | ty -> ty
-               ] in
-           Some (n, ty)
+           Some (extract_expansion (n,td))
          else None)
 ;
 
@@ -62,7 +74,7 @@ type t = {
 ; test_types : list lident
 ; expand_types : list lident [@default [];]
 ; expand_types_per_constructor : list (uident * (list lident)) [@default [];]
-; expansion_dict : alist lident ctyp [@computed compute_expansion_dict type_decls expand_types expand_types_per_constructor;]
+; expansion_dict : alist lident (list string * ctyp) [@computed compute_expansion_dict type_decls expand_types expand_types_per_constructor;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
@@ -216,6 +228,21 @@ value expand_type_p rc cidopt tname =
       ]
 ;
 
+value do_expand_type rc x =
+  let (x,args) = Ctyp.unapplist x in
+  let tname = match x with [
+        <:ctyp< $lid:tname$ >> -> tname
+      | _ -> assert False
+      ] in
+  let (formals, ty) = List.assoc tname rc.expansion_dict in
+  if List.length args <> List.length formals then
+    Fmt.(failwithf "Pa_ppx_quotation_test.do_expand_type: mismatched actuals/formals for type %s: [%a] <> [%a]"
+           tname (list ~{sep=(const string " ")} Pp_MLast.pp_ctyp) args (list ~{sep=(const string " ")} string) formals)
+  else
+    let rho = Std.combine formals args in
+    Ctyp.subst rho ty
+;
+
 value rec expr_list_of_type_gen loc rc f n ((modli, cid), x) =
   expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x))
 and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
@@ -236,7 +263,8 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
                      None
                    | x -> Some x
          ] in
-     expr_list_of_type_gen loc rc f n ((modli_opt, None), List.assoc tname rc.expansion_dict)
+     let expanded = do_expand_type rc x in
+     expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded)
   | (<:ctyp< Ploc.vala $t$ >>, _) ->
       expr_list_of_type_gen loc rc (handle_vala loc rc f) n ((None, cid), t) @
       let n = add_o n t in
