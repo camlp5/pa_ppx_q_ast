@@ -376,10 +376,20 @@ value expr_list_of_type_decl loc rc td =
   else []
 ;
 
+value drop_duplicates el =
+  let rec drec acc = fun [
+        [] -> List.rev acc
+      | [h1;h2::tl] when Reloc.eq_expr h1 h2 -> drec acc [h2::tl]
+      | [h::tl] -> drec [h::acc] tl
+      ]
+  in drec [] el
+;
+
 value type_decl_gen_ast loc rc td =
   let loc = loc_of_type_decl td in
   let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
   let el = expr_list_of_type_decl loc rc td in
+  let el = drop_duplicates el in
   let sil = List.map (fun e -> <:str_item< $exp:e$ >>) el in
   [<:str_item< [@@@"ocaml.text" $str:tname$; ] >> :: sil]
 ;
