@@ -16,6 +16,7 @@ all test: type1.cmo \
 	test2.r_out test2.o_out \
 	test3.r_out test3.o_out \
 	test4.r_out test4.o_out \
+	test5.r_out test5.o_out \
 
 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 

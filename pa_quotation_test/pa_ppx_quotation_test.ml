@@ -74,6 +74,7 @@ type t = {
 ; test_types : list lident
 ; expand_types : list lident [@default [];]
 ; expand_types_per_constructor : list (uident * (list lident)) [@default [];]
+; per_constructor_exprs : list (uident * (list expr)) [@default [];]
 ; expansion_dict : alist lident (list string * ctyp) [@computed compute_expansion_dict type_decls expand_types expand_types_per_constructor;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
@@ -111,6 +112,7 @@ value build_params_from_cmdline tdl =
   ; test_types = test_types.val
   ; expand_types = expanded_types.val
   ; expand_types_per_constructor = []
+  ; per_constructor_exprs = []
   ; expansion_dict = compute_expansion_dict type_decls expanded_types.val []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
@@ -332,11 +334,14 @@ and patt_expr_list_of_type loc rc (f : MLast.expr -> list (list (MLast.patt * ML
   List.concat (List.map f el)
 
 and expr_of_cons_decl rc (modli, (loc, c, _, tl, rto, _)) = do {
+  let c = Pcaml.unvala c in
+  if List.mem_assoc c rc.per_constructor_exprs then
+    List.assoc  c rc.per_constructor_exprs
+  else
   let modli = match modli with [
-        None -> Fmt.(raise_failwithf loc "expr_of_cons_decl: no module supplied for constructor %s" (uv c))
+        None -> Fmt.(raise_failwithf loc "expr_of_cons_decl: no module supplied for constructor %s" c)
       | Some li -> li
       ] in
-  let c = Pcaml.unvala c in
   if List.mem c rc.superfluous_constructors then []
   else do {
     let tl = Pcaml.unvala tl in
@@ -493,6 +498,7 @@ Pa_deriving.(Registry.add PI.{
   ; "test_types"
   ; "expand_types"
   ; "expand_types_per_constructor"
+  ; "per_constructor_exprs"
   ; "type_module_map"
   ; "default_expression"
   ; "location_type"
@@ -504,6 +510,7 @@ Pa_deriving.(Registry.add PI.{
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< [] >>)
   ; ("expand_types_per_constructor", <:expr< [] >>)
+  ; ("per_constructor_exprs", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)
