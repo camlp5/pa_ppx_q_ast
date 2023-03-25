@@ -426,10 +426,15 @@ value expr_list_of_type_decl loc rc td =
 ;
 
 value drop_duplicates el =
+  let ht = Hashtbl.create 23 in
+  let canon e = Reloc.expr (fun _ -> Ploc.dummy) 0 e in
   let rec drec acc = fun [
         [] -> List.rev acc
-      | [h1;h2::tl] when Reloc.eq_expr h1 h2 -> drec acc [h2::tl]
-      | [h::tl] -> drec [h::acc] tl
+      | [h::tl] when Hashtbl.mem ht (canon h) -> drec acc tl
+      | [h::tl] -> do {
+          Hashtbl.add ht (canon h) () ;
+          drec [h::acc] tl
+        }
       ]
   in drec [] el
 ;
