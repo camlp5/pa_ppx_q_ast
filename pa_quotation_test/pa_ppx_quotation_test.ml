@@ -269,7 +269,11 @@ value do_expand_type rc cid x =
     | Some cid ->
        match List.assoc cid rc.per_constructor_expansion_dict with [
            exception Not_found -> do_expand_type0 rc x
-         | dict -> do_expand_via_dict dict x
+         | dict ->
+            match do_expand_via_dict dict x with [
+                exception Not_found -> do_expand_type0 rc x
+              | x -> x
+              ]
          ]
     ]
 ;
