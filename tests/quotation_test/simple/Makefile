@@ -17,14 +17,15 @@ all test: type1.cmo \
 	test3.r_out test3.o_out \
 	test4.r_out test4.o_out \
 	test5.r_out test5.o_out \
+	test5b.r_out test5b.o_out \
 
 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
-#QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
-QUOTPACKAGES=pa_ppx_q_ast_quotation_test
+QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
+#QUOTPACKAGES=pa_ppx_q_ast_quotation_test
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'
 OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'
 

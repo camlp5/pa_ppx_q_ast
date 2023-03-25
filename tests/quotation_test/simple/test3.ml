@@ -8,9 +8,9 @@
  ]
 ][@@deriving quotation_test {
         test_types = [t2]
-      ; expand_types = [
-          loc
-        ]
+      ; expand_types = {
+          loc = Auto
+        }
       ; location_type = [%typ: location]
       ; loc_varname = __loc__
   }]

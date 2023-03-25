@@ -8,4 +8,6 @@ type t2 = { f1 : string loc }
 type t3a = U | V
 and t3b = X of t3a | Y of t3a | Z of t3a loc
 
-type t4 = U of int
+type t4 = U of num
+and num = int
+

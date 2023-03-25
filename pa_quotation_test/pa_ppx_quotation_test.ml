@@ -30,16 +30,24 @@ value extract_expansion (n,td) =
                None -> Fmt.(failwithf "Pa_ppx_quotation_test.extract_expansion: unnamed type-var for type-decl %s" n)
              | Some v -> v
          ]) in
-  (n, (tyvars, ty))
+  (tyvars, ty)
 ;
 
-value compute_expansion_dict type_decls expand_types expand_types_per_constructor : list (string * (list string * MLast.ctyp)) =
-  let expand_types = expand_types @ (List.concat_map snd expand_types_per_constructor) in
+value compute_expansion_dict type_decls expand_types =
   type_decls
   |> List.filter_map (fun (n, td) ->
-         if List.mem n expand_types then
-           Some (extract_expansion (n,td))
-         else None)
+         match List.assoc n expand_types with [
+             exception Not_found -> None
+           | insn ->
+              Some ((n: string), (extract_expansion (n,td), insn))
+           ])
+;
+
+value compute_per_constructor_expansion_dict type_decls expand_types_per_constructor =
+  expand_types_per_constructor
+  |> List.map (fun (cid,  expand_types) ->
+         ((cid: string), compute_expansion_dict type_decls expand_types)
+       )
 ;
 
 value compute_module_dict type_decls type_module_map =
@@ -68,14 +76,20 @@ value compute_module_dict type_decls type_module_map =
              ])
 ;
 
+type expand_op_t = [
+    Auto
+  | Explicit of list expr
+  ] [@@deriving params;]
+;
 type t = {
   optional : bool [@default False;]
 ; plugin_name : string [@default "";]
 ; test_types : list lident
-; expand_types : list lident [@default [];]
-; expand_types_per_constructor : list (uident * (list lident)) [@default [];]
+; expand_types : alist lident expand_op_t [@default [];]
 ; per_constructor_exprs : list (uident * (list expr)) [@default [];]
-; expansion_dict : alist lident (list string * ctyp) [@computed compute_expansion_dict type_decls expand_types expand_types_per_constructor;]
+; expansion_dict : alist lident ((list string * ctyp) * expand_op_t) [@computed compute_expansion_dict type_decls expand_types;]
+; expand_types_per_constructor : list (uident * (alist lident expand_op_t)) [@default [];]
+; per_constructor_expansion_dict : list (uident * (alist lident ((list string * ctyp) * expand_op_t))) [@computed compute_per_constructor_expansion_dict type_decls expand_types_per_constructor;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
@@ -106,14 +120,16 @@ value build_params_from_cmdline tdl =
   let type_decls = List.map (fun (MLast.{tdNam=tdNam} as td) ->
       (tdNam |> uv |> snd |> uv, td)
     ) tdl in
+  let expand_types = expanded_types.val |> List.map (fun n -> (n, Auto)) in
   {
     optional = False
   ; plugin_name = "pa_quotation_test"
   ; test_types = test_types.val
-  ; expand_types = expanded_types.val
+  ; expand_types = expand_types
   ; expand_types_per_constructor = []
   ; per_constructor_exprs = []
-  ; expansion_dict = compute_expansion_dict type_decls expanded_types.val []
+  ; expansion_dict = compute_expansion_dict type_decls expand_types
+  ; per_constructor_expansion_dict = []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
@@ -219,30 +235,43 @@ value handle_vala loc rc f e =
 ;
 
 value expand_type_p rc cidopt tname =
-  List.mem tname rc.expand_types ||
+  List.mem_assoc tname rc.expansion_dict ||
     match cidopt with [
         None -> False
       | Some cid ->
-         match List.assoc cid rc.expand_types_per_constructor with [
+         match List.assoc cid rc.per_constructor_expansion_dict with [
              exception Not_found -> False
-           | l -> List.mem tname l
+           | l -> List.mem_assoc tname l
            ]
       ]
 ;
 
-value do_expand_type rc x =
+value do_expand_via_dict dict x =
   let (x,args) = Ctyp.unapplist x in
   let tname = match x with [
         <:ctyp< $lid:tname$ >> -> tname
       | _ -> assert False
       ] in
-  let (formals, ty) = List.assoc tname rc.expansion_dict in
+  let ((formals, ty), insn) = List.assoc tname dict in
   if List.length args <> List.length formals then
     Fmt.(failwithf "Pa_ppx_quotation_test.do_expand_type: mismatched actuals/formals for type %s: [%a] <> [%a]"
            tname (list ~{sep=(const string " ")} Pp_MLast.pp_ctyp) args (list ~{sep=(const string " ")} string) formals)
   else
     let rho = Std.combine formals args in
-    Ctyp.subst rho ty
+    (Ctyp.subst rho ty, insn)
+;
+
+value do_expand_type0 rc x = do_expand_via_dict rc.expansion_dict x ;
+
+value do_expand_type rc cid x =
+  match cid with [
+      None -> do_expand_type0 rc x
+    | Some cid ->
+       match List.assoc cid rc.per_constructor_expansion_dict with [
+           exception Not_found -> do_expand_type0 rc x
+         | dict -> do_expand_via_dict dict x
+         ]
+    ]
 ;
 
 value rec expr_list_of_type_gen loc rc f n ((modli, cid), x) =
@@ -259,14 +288,18 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
     let e = List.assoc tname rc.default_expression in
     [e]
   | (_, (<:ctyp< $lid:tname$ >>, _)) when expand_type_p rc cid tname ->
-     let _ = assert (List.mem_assoc tname rc.expansion_dict) in
      let modli_opt = match List.assoc tname rc.module_dict with [
            exception Not_found ->
                      None
                    | x -> Some x
          ] in
-     let expanded = do_expand_type rc x in
-     expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded)
+     let (expanded, insn) = do_expand_type rc cid x in
+     match insn with [
+         Auto ->
+         expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded)
+       | Explicit l -> l
+       ]
+
   | (<:ctyp< Ploc.vala $t$ >>, _) ->
       expr_list_of_type_gen loc rc (handle_vala loc rc f) n ((None, cid), t) @
       let n = add_o n t in
@@ -513,7 +546,7 @@ Pa_deriving.(Registry.add PI.{
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
-  ; ("expand_types", <:expr< [] >>)
+  ; ("expand_types", <:expr< () >>)
   ; ("expand_types_per_constructor", <:expr< [] >>)
   ; ("per_constructor_exprs", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
