@@ -1,0 +1,9 @@
+type t4 =
+  Types.t4 ==
+    [ U of num ]
+and num = int[@@"deriving_inline" quotation_test {test_types = [t4]; expand_types_per_constructor = [(U, {num = Explicit [1; 2]})]};];
+[@@@"ocaml.text" "t4";];
+Types.U 1;
+Types.U 2;
+[@@@"ocaml.text" "num";];
+[@@@"end"];

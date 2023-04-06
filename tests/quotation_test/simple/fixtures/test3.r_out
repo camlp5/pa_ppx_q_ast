@@ -1,0 +1,16 @@
+type t3a = Types.t3a == [ U | V ]
+and t3b =
+  Types.t3b ==
+    [ X of t3a
+    | Y of t3a
+    | Z of loc t3a ]
+and loc α = Types.loc α == { txt : α; loc : Location.t }[@@"deriving_inline" quotation_test {test_types = [t3b]; expand_types_per_constructor = [(X, {t3a = Auto}); (Z, {t3a = Auto; loc = Auto})]};];
+[@@@"ocaml.text" "t3a";];
+[@@@"ocaml.text" "t3b";];
+Types.X Types.U;
+Types.X Types.V;
+Types.Y x;
+Types.Z {Types.txt = Types.U; Types.loc = x2};
+Types.Z {Types.txt = Types.V; Types.loc = x2};
+[@@@"ocaml.text" "loc";];
+[@@@"end"];

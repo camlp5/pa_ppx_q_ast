@@ -1,0 +1,5 @@
+type t = Types.t == [ A | B ][@@"deriving_inline" quotation_test {test_types = [t]};];
+[@@@"ocaml.text" "t";];
+Types.A;
+Types.B;
+[@@@"end"];

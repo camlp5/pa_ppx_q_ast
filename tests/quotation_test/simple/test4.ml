@@ -1,10 +1,11 @@
 (**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
-[%%import: Types.t3b
-  [@add [%%import: Types.loc]]
+[%%import: Types.t4
 ][@@deriving quotation_test {
-        test_types = [t3b]
-      ; expand_types_per_constructor = [
-          (X, { t3a = Auto })
-        ; (Z, { t3a = Auto ; loc = Auto })
+        test_types = [t4]
+      ; per_constructor_exprs = [
+          (U, [
+             (Types.U 1)
+           ; (Types.U 2)
+           ])
         ]
   }]
