@@ -1,8 +1,4 @@
-type t2 = Types.t2 == { f1 : loc string }
-and loc α = Types.loc α == { txt : α; loc : location }
-and location = Location.t[@@"deriving_inline" quotation_test {test_types = [t2]; expand_types = {loc = Auto}; location_type = [%"typ": location]; loc_varname = __loc__};];
 [@@@"ocaml.text" "t2";];
 {Types.f1 = {Types.txt = s; Types.loc = __loc__}};
 [@@@"ocaml.text" "loc";];
 [@@@"ocaml.text" "location";];
-[@@@"end"];

@@ -12,6 +12,7 @@ ML=\
 
 TESTS=\
 	test1.TEST test1b.TEST test1c.TEST \
+	test2.TEST \
 	test3.TEST \
 	test4.TEST test4b.TEST \
 	test5.TEST test5b.TEST \
