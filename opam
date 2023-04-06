@@ -1,3 +1,4 @@
+version: "0.10"
 synopsis: "A PPX Rewriter for automating generation of data-conversion code for use with Camlp5's Q_ast"
 description:
 """
