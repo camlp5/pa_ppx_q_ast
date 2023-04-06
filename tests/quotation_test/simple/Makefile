@@ -15,6 +15,7 @@ TESTS=\
 	test3.TEST \
 	test4.TEST test4b.TEST \
 	test5.TEST \
+	test6.TEST \
 
 $(TESTS:.TEST=.cmo): types.cmo
 
