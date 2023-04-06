@@ -11,3 +11,7 @@ and t3b = X of t3a | Y of t3a | Z of t3a loc
 type t4 = U of num
 and num = int
 
+type t4' = V of num
+
+type t5 = A of t4 * t4
+        | B of t4 * t4'

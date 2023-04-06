@@ -3,7 +3,7 @@
 #require "pa_ppx.testutils";;
 open Pa_ppx_testutils.Papr_util ;;
 
-#require "camlp5.pr_o" ;;
+#require "camlp5.pr_r" ;;
 
 let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty));;
 let pp_expr ty = Fmt.(pf stdout "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty));;
@@ -19,22 +19,24 @@ let pp_str_item ty = Fmt.(pf stdout "#<str_item< %s >>" (Eprinter.apply Pcaml.pr
 print_string "================ START ================\n";; flush stdout ;;
 
 #require "camlp5.parser_quotations";;
+#require "pa_ppx.import" ;;
+Pa_ppx_import.add_include "." ;;
 #require "pa_ppx_q_ast_quotation_test";;
-(*
 #require "pa_ppx_q_ast_test_cleanup";;
- *)
-Pr_o.sep := Some ";;\n";;
-Pa_ppx_base.Pa_passthru.debug := true ;;
+
+Pr_r.sep := Some ";\n";;
 (*
+Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_test_cleanup.rewrite_str_item ;;
- *)
 #trace Pa_ppx_quotation_test.compute_expansion_dict ;;
 #trace Pa_ppx_quotation_test.expr_list_of_type_gen_uncurried ;;
-#trace Pa_ppx_quotation_test.expr_of_cons_decl ;;
-#trace Pa_ppx_quotation_test.expr_list_of_type_decl ;;
-#trace Pa_ppx_quotation_test.expr_list_of_record_ctyp ;;
 #trace Pa_ppx_quotation_test.expr_list_of_variant_ctyp ;;
 #trace Pa_ppx_quotation_test.do_expand_type ;;
+#trace Pa_ppx_quotation_test.expr_list_of_type_decl ;;
+#trace Pa_ppx_quotation_test.expr_of_cons_decl ;;
+#trace Pa_ppx_quotation_test.expr_list_of_record_ctyp ;;
+#trace Pa_ppx_quotation_test.name_of_vars ;;
+ *)
 
 {|
 type t3a = Type1.t3a = U | V
@@ -43,8 +45,39 @@ and t3b =
       X of t3a
     | Y of t3a
     | Z of t3a loc
-and 'a loc = 'a Type1.loc = { txt : 'a; loc : Location.t }[@@deriving quotation_test {test_types = [t3b]; expand_types_per_constructor = [X, [t3a]; Z, [t3a; loc]]}]
+and 'a loc = 'a Type1.loc = { txt : 'a; loc : Location.t }
+[@@deriving quotation_test {
+        test_types = [t3b]
+      ; expand_types_per_constructor = [
+          (X, { t3a = Auto })
+        ; (Z, { t3a = Auto ; loc = Auto })
+        ]
+  }]
 |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+
+{|
+type t5 =
+  Type1.t5 =
+      A of t4 * t4
+    | B of t4 * t4'
+and t4 =
+  Type1.t4 =
+      U of num
+and t4' =
+  Type1.t4' =
+      V of num
+[@@deriving quotation_test {test_types = [t5]; expand_types = {t4 = Auto; t4' = Auto}}]
+|} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+
+
+{|
+[%%import: Type1.t5
+ [@add type t4 = [%import: Type1.t4]]
+ [@add type t4' = [%import: Type1.t4']]
+]
+[@@deriving quotation_test {test_types = [t5]; expand_types = {t4 = Auto; t4' = Auto}}]
+|} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+
 
 (*
 ;;; Local Variables: ***
