@@ -1,7 +1,7 @@
 (**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
-[%%import: Type1.t2
+[%%import: Types.t2
  [@add
-     [%%import: Type1.loc
+     [%%import: Types.loc
       [@with Location.t := location]
      ]
   type location = Location.t

@@ -8,18 +8,24 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 ML=\
-	type1.ml \
+	types.ml \
 
-all test: type1.cmo \
-	test1.r_out test1.o_out \
-	test1b.r_out test1b.o_out \
-	test2.r_out test2.o_out \
-	test3.r_out test3.o_out \
-	test4.r_out test4.o_out \
-	test5.r_out test5.o_out \
-	test5b.r_out test5b.o_out \
-	test6.r_out test6.o_out \
+TESTS=\
+	test1.TEST test1b.TEST \
+	test2.TEST \
+	test3.TEST \
+	test4.TEST \
+	test5.TEST test5b.TEST \
+	test6.TEST \
 
+$(TESTS:.TEST=.cmo): types.cmo
+
+all test: types.cmo $(TESTS)
+
+#.SECONDARY:
+
+%.TEST: %.r_out %.o_out
+	diff -Bwiu fixtures/$< $<
 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
@@ -36,7 +42,7 @@ OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'
 .ml.o_out:
 	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(QUOTPACKAGES),camlp5.pr_o -syntax camlp5o $(OPPFLAGS) $< > $@
 
-.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .r_out .o_out
+.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .r_out .o_out .TEST
 
 clean::
 	rm -rf META *.cm* *.o *.*out
