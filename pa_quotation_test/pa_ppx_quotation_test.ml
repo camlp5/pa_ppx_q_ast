@@ -326,7 +326,7 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
       f <:expr< None >> @
       match t with
       [ <:ctyp< Ploc.vala (list $t$) >> ->
-          let f _ = f <:expr< Some (Ploc.VaVal []) >> in
+          let f _ = f (if rc.target_is_pattern_ast then <:expr< Some (Ploc.VaVal []) >> else <:expr< Some [] >>) in
           expr_list_of_type_gen loc rc f n ((None, cid), t)
       | _ -> [] ] @
       expr_list_of_type_gen loc rc (fun e -> f <:expr< Some $e$ >>) n ((None, cid), t) @

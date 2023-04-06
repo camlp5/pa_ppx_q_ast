@@ -16,4 +16,4 @@ type t4' = V of num
 type t5 = A of t4 * t4
         | B of t4 * t4'
 
-type t6 = W of t4 Ploc.vala option
+type t6 = W of t4 list Ploc.vala option
