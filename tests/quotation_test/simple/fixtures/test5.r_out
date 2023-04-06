@@ -1,17 +1,5 @@
-type t5 =
-  Types.t5 ==
-    [ A of t4 and t4
-    | B of t4 and t4' ]
-and t4 =
-  Types.t4 ==
-    [ U of num ]
-and t4' =
-  Types.t4' ==
-    [ V of num ][@@"deriving_inline" quotation_test {test_types = [t5]; expand_types = {t4 = Auto; t4' = Auto}};]
-;
 [@@@"ocaml.text" "t5";];
 Types.A (Types.U x) (Types.U x);
 Types.B (Types.U x) (Types.V x);
 [@@@"ocaml.text" "t4";];
 [@@@"ocaml.text" "t4'";];
-[@@@"end"];

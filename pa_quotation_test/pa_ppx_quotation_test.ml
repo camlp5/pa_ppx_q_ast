@@ -78,6 +78,7 @@ value compute_module_dict type_decls type_module_map =
 
 type expand_op_t = [
     Auto
+  | AddDel of list expr and list expr
   | Explicit of list expr
   ] [@@deriving params;]
 ;
@@ -86,7 +87,7 @@ type t = {
 ; plugin_name : string [@default "";]
 ; test_types : list lident
 ; expand_types : alist lident expand_op_t [@default [];]
-; per_constructor_exprs : list (uident * (list expr)) [@default [];]
+; per_constructor_expansion : list (uident * expand_op_t) [@default [];]
 ; expansion_dict : alist lident ((list string * ctyp) * expand_op_t) [@computed compute_expansion_dict type_decls expand_types;]
 ; expand_types_per_constructor : list (uident * (alist lident expand_op_t)) [@default [];]
 ; per_constructor_expansion_dict : list (uident * (alist lident ((list string * ctyp) * expand_op_t))) [@computed compute_per_constructor_expansion_dict type_decls expand_types_per_constructor;]
@@ -127,7 +128,7 @@ value build_params_from_cmdline tdl =
   ; test_types = test_types.val
   ; expand_types = expand_types
   ; expand_types_per_constructor = []
-  ; per_constructor_exprs = []
+  ; per_constructor_expansion = []
   ; expansion_dict = compute_expansion_dict type_decls expand_types
   ; per_constructor_expansion_dict = []
   ; type_module_map = []
@@ -278,6 +279,15 @@ value do_expand_type rc cid x =
     ]
 ;
 
+value process_add_dels (adds,dels) l =
+  let l = List.map (Reloc.expr (fun _ ->  Ploc.dummy) 0) l in
+  let adds = List.map (Reloc.expr (fun _ ->  Ploc.dummy) 0) adds in
+  let dels = List.map (Reloc.expr (fun _ ->  Ploc.dummy) 0) dels in
+  let l = l@adds in
+  let l = Std.subtract l dels in
+  Std.uniquize l
+;
+
 value rec expr_list_of_type_gen loc rc f n ((modli, cid), x) =
   expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x))
 and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
@@ -301,6 +311,10 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
      match insn with [
          Auto ->
          expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded)
+       | AddDel  adds dels ->
+          let l = expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded) in
+          process_add_dels (adds,dels) l
+
        | Explicit l -> l
        ]
 
@@ -370,11 +384,19 @@ and patt_expr_list_of_type loc rc (f : MLast.expr -> list (list (MLast.patt * ML
   let el = expr_list_of_type loc rc (fun x -> [x]) n (cid,ty) in
   List.concat (List.map f el)
 
-and expr_of_cons_decl rc (modli, (loc, c, _, tl, rto, _)) = do {
+and expr_of_cons_decl rc (modli, (loc, c, x, tl, rto, y)) =
+  match List.assoc (Pcaml.unvala c) rc.per_constructor_expansion with [
+      exception Not_found
+    | Auto -> 
+       expr_of_cons_decl0 rc (modli, (loc, c, x, tl, rto, y))
+    | Explicit l -> l
+    | AddDel adds dels ->
+       let l = expr_of_cons_decl0 rc (modli, (loc, c, x, tl, rto, y)) in
+       process_add_dels (adds,dels) l
+    ]
+
+and expr_of_cons_decl0 rc (modli, (loc, c, _, tl, rto, _)) = do {
   let c = Pcaml.unvala c in
-  if List.mem_assoc c rc.per_constructor_exprs then
-    List.assoc  c rc.per_constructor_exprs
-  else
   let modli = match modli with [
         None -> Fmt.(raise_failwithf loc "expr_of_cons_decl: no module supplied for constructor %s" c)
       | Some li -> li
@@ -540,7 +562,7 @@ Pa_deriving.(Registry.add PI.{
   ; "test_types"
   ; "expand_types"
   ; "expand_types_per_constructor"
-  ; "per_constructor_exprs"
+  ; "per_constructor_expansion"
   ; "type_module_map"
   ; "default_expression"
   ; "location_type"
@@ -552,7 +574,7 @@ Pa_deriving.(Registry.add PI.{
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< () >>)
   ; ("expand_types_per_constructor", <:expr< [] >>)
-  ; ("per_constructor_exprs", <:expr< [] >>)
+  ; ("per_constructor_expansion", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)
