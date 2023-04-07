@@ -76,6 +76,7 @@ value compute_per_constructor_expansion_dict type_decls expand_types_per_constru
 
 value compute_per_type_expansion_dict type_decls expand_types_per_type =
   let dict0 = expand_types_per_type in
+(*
   let dict0 =
     List.fold_left
       (fun dict0 (tname, td) ->
@@ -84,6 +85,7 @@ value compute_per_type_expansion_dict type_decls expand_types_per_type =
            two_level_add_assoc (tname, tname, Auto) dict0
          else dict0)
       dict0 type_decls in
+ *)
   dict0
   |> List.map (fun (tname,  expand_types) ->
          ((tname: string), compute_expansion_dict type_decls expand_types)
@@ -510,7 +512,36 @@ value expr_list_of_type_decl loc rc td =
     if Pcaml.unvala td.MLast.tdPrm <> [] then
       Fmt.(raise_failwithf loc "expr_list_of_type_decl: typedecl %s has params (cannot be expanded in list of examples" tname)
     else
-      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((None, None), <:ctyp< $lid:tname$ >>)
+
+    let ty = match td.MLast.tdDef with [
+          <:ctyp< $_$ == $ty$ >> -> ty
+        | ty -> ty
+        ] in
+    let modli = match List.assoc tname rc.module_dict with [
+          exception Not_found ->
+            Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
+        | x -> x
+        ] in
+
+    if expand_type_p rc ~{tdname=tname} None tname then
+      let cid = None in
+      let modli_opt = Some modli in
+      let x = <:ctyp< $lid:tname$ >> in
+      let tdname = tname in
+      let (expanded, insn) = do_expand_type rc ~{tdname} cid x in
+      let f = (fun x -> [x]) in
+      let n = "x" in
+      match insn with [
+          Auto ->
+          expr_list_of_type_gen loc rc ~{tdname} f n ((modli_opt, cid), expanded)
+        | AddDel  adds dels ->
+           let l = expr_list_of_type_gen loc rc ~{tdname} f n ((modli_opt, cid), expanded) in
+           process_add_dels (adds,dels) l
+          
+        | Explicit l -> l
+        ]
+    else
+      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((Some modli, None), ty)
   else []
 ;
 

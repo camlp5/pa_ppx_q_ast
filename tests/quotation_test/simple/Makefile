@@ -18,6 +18,7 @@ TESTS=\
 	test5.TEST test5b.TEST \
 	test6.TEST \
 	test7.TEST \
+	test8.TEST \
 
 $(TESTS:.TEST=.cmo): types.cmo
 

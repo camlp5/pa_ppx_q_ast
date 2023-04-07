@@ -1,0 +1,3 @@
+[@@@"ocaml.text" "t8";];
+Types.C x1 x2;
+Types.D;
