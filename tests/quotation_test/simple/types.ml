@@ -17,3 +17,7 @@ type t5 = A of t4 * t4
         | B of t4 * t4'
 
 type t6 = W of t4 list Ploc.vala option
+
+type t7 = A of t3a
+and t7' = B of t3a
+

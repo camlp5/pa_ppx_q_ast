@@ -246,19 +246,30 @@ value handle_vala loc rc f e =
   else f e
 ;
 
-value expand_type_p rc cidopt tname =
+value two_level_mem k1 k2 dict =
+  match List.assoc k1 dict with [
+      exception Not_found -> False
+    | d -> List.mem_assoc k2 d
+    ]
+;
+
+value per_constructor_expand_type_p rc tname cid =
+  two_level_mem cid tname rc.per_constructor_expansion_dict ;
+
+value per_type_expand_type_p rc ~{tdname} tname =
+  two_level_mem tdname tname rc.per_type_expansion_dict ;
+
+value expand_type_p rc ~{tdname} cidopt tname =
   List.mem_assoc tname rc.expansion_dict ||
     match cidopt with [
         None -> False
       | Some cid ->
-         match List.assoc cid rc.per_constructor_expansion_dict with [
-             exception Not_found -> False
-           | l -> List.mem_assoc tname l
-           ]
-      ]
+         per_constructor_expand_type_p rc tname cid
+      ] ||
+  per_type_expand_type_p rc ~{tdname} tname
 ;
 
-value do_expand_via_dict dict x =
+value do_expand_via_dict0 dict x =
   let (x,args) = Ctyp.unapplist x in
   let tname = match x with [
         <:ctyp< $lid:tname$ >> -> tname
@@ -273,20 +284,42 @@ value do_expand_via_dict dict x =
     (Ctyp.subst rho ty, insn)
 ;
 
+value do_expand_via_dict dict x =
+  match do_expand_via_dict0 dict x with [
+      exception Not_found -> None
+    | x -> Some x
+    ]
+;
+
 value do_expand_type0 rc x = do_expand_via_dict rc.expansion_dict x ;
 
-value do_expand_type rc cid x =
-  match cid with [
-      None -> do_expand_type0 rc x
+value do_expand_per_constructor rc cidopt x =
+  match cidopt with [
+      None -> None
     | Some cid ->
        match List.assoc cid rc.per_constructor_expansion_dict with [
-           exception Not_found -> do_expand_type0 rc x
-         | dict ->
-            match do_expand_via_dict dict x with [
-                exception Not_found -> do_expand_type0 rc x
-              | x -> x
-              ]
+           exception Not_found -> None
+         | dict -> do_expand_via_dict dict x
          ]
+    ]
+;
+
+value do_expand_per_type rc ~{tdname} x =
+  match List.assoc tdname rc.per_type_expansion_dict with [
+      exception Not_found -> None
+    | dict -> do_expand_via_dict dict x
+    ]
+;
+
+value do_expand_type rc ~{tdname} cidopt x =
+  let rv = List.find_map
+          (fun f -> f x)
+          [(fun x -> do_expand_per_constructor rc cidopt x);
+           (fun x -> do_expand_per_type rc ~{tdname} x);
+           (fun x -> do_expand_type0 rc x)] in
+  match rv with [
+      None -> Fmt.(failwithf "Internal error: do_expand_type: failed to expand %a" Pp_MLast.pp_ctyp x)
+    | Some x -> x
     ]
 ;
 
@@ -299,9 +332,9 @@ value process_add_dels (adds,dels) l =
   Std.uniquize l
 ;
 
-value rec expr_list_of_type_gen loc rc f n ((modli, cid), x) =
-  expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x))
-and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
+value rec expr_list_of_type_gen loc rc ~{tdname} f n ((modli, cid), x) =
+  expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x))
+and expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x)) =
   if match rc.location_type with [
          None -> False
        | Some lty -> Reloc.eq_ctyp lty x
@@ -312,25 +345,25 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
   [ (<:ctyp< $lid:tname$ >>, _) when List.mem_assoc tname rc.default_expression ->
     let e = List.assoc tname rc.default_expression in
     [e]
-  | (_, (<:ctyp< $lid:tname$ >>, _)) when expand_type_p rc cid tname ->
+  | (_, (<:ctyp< $lid:tname$ >>, _)) when expand_type_p rc ~{tdname} cid tname ->
      let modli_opt = match List.assoc tname rc.module_dict with [
            exception Not_found ->
                      None
                    | x -> Some x
          ] in
-     let (expanded, insn) = do_expand_type rc cid x in
+     let (expanded, insn) = do_expand_type rc ~{tdname} cid x in
      match insn with [
          Auto ->
-         expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded)
+         expr_list_of_type_gen loc rc ~{tdname} f n ((modli_opt, cid), expanded)
        | AddDel  adds dels ->
-          let l = expr_list_of_type_gen loc rc f n ((modli_opt, cid), expanded) in
+          let l = expr_list_of_type_gen loc rc ~{tdname} f n ((modli_opt, cid), expanded) in
           process_add_dels (adds,dels) l
 
        | Explicit l -> l
        ]
 
   | (<:ctyp< Ploc.vala $t$ >>, _) ->
-      expr_list_of_type_gen loc rc (handle_vala loc rc f) n ((None, cid), t) @
+      expr_list_of_type_gen loc rc ~{tdname} (handle_vala loc rc f) n ((None, cid), t) @
       let n = add_o n t in
       f <:expr< $lid:n$ >>
   | (<:ctyp< bool >>, _) ->
@@ -338,12 +371,12 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
       f <:expr< False >> @
       f <:expr< $lid:n$ >>
 
-  | ((<:ctyp< { $list:_$ }>> as ct), _) -> expr_list_of_record_ctyp rc f ((modli, cid), ct)
+  | ((<:ctyp< { $list:_$ }>> as ct), _) -> expr_list_of_record_ctyp rc ~{tdname} f ((modli, cid), ct)
 
-  | ((<:ctyp< [ $list:_$ ]>> as ct), _) -> expr_list_of_variant_ctyp rc f (modli, ct)
+  | ((<:ctyp< [ $list:_$ ]>> as ct), _) -> expr_list_of_variant_ctyp rc ~{tdname} f (modli, ct)
 
   | (<:ctyp< ( $list:l$ )>>, _) -> 
-    let ll = List.mapi (fun i t -> expr_list_of_type_gen loc rc (fun x -> [x]) (n^"f"^(string_of_int (i+1))) ((None, cid), t)) l in
+    let ll = List.mapi (fun i t -> expr_list_of_type_gen loc rc ~{tdname} (fun x -> [x]) (n^"f"^(string_of_int (i+1))) ((None, cid), t)) l in
     let l = expr_list_cross_product ll in
     List.concat (List.map (fun l -> f <:expr< ( $list:l$ ) >>) l)
 
@@ -352,15 +385,15 @@ and expr_list_of_type_gen_uncurried rc (loc, f, n, ((modli,cid), x)) =
       match t with
       [ <:ctyp< Ploc.vala (list $t$) >> ->
           let f _ = f (if rc.target_is_pattern_ast then <:expr< Some (Ploc.VaVal []) >> else <:expr< Some [] >>) in
-          expr_list_of_type_gen loc rc f n ((None, cid), t)
+          expr_list_of_type_gen loc rc ~{tdname} f n ((None, cid), t)
       | _ -> [] ] @
-      expr_list_of_type_gen loc rc (fun e -> f <:expr< Some $e$ >>) n ((None, cid), t) @
+      expr_list_of_type_gen loc rc ~{tdname} (fun e -> f <:expr< Some $e$ >>) n ((None, cid), t) @
       let n = add_o ("o" ^ n) t in
       f <:expr< $lid:n$ >>
   | _ ->
       f <:expr< $lid:n$ >> ]
 
-and expr_list_of_record_ctyp rc (f : MLast.expr -> list MLast.expr) ((modli,cid), ty) = match ty with [
+and expr_list_of_record_ctyp rc ~{tdname} (f : MLast.expr -> list MLast.expr) ((modli,cid), ty) = match ty with [
   <:ctyp:< { $list:ldl$ } >> ->
     let modli = match modli with [
           None -> Fmt.(raise_failwithf loc "expr_list_of_record_ctyp: no module supplied for type %a" Pp_MLast.pp_ctyp ty)
@@ -374,39 +407,39 @@ and expr_list_of_record_ctyp rc (f : MLast.expr -> list MLast.expr) ((modli,cid)
           let p = <:patt< $longid:modli$ . $lid:l$ >> in
           let pell = loop ldnl in
           let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-          patt_expr_list_of_type loc rc f n (cid,t)
+          patt_expr_list_of_type loc rc ~{tdname} f n (cid,t)
         | [] -> [[]] ]
     in
     List.concat (List.map (fun pel -> f <:expr< {$list:pel$} >>) pell)
 | ct -> Ploc.raise (MLast.loc_of_ctyp ct) (Failure "expr_list_of_record_ctyp: not a record ctyp")
 ]
 
-and expr_list_of_variant_ctyp rc (f : MLast.expr -> list MLast.expr) (modli, ty) = match ty with [
+and expr_list_of_variant_ctyp rc ~{tdname} (f : MLast.expr -> list MLast.expr) (modli, ty) = match ty with [
   <:ctyp:< [ $list:cdl$ ] >> ->
-    let el = List.fold_right (fun cd el -> expr_of_cons_decl rc (modli,cd) @ el) cdl [] in
+    let el = List.fold_right (fun cd el -> expr_of_cons_decl rc ~{tdname} (modli,cd) @ el) cdl [] in
     List.concat (List.map f el)
 | ct -> Ploc.raise (MLast.loc_of_ctyp ct) (Failure "expr_list_of_variant_ctyp: not a variant ctyp")
 ]
 
-and expr_list_of_type loc rc (f : MLast.expr -> list MLast.expr) n (cid, ty) =
-  expr_list_of_type_gen loc rc f n ((None, cid), ty)
+and expr_list_of_type loc rc ~{tdname} (f : MLast.expr -> list MLast.expr) n (cid, ty) =
+  expr_list_of_type_gen loc rc ~{tdname} f n ((None, cid), ty)
 
-and patt_expr_list_of_type loc rc (f : MLast.expr -> list (list (MLast.patt * MLast.expr))) n (cid, ty) =
-  let el = expr_list_of_type loc rc (fun x -> [x]) n (cid,ty) in
+and patt_expr_list_of_type loc rc ~{tdname} (f : MLast.expr -> list (list (MLast.patt * MLast.expr))) n (cid, ty) =
+  let el = expr_list_of_type loc rc ~{tdname} (fun x -> [x]) n (cid,ty) in
   List.concat (List.map f el)
 
-and expr_of_cons_decl rc (modli, (loc, c, x, tl, rto, y)) =
+and expr_of_cons_decl rc ~{tdname} (modli, (loc, c, x, tl, rto, y)) =
   match List.assoc (Pcaml.unvala c) rc.per_constructor_expansion with [
       exception Not_found
     | Auto -> 
-       expr_of_cons_decl0 rc (modli, (loc, c, x, tl, rto, y))
+       expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y))
     | Explicit l -> l
     | AddDel adds dels ->
-       let l = expr_of_cons_decl0 rc (modli, (loc, c, x, tl, rto, y)) in
+       let l = expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y)) in
        process_add_dels (adds,dels) l
     ]
 
-and expr_of_cons_decl0 rc (modli, (loc, c, _, tl, rto, _)) = do {
+and expr_of_cons_decl0 rc (tdname, modli, (loc, c, _, tl, rto, _)) = do {
   let c = Pcaml.unvala c in
   let modli = match modli with [
         None -> Fmt.(raise_failwithf loc "expr_of_cons_decl: no module supplied for constructor %s" c)
@@ -417,7 +450,7 @@ and expr_of_cons_decl0 rc (modli, (loc, c, _, tl, rto, _)) = do {
     let tl = Pcaml.unvala tl in
     let tnl = name_of_vars rc (fun t -> t) tl in
     let exprs1 (t, tn) =
-      expr_list_of_type_gen loc rc (fun x -> [x]) tn ((None, Some c), t) in
+      expr_list_of_type_gen loc rc ~{tdname} (fun x -> [x]) tn ((None, Some c), t) in
     let ell = List.map exprs1 tnl in
     let el = expr_list_cross_product ell in
     let mkapp l =
@@ -466,7 +499,7 @@ value expr_list_of_type_decl loc rc td =
                         Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
             | x -> x
             ] in
-        List.fold_right (fun cd el -> expr_of_cons_decl rc (Some modli, cd) @ el) cdl []
+        List.fold_right (fun cd el -> expr_of_cons_decl rc ~{tdname=tname} (Some modli, cd) @ el) cdl []
       | <:ctyp< { $list:ldl$ } >> ->
         let modli = match List.assoc tname rc.module_dict with [
               exception Not_found ->
@@ -481,13 +514,13 @@ value expr_list_of_type_decl loc rc td =
               let p = <:patt< $longid:modli$ . $lid:l$ >> in
               let pell = loop ldnl in
               let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-              patt_expr_list_of_type loc rc f n (None,t)
+              patt_expr_list_of_type loc rc ~{tdname=tname} f n (None,t)
             | [] -> [[]] ]
         in
         List.map (fun pel -> <:expr< {$list:pel$} >>) pell
       | <:ctyp< ( $list:tl$ ) >> ->
         let nl = name_of_vars rc (fun t -> t) tl in
-        let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc rc (fun x -> [x]) n ((None, None), t)) nl in
+        let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) n ((None, None), t)) nl in
         let el = expr_list_cross_product ell in
         List.map (fun l -> <:expr< ( $list:l$ ) >>) el
 

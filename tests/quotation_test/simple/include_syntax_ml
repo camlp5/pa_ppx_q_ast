@@ -35,40 +35,35 @@ Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_quotation_test.expr_list_of_type_decl ;;
 #trace Pa_ppx_quotation_test.expr_list_of_record_ctyp ;;
 #trace Pa_ppx_quotation_test.name_of_vars ;;
- *)
 #trace Pa_ppx_quotation_test.expr_of_cons_decl ;;
 #trace Pa_ppx_quotation_test.process_add_dels ;;
+ *)
+#trace Pa_ppx_quotation_test.expand_type_p ;;
+#trace Pa_ppx_quotation_test.do_expand_type ;;
+#trace Pa_ppx_quotation_test.do_expand_per_constructor ;;
+#trace Pa_ppx_quotation_test.do_expand_per_type ;;
+#trace Pa_ppx_quotation_test.do_expand_type0 ;;
+
 
 {|
-[%%import: Types.t5
- [@add type t4 = [%import: Types.t4]]
- [@add type t4' = [%import: Types.t4']]
+[%%import: Types.t2
+ [@add
+     [%%import: Types.loc
+      [@with Location.t := location]
+     ]
+  type location = Location.t
+ ]
 ]
-[@@deriving quotation_test {test_types = [t5]; expand_types = {t4 = Auto; t4' = Auto}}]
-|} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
-
-
-{|
-[%%import: Types.t5
- [@add type t4 = [%import: Types.t4]]
- [@add type t4' = [%import: Types.t4']]
-][@@deriving quotation_test {
-        test_types = [t5]
-      ; per_constructor_expansion = [
-          (A, AddDel (
-                  [],
-                  [
-                    Types.A (U 1, U 2);
-                    Types.A (U 2, U 1)
-                  ]
-          ))
-        ]
+[@@deriving quotation_test {
+        test_types = [t2]
       ; expand_types = {
-          t4 = Explicit [U 1; U 2]
-        ; t4' = Auto
+          loc = Auto
         }
+      ; location_type = [%typ: location]
+      ; loc_varname = __loc__
   }]
 |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+
 
 
 (*
