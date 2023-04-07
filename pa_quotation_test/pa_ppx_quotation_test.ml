@@ -50,6 +50,13 @@ value compute_per_constructor_expansion_dict type_decls expand_types_per_constru
        )
 ;
 
+value compute_per_type_expansion_dict type_decls expand_types_per_type =
+  expand_types_per_type
+  |> List.map (fun (tname,  expand_types) ->
+         ((tname: string), compute_expansion_dict type_decls expand_types)
+       )
+;
+
 value compute_module_dict type_decls type_module_map =
   type_decls
   |> List.filter_map (fun (n, td) ->
@@ -91,6 +98,8 @@ type t = {
 ; expansion_dict : alist lident ((list string * ctyp) * expand_op_t) [@computed compute_expansion_dict type_decls expand_types;]
 ; expand_types_per_constructor : list (uident * (alist lident expand_op_t)) [@default [];]
 ; per_constructor_expansion_dict : list (uident * (alist lident ((list string * ctyp) * expand_op_t))) [@computed compute_per_constructor_expansion_dict type_decls expand_types_per_constructor;]
+; expand_types_per_type : alist lident (alist lident expand_op_t) [@default [];]
+; per_type_expansion_dict : alist lident (alist lident ((list string * ctyp) * expand_op_t)) [@computed compute_per_type_expansion_dict type_decls expand_types_per_type;]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
@@ -128,9 +137,11 @@ value build_params_from_cmdline tdl =
   ; test_types = test_types.val
   ; expand_types = expand_types
   ; expand_types_per_constructor = []
+  ; expand_types_per_type = []
   ; per_constructor_expansion = []
   ; expansion_dict = compute_expansion_dict type_decls expand_types
   ; per_constructor_expansion_dict = []
+  ; per_type_expansion_dict = []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
@@ -562,6 +573,7 @@ Pa_deriving.(Registry.add PI.{
   ; "test_types"
   ; "expand_types"
   ; "expand_types_per_constructor"
+  ; "expand_types_per_type"
   ; "per_constructor_expansion"
   ; "type_module_map"
   ; "default_expression"
@@ -574,6 +586,7 @@ Pa_deriving.(Registry.add PI.{
     ("optional", <:expr< False >>)
   ; ("expand_types", <:expr< () >>)
   ; ("expand_types_per_constructor", <:expr< [] >>)
+  ; ("expand_types_per_type", <:expr< () >>)
   ; ("per_constructor_expansion", <:expr< [] >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
