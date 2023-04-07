@@ -11,6 +11,23 @@ open Pa_ppx_utils ;
 open Pa_ppx_deriving ;
 open Pa_ppx_params_runtime.Runtime ;
 
+value two_level_mem_assoc k1 k2 dict =
+  match List.assoc k1 dict with [
+      exception Not_found -> False
+    | d -> List.mem_assoc k2 d
+    ]
+;
+
+value two_level_add_assoc (k1, k2, v) dict =
+  match List.assoc k1 dict with [
+      exception Not_found ->
+        [(k1, [(k2,v)]) :: dict]
+    | d ->
+       let d = [(k2,v) :: (List.remove_assoc k2 d)] in
+       [(k1, d) :: (List.remove_assoc k1 dict)]
+    ]
+;
+
 value test_types = ref [] ;
 value add_test_type s = test_types.val := [s :: test_types.val] ;
 
@@ -33,6 +50,13 @@ value extract_expansion (n,td) =
   (tyvars, ty)
 ;
 
+type expand_op_t = [
+    Auto
+  | AddDel of list expr and list expr
+  | Explicit of list expr
+  ] [@@deriving params;]
+;
+
 value compute_expansion_dict type_decls expand_types =
   type_decls
   |> List.filter_map (fun (n, td) ->
@@ -51,7 +75,16 @@ value compute_per_constructor_expansion_dict type_decls expand_types_per_constru
 ;
 
 value compute_per_type_expansion_dict type_decls expand_types_per_type =
-  expand_types_per_type
+  let dict0 = expand_types_per_type in
+  let dict0 =
+    List.fold_left
+      (fun dict0 (tname, td) ->
+       if Pcaml.unvala td.MLast.tdPrm <> [] then dict0 else
+         if not (two_level_mem_assoc tname tname dict0) then
+           two_level_add_assoc (tname, tname, Auto) dict0
+         else dict0)
+      dict0 type_decls in
+  dict0
   |> List.map (fun (tname,  expand_types) ->
          ((tname: string), compute_expansion_dict type_decls expand_types)
        )
@@ -81,13 +114,6 @@ value compute_module_dict type_decls type_module_map =
                             Fmt.(raise_failwithf (loc_of_type_decl td) "pa_ppx_quotation_test: manifest type had no module for typedecl %s" n)
              | _ -> Fmt.(raise_failwithf (loc_of_type_decl td) "pa_ppx_quotation_test: cannot infer a module for typedecl %s" n)
              ])
-;
-
-type expand_op_t = [
-    Auto
-  | AddDel of list expr and list expr
-  | Explicit of list expr
-  ] [@@deriving params;]
 ;
 type t = {
   optional : bool [@default False;]
@@ -141,7 +167,7 @@ value build_params_from_cmdline tdl =
   ; per_constructor_expansion = []
   ; expansion_dict = compute_expansion_dict type_decls expand_types
   ; per_constructor_expansion_dict = []
-  ; per_type_expansion_dict = []
+  ; per_type_expansion_dict = compute_per_type_expansion_dict type_decls []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
@@ -246,18 +272,11 @@ value handle_vala loc rc f e =
   else f e
 ;
 
-value two_level_mem k1 k2 dict =
-  match List.assoc k1 dict with [
-      exception Not_found -> False
-    | d -> List.mem_assoc k2 d
-    ]
-;
-
 value per_constructor_expand_type_p rc tname cid =
-  two_level_mem cid tname rc.per_constructor_expansion_dict ;
+  two_level_mem_assoc cid tname rc.per_constructor_expansion_dict ;
 
 value per_type_expand_type_p rc ~{tdname} tname =
-  two_level_mem tdname tname rc.per_type_expansion_dict ;
+  two_level_mem_assoc tdname tname rc.per_type_expansion_dict ;
 
 value expand_type_p rc ~{tdname} cidopt tname =
   List.mem_assoc tname rc.expansion_dict ||
@@ -488,43 +507,10 @@ and expr_of_cons_decl0 rc (tdname, modli, (loc, c, _, tl, rto, _)) = do {
 value expr_list_of_type_decl loc rc td =
   let tname = Pcaml.unvala (snd (Pcaml.unvala td.MLast.tdNam)) in
   if List.mem tname rc.test_types then
-    let ty = match td.MLast.tdDef with [
-          <:ctyp< $_$ == $ty$ >> -> ty
-        | ty -> ty
-        ] in
-    match ty with
-      [ <:ctyp:< [ $list:cdl$ ] >> ->
-        let modli = match List.assoc tname rc.module_dict with [
-              exception Not_found ->
-                        Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
-            | x -> x
-            ] in
-        List.fold_right (fun cd el -> expr_of_cons_decl rc ~{tdname=tname} (Some modli, cd) @ el) cdl []
-      | <:ctyp< { $list:ldl$ } >> ->
-        let modli = match List.assoc tname rc.module_dict with [
-              exception Not_found ->
-                        Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
-            | x -> x
-            ] in
-        let ldnl = name_of_vars rc (fun (loc, l, mf, t, _) -> t) ldl in
-        let pell =
-          loop ldnl where rec loop =
-          fun
-            [ [((loc, l, mf, t, _), n) :: ldnl] ->
-              let p = <:patt< $longid:modli$ . $lid:l$ >> in
-              let pell = loop ldnl in
-              let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-              patt_expr_list_of_type loc rc ~{tdname=tname} f n (None,t)
-            | [] -> [[]] ]
-        in
-        List.map (fun pel -> <:expr< {$list:pel$} >>) pell
-      | <:ctyp< ( $list:tl$ ) >> ->
-        let nl = name_of_vars rc (fun t -> t) tl in
-        let ell = List.map (fun (t,n) -> expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) n ((None, None), t)) nl in
-        let el = expr_list_cross_product ell in
-        List.map (fun l -> <:expr< ( $list:l$ ) >>) el
-
-      | _ -> [] ]
+    if Pcaml.unvala td.MLast.tdPrm <> [] then
+      Fmt.(raise_failwithf loc "expr_list_of_type_decl: typedecl %s has params (cannot be expanded in list of examples" tname)
+    else
+      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((None, None), <:ctyp< $lid:tname$ >>)
   else []
 ;
 

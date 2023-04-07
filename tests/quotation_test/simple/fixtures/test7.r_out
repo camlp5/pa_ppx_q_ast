@@ -1,5 +1,5 @@
 [@@@"ocaml.text" "t7";];
-Types.A x;
+Types.A U;
 [@@@"ocaml.text" "t7'";];
 Types.B Types.U;
 Types.B Types.V;

@@ -7,5 +7,8 @@
           t7' = {
             t3a = Auto
           }
+        ; t7 = {
+            t7 = Explicit [Types.A U]
+          }
         }
   }]
