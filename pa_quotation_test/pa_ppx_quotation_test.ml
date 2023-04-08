@@ -517,15 +517,13 @@ value expr_list_of_type_decl loc rc td =
           <:ctyp< $_$ == $ty$ >> -> ty
         | ty -> ty
         ] in
-    let modli = match List.assoc tname rc.module_dict with [
-          exception Not_found ->
-            Fmt.(raise_failwithf loc "expr_list_of_type_decl: internal error: no module specified for type %s" tname)
-        | x -> x
+    let modli_opt = match List.assoc tname rc.module_dict with [
+          exception Not_found -> None
+        | x -> Some x
         ] in
 
     if expand_type_p rc ~{tdname=tname} None tname then
       let cid = None in
-      let modli_opt = Some modli in
       let x = <:ctyp< $lid:tname$ >> in
       let tdname = tname in
       let (expanded, insn) = do_expand_type rc ~{tdname} cid x in
@@ -541,7 +539,7 @@ value expr_list_of_type_decl loc rc td =
         | Explicit l -> l
         ]
     else
-      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((Some modli, None), ty)
+      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((modli_opt, None), ty)
   else []
 ;
 

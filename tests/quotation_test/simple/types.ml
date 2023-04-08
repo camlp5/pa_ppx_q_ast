@@ -22,3 +22,5 @@ type t7 = A of t3a
 and t7' = B of t3a
 
 type t8 = C of t8 * int | D
+
+type t9 = num loc

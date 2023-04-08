@@ -46,18 +46,11 @@ Pa_ppx_base.Pa_passthru.debug := true ;;
 
 
 {|
-[%%import: Types.t7
- [@add type t3a = [%import: Types.t3a]]
+[%%import: Types.t9
+ [@add type num = [%import: Types.num]]
+ [@add type 'a loc = [%import: 'a Types.loc]]
 ][@@deriving quotation_test {
-        test_types = [t7; t7']
-      ; expand_types_per_type = {
-          t7' = {
-            t3a = Auto
-          }
-        ; t7 = {
-            t7 = Explicit [Types.A U]
-          }
-        }
+        test_types = [t9]
   }]
 
 |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;

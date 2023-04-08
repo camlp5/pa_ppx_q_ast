@@ -1,0 +1,5 @@
+[@@@"ocaml.text" "t9";];
+{Types.txt = 0; Types.loc = x2};
+{Types.txt = 1; Types.loc = x2};
+[@@@"ocaml.text" "num";];
+[@@@"ocaml.text" "loc";];

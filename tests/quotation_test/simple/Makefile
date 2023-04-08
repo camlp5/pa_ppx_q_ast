@@ -19,6 +19,7 @@ TESTS=\
 	test6.TEST \
 	test7.TEST \
 	test8.TEST \
+	test9.TEST \
 
 $(TESTS:.TEST=.cmo): types.cmo
 
@@ -35,6 +36,7 @@ export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
 
 QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
 #QUOTPACKAGES=pa_ppx_q_ast_quotation_test
+#QUOTPACKAGES=
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'
 OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'
 
