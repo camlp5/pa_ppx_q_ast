@@ -5,4 +5,4 @@ Types.X Types.V;
 Types.Y x;
 Types.Z {Types.txt = Types.U; Types.loc = x2};
 Types.Z {Types.txt = Types.V; Types.loc = x2};
-[@@@"ocaml.text" "loc";];
+[@@@"ocaml.text" "located";];

@@ -1,4 +1,4 @@
 [@@@"ocaml.text" "t2";];
 {Types.f1 = {Types.txt = s; Types.loc = __loc__}};
-[@@@"ocaml.text" "loc";];
+[@@@"ocaml.text" "located";];
 [@@@"ocaml.text" "location";];

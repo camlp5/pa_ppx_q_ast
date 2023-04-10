@@ -37,20 +37,19 @@ Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_quotation_test.name_of_vars ;;
 #trace Pa_ppx_quotation_test.expr_of_cons_decl ;;
 #trace Pa_ppx_quotation_test.process_add_dels ;;
- *)
 #trace Pa_ppx_quotation_test.expand_type_p ;;
 #trace Pa_ppx_quotation_test.do_expand_type ;;
 #trace Pa_ppx_quotation_test.do_expand_per_constructor ;;
 #trace Pa_ppx_quotation_test.do_expand_per_type ;;
 #trace Pa_ppx_quotation_test.do_expand_type0 ;;
-
+ *)
+#trace Pa_ppx_quotation_test.expr_list_of_type_decl ;;
+#trace Pa_ppx_quotation_test.expr_list_of_type_gen ;;
 
 {|
-[%%import: Types.t9
- [@add type num = [%import: Types.num]]
- [@add type 'a loc = [%import: 'a Types.loc]]
+[%%import: Types.t10
 ][@@deriving quotation_test {
-        test_types = [t9]
+        test_types = [t10; s]
   }]
 
 |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
