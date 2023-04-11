@@ -353,6 +353,17 @@ value process_add_dels (adds,dels) l =
   Std.uniquize l
 ;
 
+value name_of_type rc n t =
+  if n <> "" then n
+  else snd (List.hd (name_of_vars rc (fun x -> x) [t]))
+;
+
+value name_of_tuple_types rc n tl =
+  if n <> "" then
+    List.mapi (fun i _ -> n^"f"^(string_of_int (i+1))) tl
+  else List.map snd (name_of_vars rc (fun x -> x) tl)
+;
+
 value rec expr_list_of_type_gen loc rc ~{tdname} f n ((modli, cid), x) =
   expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x))
 and expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x)) =
@@ -384,6 +395,7 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x)) =
        ]
 
   | (<:ctyp< Ploc.vala $t$ >>, _) ->
+     let n = name_of_type rc n x in
       expr_list_of_type_gen loc rc ~{tdname} (handle_vala loc rc f) n ((None, cid), t) @
       let n = add_o n t in
       f <:expr< $lid:n$ >>
@@ -397,7 +409,8 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x)) =
   | ((<:ctyp< [ $list:_$ ]>> as ct), _) -> expr_list_of_variant_ctyp rc ~{tdname} f (modli, ct)
 
   | (<:ctyp< ( $list:l$ )>>, _) -> 
-    let ll = List.mapi (fun i t -> expr_list_of_type_gen loc rc ~{tdname} (fun x -> [x]) (n^"f"^(string_of_int (i+1))) ((None, cid), t)) l in
+     let namel = name_of_tuple_types rc n l in
+     let ll = List.map2 (fun n t -> expr_list_of_type_gen loc rc ~{tdname} (fun x -> [x]) n ((None, cid), t)) namel l in
     let l = expr_list_cross_product ll in
     List.concat (List.map (fun l -> f <:expr< ( $list:l$ ) >>) l)
 
@@ -409,9 +422,11 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, f, n, ((modli,cid), x)) =
           expr_list_of_type_gen loc rc ~{tdname} f n ((None, cid), t)
       | _ -> [] ] @
       expr_list_of_type_gen loc rc ~{tdname} (fun e -> f <:expr< Some $e$ >>) n ((None, cid), t) @
+      let n = name_of_type rc n x in
       let n = add_o ("o" ^ n) t in
       f <:expr< $lid:n$ >>
   | _ ->
+      let n = name_of_type rc n x in
       f <:expr< $lid:n$ >> ]
 
 and expr_list_of_record_ctyp rc ~{tdname} (f : MLast.expr -> list MLast.expr) ((modli,cid), ty) = match ty with [
@@ -528,7 +543,7 @@ value expr_list_of_type_decl loc rc td =
       let tdname = tname in
       let (expanded, insn) = do_expand_type rc ~{tdname} cid x in
       let f = (fun x -> [x]) in
-      let n = "x" in
+      let n = "" in
       match insn with [
           Auto ->
           expr_list_of_type_gen loc rc ~{tdname} f n ((modli_opt, cid), expanded)
@@ -539,7 +554,7 @@ value expr_list_of_type_decl loc rc td =
         | Explicit l -> l
         ]
     else
-      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "x" ((modli_opt, None), ty)
+      expr_list_of_type_gen loc rc ~{tdname=tname} (fun x -> [x]) "" ((modli_opt, None), ty)
   else []
 ;
 
