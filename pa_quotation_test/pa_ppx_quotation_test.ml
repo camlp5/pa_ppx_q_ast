@@ -128,6 +128,7 @@ type t = {
 ; per_constructor_expansion_dict : list (uident * (alist lident ((list string * ctyp) * expand_op_t))) [@computed compute_per_constructor_expansion_dict type_decls expand_types_per_constructor;]
 ; expand_types_per_type : alist lident (alist lident expand_op_t) [@default [];]
 ; per_type_expansion_dict : alist lident (alist lident ((list string * ctyp) * expand_op_t)) [@computed compute_per_type_expansion_dict type_decls expand_types_per_type;]
+; prefix_of_type: alist ctyp lident[@default [];]
 ; type_module_map : alist lident longid[@default [];]
 ; module_dict : alist lident longid[@computed compute_module_dict type_decls type_module_map;]
 ; default_expression : alist lident expr[@default [];]
@@ -170,6 +171,7 @@ value build_params_from_cmdline tdl =
   ; expansion_dict = compute_expansion_dict type_decls expand_types
   ; per_constructor_expansion_dict = []
   ; per_type_expansion_dict = compute_per_type_expansion_dict type_decls []
+  ; prefix_of_type = []
   ; type_module_map = []
   ; module_dict = compute_module_dict type_decls []
   ; default_expression = []
@@ -216,7 +218,12 @@ value rec pfx rc short t =
   | _ -> "x" ]
 ;
 
-value prefix_of_type rc = pfx rc False;
+value prefix_of_type rc t =
+  match AList.assoc ~{cmp=Reloc.eq_ctyp} t rc.prefix_of_type with [
+      x -> x
+    | exception Not_found -> pfx rc False t
+    ]
+;
 
 value name_of_vars rc proj_t xl =
   let (rev_tnl, env) =
@@ -638,6 +645,7 @@ Pa_deriving.(Registry.add PI.{
   ; "expand_types_per_constructor"
   ; "expand_types_per_type"
   ; "per_constructor_expansion"
+  ; "prefix_of_type"
   ; "type_module_map"
   ; "default_expression"
   ; "location_type"
@@ -651,6 +659,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("expand_types_per_constructor", <:expr< [] >>)
   ; ("expand_types_per_type", <:expr< () >>)
   ; ("per_constructor_expansion", <:expr< [] >>)
+  ; ("prefix_of_type", <:expr< () >>)
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)

@@ -28,3 +28,5 @@ type t9 = num located
 type t10 = (loc * string Ploc.vala * (string list) Ploc.vala * (string option) Ploc.vala)
 and loc = Location.t
 and s = string
+
+type t11 = { a : int ; b : (int * (bool * char)) list }
