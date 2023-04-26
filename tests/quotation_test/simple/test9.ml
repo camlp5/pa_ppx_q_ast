@@ -4,6 +4,7 @@
  [@add type 'a located = [%import: 'a Types.located]]
 ][@@deriving quotation_test {
         test_types = [t9]
+      ; minimal_record_module_labels = true
       ; expand_types = {
           located = Auto
         ; num = Explicit[0;1]

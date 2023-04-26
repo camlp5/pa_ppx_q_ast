@@ -134,6 +134,7 @@ type t = {
 ; default_expression : alist lident expr[@default [];]
 ; location_type : option ctyp
 ; target_is_pattern_ast : bool [@default False;]
+; minimal_record_module_labels : bool [@default False;]
 ; superfluous_constructors : list uident [@default [];]
 ; loc_varname : lident [@default "loc";]
 } [@@deriving params {
@@ -177,6 +178,7 @@ value build_params_from_cmdline tdl =
   ; default_expression = []
   ; location_type = None
   ; target_is_pattern_ast = False
+  ; minimal_record_module_labels = False
   ; superfluous_constructors = []
   ; loc_varname = "loc"
   }
@@ -444,11 +446,16 @@ and expr_list_of_record_ctyp rc ~{tdname} (f : MLast.expr -> list MLast.expr) ((
         ] in
     let ldnl = name_of_vars rc (fun (loc, l, mf, t, _) -> t) ldl in
     let pell =
-      loop ldnl where rec loop =
+      loop 0 ldnl where rec loop i =
       fun
         [ [((loc, l, mf, t, _), n) :: ldnl] ->
-          let p = <:patt< $longid:modli$ . $lid:l$ >> in
-          let pell = loop ldnl in
+          let p =
+            if i <> 0 && rc.minimal_record_module_labels then
+              <:patt< $lid:l$ >>
+            else
+              <:patt< $longid:modli$ . $lid:l$ >>
+          in
+          let pell = loop (i+1) ldnl in
           let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
           patt_expr_list_of_type loc rc ~{tdname} f n (cid,t)
         | [] -> [[]] ]
@@ -650,6 +657,7 @@ Pa_deriving.(Registry.add PI.{
   ; "default_expression"
   ; "location_type"
   ; "target_is_pattern_ast"
+  ; "minimal_record_module_labels"
   ; "superfluous_constructors"
   ; "loc_varname"
   ]
@@ -663,6 +671,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("type_module_map", <:expr< () >>)
   ; ("default_expression", <:expr< () >>)
   ; ("target_is_pattern_ast", <:expr< False >>)
+  ; ("minimal_record_module_labels", <:expr< False >>)
   ; ("superfluous_constructors", <:expr< [] >>)
   ; ("loc_varname", <:expr< loc >>)
   ]

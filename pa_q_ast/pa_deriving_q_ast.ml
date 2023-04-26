@@ -87,6 +87,7 @@ and t = {
 ; entrypoints : list entrypoint_t [@default [];]
 ; node_mode : node_mode_t [@default Normal;]
 ; loc_mode : loc_mode_t [@default AutoLoc;]
+; minimal_record_module_labels : bool [@default False;]
 } [@@deriving params {
     formal_args = {
       t = [ type_decls ]
@@ -179,8 +180,13 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let argvars = List.map (fun (_, id, _, ty, _) -> (id, ty)) ltl in
       let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
       let argpat = <:patt< $longid:quotation_source_module rc name$ . { $list:lpl$ } >> in
-      let members = List.map (fun (id, ty) ->
-          let label = <:patt< $longid:data_source_module rc name$ . $lid:id$ >> in
+      let members = List.mapi (fun i (id, ty) ->
+          let label = 
+            if i <> 0 && rc.minimal_record_module_labels then
+              <:patt< $lid:id$ >>
+            else
+              <:patt< $longid:data_source_module rc name$ . $lid:id$ >>
+          in
           <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
       let reclist = left_right_eval_list_expr loc members in
       let last_branch = (argpat, <:vala< None >>, <:expr< C.record $reclist$ >>) in
@@ -398,6 +404,7 @@ Pa_deriving.(Registry.add PI.{
   ; "entrypoints"
   ; "node_mode"
   ; "loc_mode"
+  ; "minimal_record_module_labels"
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
@@ -408,6 +415,7 @@ Pa_deriving.(Registry.add PI.{
   ; ("custom_type", <:expr< () >>)
   ; ("node_mode", <:expr< Normal >>)
   ; ("loc_mode", <:expr< AutoLoc >>)
+  ; ("minimal_record_module_labels", <:expr< False >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []

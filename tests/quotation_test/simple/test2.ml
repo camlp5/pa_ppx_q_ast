@@ -8,6 +8,7 @@
  ]
 ][@@deriving quotation_test {
         test_types = [t2]
+      ; minimal_record_module_labels = true
       ; expand_types = {
           located = Auto
         }
