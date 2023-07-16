@@ -9,6 +9,7 @@ TESTDIRS = \
 	quotation_test/simple \
 	quotation_test/camlp5 \
 	basic/lib basic/test \
+	basic2/lib basic2/test \
 	sexp/lib sexp/test \
 	lam/lib lam/test \
 	debruijn/lib debruijn/test \

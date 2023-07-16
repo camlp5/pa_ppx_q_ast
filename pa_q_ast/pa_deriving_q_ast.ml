@@ -163,7 +163,17 @@ value generate_conversion arg rc rho in_patt (name, t) =
     <:ctyp< $_$ == $ty$ >> -> genrec ty
   | <:ctyp:< [ $list:branches$ ] >> ->
       let branches = List.map (fun [
-          <:constructor< $uid:uid$ of $list:tyl$ >> ->
+          <:constructor:< $uid:uid$ of { $list:ltl$ } >> ->
+            let argvars = List.map (fun (_, id, _, ty, _) -> (id, ty)) ltl in
+            let lpl = List.map (fun (id, _) -> (<:patt< $lid:id$ >>, <:patt< $lid:id$ >>)) argvars in
+            let argpat = <:patt< $uid:uid$ $longid:quotation_source_module rc name$ . { $list:lpl$ } >> in
+            let members = List.mapi (fun i (id, ty) ->
+                let label = <:patt< $lid:id$ >> in
+                <:expr< (let loc = Ploc.dummy in $Q_ast.Meta_E.patt label$, $genrec ty$ $lid:id$) >>) argvars in
+            let reclist = left_right_eval_list_expr loc members in
+            (argpat, <:vala< None >>, <:expr< C.node_no_loc ~{prefix= $quoted_data_source_module$} $str:uid$ [C.record $reclist$] >>)
+
+        | <:constructor< $uid:uid$ of $list:tyl$ >> ->
           let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i,ty)) tyl in
           let argpatt = Patt.applist <:patt< $longid:quotation_source_module rc name$ . $uid:uid$ >> (List.map (to_patt loc) argvars) in
           let argexps = List.map (fun (v, ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in

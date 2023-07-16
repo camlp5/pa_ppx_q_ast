@@ -1,0 +1,13 @@
+basic.cmo pa_basic.cmo q_ast_basic.cmo basic.cmi pa_basic.cmi q_ast_basic.cmi basic.cmx pa_basic.cmx q_ast_basic.cmx: ../../../local-install/lib/pa_ppx_q_ast/META
+basic.cmo :
+basic.cmx :
+pa_basic.cmo : \
+    basic.cmo
+pa_basic.cmx : \
+    basic.cmx
+q_ast_basic.cmo : \
+    pa_basic.cmo \
+    basic.cmo
+q_ast_basic.cmx : \
+    pa_basic.cmx \
+    basic.cmx
