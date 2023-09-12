@@ -2,7 +2,13 @@
 pa_ppx_q_ast Version 0.10
 -------------------
 
-* [14 Feb 2023] update pa_ppx_q_ast to use camlp5-buildscripts instead of Perl scripts
+* [14 Feb 2023] Lots of changes
+
+  * update pa_ppx_q_ast to use camlp5-buildscripts instead of Perl scripts
+  * fix Makefiles
+  * new automated way to generate coverage tests for quotations
+  * cleanup testsuite
+
 
 pa_ppx_q_ast Version 0.09
 -------------------
