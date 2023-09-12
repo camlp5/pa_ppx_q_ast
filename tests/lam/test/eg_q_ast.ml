@@ -108,7 +108,7 @@ let freshn ?num () =
   string_of_int !ctr
 
 let fresh x =
-  match Pcre.extract ~pat:"^(.+)([0-9]+)$" ~pos:0 x with
+  match Pcre2.extract ~pat:"^(.+)([0-9]+)$" ~pos:0 x with
     [|_; id; num |] -> id^(freshn ~num:num ())
   | exception Not_found -> x^(freshn())
 ;;

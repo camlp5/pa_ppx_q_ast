@@ -28,7 +28,7 @@ depends: [
   "pa_ppx_unique"      { >= "0.08" }
   "pa_ppx_regexp"
   "not-ocamlfind" { >= "0.01" }
-  "pcre" { >= "7.4.3" }
+  "pcre2"
   "ounit" { >= "2.2.7" & with-test}
   "bos" { >= "0.2.0" }
   "menhir" { >= "20220210" }
