@@ -16,7 +16,7 @@ dev-repo: "git+https://github.com/camlp5/pa_ppx_q_ast.git"
 doc: "https://github.com/camlp5/pa_ppx_q_ast/doc"
 
 depends: [
-  "ocaml"       { >= "4.10.0" & < "5.02.0" }
+  "ocaml"       { >= "4.10.0" }
   "conf-diffutils" { with-test }
   "conf-perl"
   "cppo" { >= "1.6.9" }
