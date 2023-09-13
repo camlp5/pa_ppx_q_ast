@@ -30,7 +30,7 @@ all test: types.cmo $(TESTS)
 #.SECONDARY:
 
 %.TEST: %.r_out %.o_out
-	diff -Bwiu fixtures/$< $<
+	$(DIFF) -Bwiu fixtures/$< $<
 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
 export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5

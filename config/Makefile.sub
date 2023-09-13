@@ -1,5 +1,6 @@
 include $(TOP)/config/Makefile.config
 include $(TOP)/config/Makefile.shared
+include $(TOP)/config/Makefile.tools
 
 META: mk_meta.ML
 	cppo -I $(TOP) mk_meta.ML > mk_meta.ml

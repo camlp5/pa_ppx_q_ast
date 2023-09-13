@@ -91,7 +91,7 @@ endif
 %.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
 	perl -p -i -e 's,.*: added to search path,: added to search path,' $<
 	perl -p -i -e 's,.*: loaded,: loaded,' $<
-	diff -Bwiu $^
+	$(DIFF) -Bwiu $^
 
 toplevel::
 	$(LAUNCH) ocaml -nopromptcont

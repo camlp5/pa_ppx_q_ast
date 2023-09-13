@@ -9,7 +9,7 @@ DESTDIR=
 
 OVERSION = $(shell ocamlc -version)
 OVERSION_NAME := $(shell ./make_version_name.sh $(OVERSION))
-DIFF=diff -Bwi -u10
+DIFF:=$(DIFF) -Bwi -u10
 
 PACKAGES := $(PACKAGES),camlp5,fmt,pa_ppx.utils,camlp5_example
 
