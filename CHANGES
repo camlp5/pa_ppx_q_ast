@@ -1,4 +1,10 @@
 
+pa_ppx_q_ast Version 0.11
+-------------------
+
+* [22 Sept 2023] Fix Makefiles, also conditionalize "diff" for freebsd
+
+
 pa_ppx_q_ast Version 0.10
 -------------------
 
