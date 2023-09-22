@@ -37,6 +37,8 @@ quot_r.out.ml: quot.ml
 	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(MKTEST_PACKAGES),camlp5.pr_r -syntax camlp5o $(RPPFLAGS) $< > $@
 
 expr.quot_r.TEST: quot_r.out.ml
+	opam var os
+	echo "DIFF: " $(DIFF)
 	cpp -E -DQAST -D$(OVERSION_NAME) quot_r.ml > tmp.quot_r.ml
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5.parser_quotations,camlp5.pr_r \
 	-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' \
