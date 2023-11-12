@@ -122,8 +122,10 @@ end
           | CeXtr (loc, s, _) → C.xtr loc s
       }
     ; class_expr = {
-        add_branches_patt_code = function
-          | {Hashcons.node=CeXtr (loc, s, _)} → C.xtr loc s
+        add_branches_patt_code = (function
+          | {Hashcons.node=CeXtr (loc, s, _)} → C.xtr loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=CeXtr (loc, s, _)} → C.xtr loc s)
       }
 
     ; class_type_node = {
@@ -131,8 +133,10 @@ end
           | CtXtr (loc, s, _) → C.xtr loc s
       }
     ; class_type = {
-        add_branches_patt_code = function
-          | {Hashcons.node=CtXtr (loc, s, _)} → C.xtr loc s
+        add_branches_patt_code = (function
+          | {Hashcons.node=CtXtr (loc, s, _)} → C.xtr loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=CtXtr (loc, s, _)} → C.xtr loc s)
       }
 
     ; ctyp_node = {
@@ -141,8 +145,10 @@ end
       }
 
     ; ctyp = {
-        add_branches_patt_code = function
-          | {Hashcons.node=TyXtr(loc, s, _)} → C.xtr loc s
+        add_branches_patt_code = (function
+          | {Hashcons.node=TyXtr(loc, s, _)} → C.xtr loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=TyXtr(loc, s, _)} → C.xtr loc s)
       }
 
     ; expr_node = {
@@ -150,8 +156,10 @@ end
           | ExXtr(loc, s, _) → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s
       }
     ; expr = {
-        add_branches_patt_code = function
-          | {Hashcons.node=ExXtr(loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s
+        add_branches_patt_code = (function
+          | {Hashcons.node=ExXtr(loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=ExXtr(loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "ExAnt" [r]) s)
       }
 
     ; longid_node = {
@@ -159,8 +167,10 @@ end
           | LiXtr(loc, s, _) → C.xtr_typed "longid" loc s
       }
     ; longid = {
-        add_branches_patt_code = function
-          | {Hashcons.node=LiXtr(loc, s, _)} → C.xtr_typed "longid" loc s
+        add_branches_patt_code = (function
+          | {Hashcons.node=LiXtr(loc, s, _)} → C.xtr_typed "longid" loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=LiXtr(loc, s, _)} → C.xtr_typed "longid" loc s)
       }
 
     ; module_expr_node = {
@@ -169,8 +179,10 @@ end
       }
 
     ; module_expr = {
-        add_branches_patt_code = function
-          | {Hashcons.node=MeXtr (loc, s, _)} → C.xtr loc s          
+        add_branches_patt_code = (function
+          | {Hashcons.node=MeXtr (loc, s, _)} → C.xtr loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=MeXtr (loc, s, _)} → C.xtr loc s)
       }
 
 
@@ -180,8 +192,10 @@ end
       }
 
     ; module_type = {
-        add_branches_patt_code = function
-          | {Hashcons.node=MtXtr (loc, s, _)} → C.xtr loc s          
+        add_branches_patt_code = (function
+          | {Hashcons.node=MtXtr (loc, s, _)} → C.xtr loc s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=MtXtr (loc, s, _)} → C.xtr loc s)
       }
 
     ; patt_node = {
@@ -190,8 +204,10 @@ end
       }
 
     ; patt = {
-        add_branches_patt_code = function
-          | {Hashcons.node=PaXtr (loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "PaAnt" [r]) s
+        add_branches_patt_code = (function
+          | {Hashcons.node=PaXtr (loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "PaAnt" [r]) s)
+      ; add_branches_expr_code = (function
+          | {Hashcons.node=PaXtr (loc, s, _)} → C.xtr_or_anti loc (fun r → C.node "PaAnt" [r]) s)
       }
 
     }

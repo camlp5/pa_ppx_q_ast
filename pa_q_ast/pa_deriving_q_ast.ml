@@ -60,7 +60,7 @@ and pertype_t = {
 ; add_branches_patt_code : option expr 
 ; add_branches_patt : (list case_branch) [@computed extract_branches add_branches_patt_code;]
 ; add_branches_expr_code : option expr 
-; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_patt_code;]
+; add_branches_expr : (list case_branch) [@computed extract_branches add_branches_expr_code;]
 ; data_source_module : longid [@default default_data_source_module;]
 ; quotation_source_module : longid [@default default_quotation_source_module;]
 }
