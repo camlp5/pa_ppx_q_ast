@@ -9,9 +9,6 @@ DESTDIR=
 
 PACKAGES := camlp5,fmt,pa_ppx_q_ast
 TARGET_PACKAGE=basic_example
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
 
 ML=\
 	basic.ml pa_basic.ml q_ast_basic.ml \

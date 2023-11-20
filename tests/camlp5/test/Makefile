@@ -21,10 +21,6 @@ ML=\
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
 TESTS=  expr.quot_r.TEST okexpr.quot_r.TEST hcexpr.quot_r.TEST \
 
 all: $(CMO)

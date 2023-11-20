@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o  $(IMPORT_OCAMLCFLAGS) -package pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate *)
+(**pp -syntax camlp5o -package pa_ppx_q_ast,pa_ppx.import,pa_ppx_hashcons,pa_ppx_migrate *)
 
 let _migrate_vala __subrw_0 __dt__ = function
     Ploc.VaAnt v_0 -> Ploc.VaAnt v_0

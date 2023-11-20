@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
+(**pp -syntax camlp5o -package pa_ppx.import *)
 [%%import: Parsetree.attribute
   [@add
       [%%import: Lexing.position]

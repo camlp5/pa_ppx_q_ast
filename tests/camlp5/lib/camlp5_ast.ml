@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
+(**pp -syntax camlp5o -package pa_ppx.import *)
 (* camlp5r *)
 (* pa_sexp.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

@@ -9,10 +9,6 @@ DESTDIR=
 
 PACKAGES := camlp5,fmt,pa_ppx_q_ast
 TARGET_PACKAGE=sexp4_example
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug \
-	-ppopt -pa_import-I -ppopt . \
-	 -ppopt -pa_import-package -ppopt $(PACKAGES)
-
 
 ML=\
 	sexp.ml sexp_migrate.ml q_ast_sexp.ml pa_sexp.ml \

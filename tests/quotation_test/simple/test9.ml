@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
+(**pp -syntax camlp5o -package pa_ppx.import *)
 [%%import: Types.t9
  [@add type num = [%import: Types.num]]
  [@add type 'a located = [%import: 'a Types.located]]

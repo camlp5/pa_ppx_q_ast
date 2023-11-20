@@ -10,10 +10,6 @@ DESTDIR=
 PACKAGES := camlp5,fmt,hashcons
 TARGET_PACKAGE=lam_example
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
-
 ML=\
 	lam.ml lam_hashcons.ml lam_migrate.ml q_ast_lam.ml pa_lam.ml \
 

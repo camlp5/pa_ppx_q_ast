@@ -10,10 +10,6 @@ DESTDIR=
 PACKAGES := camlp5,fmt,hashcons
 TARGET_PACKAGE=debruijn_example
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
-
 ML=\
 	debruijn.ml debruijn_hashcons.ml debruijn_migrate.ml q_ast_debruijn.ml pa_debruijn.ml \
 

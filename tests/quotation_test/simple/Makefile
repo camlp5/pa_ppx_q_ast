@@ -32,10 +32,6 @@ all test: types.cmo $(TESTS)
 %.TEST: %.r_out %.o_out
 	$(DIFF) -Bwiu fixtures/$< $<
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
 QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
 #QUOTPACKAGES=pa_ppx_q_ast_quotation_test
 #QUOTPACKAGES=

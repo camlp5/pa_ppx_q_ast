@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o $(IMPORT_OCAMLCFLAGS) -package pa_ppx.import *)
+(**pp -syntax camlp5o -package pa_ppx.import *)
 [%%import: Types.t3b
   [@add [%%import: Types.located]]
 ][@@deriving quotation_test {

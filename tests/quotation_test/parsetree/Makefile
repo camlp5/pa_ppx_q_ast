@@ -12,10 +12,6 @@ ML=\
 all test: \
 	test1.r_out test1.o_out \
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
 #PACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
 PACKAGES=pa_ppx_q_ast_quotation_test
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'

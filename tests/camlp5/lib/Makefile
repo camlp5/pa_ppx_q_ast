@@ -10,13 +10,9 @@ DESTDIR=
 PACKAGES := fmt,camlp5,pa_ppx_q_ast,pa_ppx_hashcons,pa_ppx_migrate
 TARGET_PACKAGE=camlp5_example
 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_passthru-debug 
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-package -ppopt camlp5
-export IMPORT_OCAMLCFLAGS += -ppopt -pa_import-I -ppopt .
-
 ML=\
 	camlp5_ast.ml camlp5_hashcons.ml camlp5_migrate.ml pa_camlp5.ml q_ast_camlp5.ml \
-	
+
 MLI=
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
