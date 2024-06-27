@@ -58,8 +58,9 @@ hcexpr.quot_r.TEST: quot_r.out.ml
 	-syntax camlp5r hctmp.quot_r.ml | \
 	perl -p -e 's,Camlp5_hashcons.HC.make_[a-z_]+,,g' | \
 	perl -p -e 's,Camlp5_hashcons.HC,MLast,g' | \
-	perl -p -e 's,Camlp5_migrate.FromHC,MLast,g' | \
-	camlp5r pr_r.cmo -l 400 -sep '\n' -impl - | \
+	perl -p -e 's,Camlp5_migrate.FromHC,MLast,g' > hctmp2.quot_r.ml
+	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -syntax camlp5r -package camlp5.pa_r,camlp5.pr_r \
+		-ppopt -l -ppopt 400 -ppopt -sep -ppopt '\n' hctmp2.quot_r.ml | \
 	$(DIFF) -I '(\*' -B quot_r.out.ml -
 
 

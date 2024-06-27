@@ -105,6 +105,7 @@ MLast.TyVrn loc lpv ools;
 
 <:ctyp< $t$ [@ $_attribute:x$ ] >> ;
 <:ctyp< [% $_extension:x$ ] >> ;
+<:ctyp< $longid:x$ . ( $t$ ) >> ;
 
 (* poly_variant: Polymorphic variants. *)
 [@@@"ocaml.text" "poly_variant";];
