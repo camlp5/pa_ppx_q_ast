@@ -22,8 +22,9 @@ TESTS=\
 	test9.TEST \
 	test10.TEST \
 	test11.TEST \
+	test12.TEST \
 
-$(TESTS:.TEST=.cmo): types.cmo
+$(TESTS:.TEST=.ml): types.cmo
 
 all test: types.cmo $(TESTS)
 

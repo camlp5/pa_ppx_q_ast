@@ -30,3 +30,6 @@ and loc = Location.t
 and s = string
 
 type t11 = { a : int ; b : (int * (bool * char)) list }
+
+type t12 = A of t12' option
+and t12' = B  | C

@@ -1,0 +1,5 @@
+[@@@"ocaml.text" "t12";];
+Types.A None;
+Types.A (Some Types.C);
+Types.A ox;
+[@@@"ocaml.text" "t12'";];
