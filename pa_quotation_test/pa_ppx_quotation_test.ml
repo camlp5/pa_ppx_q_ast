@@ -11,6 +11,14 @@ open Pa_ppx_utils ;
 open Pa_ppx_deriving ;
 open Pa_ppx_params_runtime.Runtime ;
 
+module TypeMap = struct
+  type t 'a = list (ctyp * 'a) ;
+  value mt = [] ;
+  value assoc k l = AList.assoc ~{cmp=Reloc.eq_ctyp} k l ;
+  value mem k l = AList.assoc ~{cmp=Reloc.eq_ctyp} k l ;
+  value remove k l = AList.assoc ~{cmp=Reloc.eq_ctyp} k l ;
+end ;
+
 value two_level_mem_assoc k1 k2 dict =
   match List.assoc k1 dict with [
       exception Not_found -> False
@@ -120,6 +128,7 @@ value compute_module_dict type_decls type_module_map =
 type t = {
   optional : bool [@default False;]
 ; plugin_name : string [@default "";]
+; type_decls : list (string * type_decl) [@computed type_decls;]
 ; test_types : list lident
 ; expand_types : alist lident expand_op_t [@default [];]
 ; per_constructor_expansion : list (uident * expand_op_t) [@default [];]
@@ -164,6 +173,7 @@ value build_params_from_cmdline tdl =
   {
     optional = False
   ; plugin_name = "pa_quotation_test"
+  ; type_decls = type_decls
   ; test_types = test_types.val
   ; expand_types = expand_types
   ; expand_types_per_constructor = []
@@ -445,22 +455,22 @@ and expr_list_of_record_ctyp rc ~{tdname} (f : MLast.expr -> list MLast.expr) ((
         | Some li -> li
         ] in
     let ldnl = name_of_vars rc (fun (loc, l, mf, t, _) -> t) ldl in
-    let pell =
-      loop 0 ldnl where rec loop i =
-      fun
-        [ [((loc, l, mf, t, _), n) :: ldnl] ->
-          let p =
-            if i <> 0 && rc.minimal_record_module_labels then
-              <:patt< $lid:l$ >>
-            else
-              <:patt< $longid:modli$ . $lid:l$ >>
-          in
-          let pell = loop (i+1) ldnl in
-          let f e = List.map (fun pel -> [(p, e) :: pel]) pell in
-          patt_expr_list_of_type loc rc ~{tdname} f n (cid,t)
-        | [] -> [[]] ]
+    let mk_first_pattern ((loc, l, mf, t, _), n) = <:patt< $longid:modli$ . $lid:l$ >> in
+    let mk_rest_patterns ((loc, l, mf, t, _), n) =
+      if rc.minimal_record_module_labels then
+        <:patt< $lid:l$ >>
+      else
+        <:patt< $longid:modli$ . $lid:l$ >>
     in
-    List.concat (List.map (fun pel -> f <:expr< {$list:pel$} >>) pell)
+
+    let pl = [mk_first_pattern (List.hd ldnl) :: List.map mk_rest_patterns (List.tl ldnl)] in
+    let exprs1 ((loc, l, mf, t, _), n) = expr_list_of_type loc rc ~{tdname} (fun x -> [x]) n (cid,t) in
+    let ell = ldnl |> List.map exprs1 in
+    let exp_row_l = expr_list_cross_product ell in
+    let pe_row_l = List.map (Std.combine pl) exp_row_l in
+    let el = List.map (fun pe_row -> <:expr< {$list:pe_row$} >>) pe_row_l in
+    List.concat_map f el
+
 | ct -> Ploc.raise (MLast.loc_of_ctyp ct) (Failure "expr_list_of_record_ctyp: not a record ctyp")
 ]
 
