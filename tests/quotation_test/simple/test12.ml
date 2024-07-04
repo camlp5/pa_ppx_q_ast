@@ -7,7 +7,13 @@
       ; expand_types = {
           t12' = AddDel (
                      [],
-                     [Types.B]
+                     [Types.B1]
                    )
         }
+      ; expand_types_per_constructor = [
+          (A2, { t12'' = AddDel (
+                     [],
+                     [Types.C1]
+                   ) })
+        ]
   }]

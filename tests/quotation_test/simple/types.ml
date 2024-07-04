@@ -31,5 +31,8 @@ and s = string
 
 type t11 = { a : int ; b : (int * (bool * char)) list }
 
-type t12 = A of t12' option
-and t12' = B  | C
+type t12 =
+  A1 of t12' option *  t12'' option
+| A2 of t12' option *  t12'' option
+and t12' = B1  | B2
+and t12'' = C1  | C2
