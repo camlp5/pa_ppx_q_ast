@@ -5,7 +5,7 @@
         test_types = [t3b]
       ; minimal_record_module_labels = true
       ; expand_types_per_constructor = [
-          (X, { t3a = Auto })
-        ; (Z, { t3a = Auto ; located = Auto })
+          (X, [ ([%typ: t3a], Auto) ])
+        ; (Z, [ ([%typ: t3a], Auto) ; ([%typ: located], Auto) ])
         ]
   }]

@@ -32,6 +32,7 @@
         ; generic_constructor = Auto
         ; extension_constructor = Auto
         ; type_extension = Auto
+        ; class_infos = Auto
         }
       }
   ]

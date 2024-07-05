@@ -13,8 +13,8 @@
                   ]
           ))
         ]
-      ; expand_types = {
-          t4 = Explicit [U 1; U 2]
-        ; t4' = Auto
-        }
+      ; expand_types = [
+          ([%typ: t4] , Explicit [U 1; U 2])
+        ; ([%typ: t4'], Auto)
+        ]
   }]

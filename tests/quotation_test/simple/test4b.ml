@@ -3,6 +3,6 @@
 ][@@deriving quotation_test {
         test_types = [t4]
       ; expand_types_per_constructor = [
-          (U, { num = Explicit [1; 2] })
+          (U, [ ([%typ: num] , Explicit [1; 2]) ])
         ]
   }]

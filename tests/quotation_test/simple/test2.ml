@@ -9,9 +9,9 @@
 ][@@deriving quotation_test {
         test_types = [t2]
       ; minimal_record_module_labels = true
-      ; expand_types = {
-          located = Auto
-        }
+      ; expand_types = [
+          ([%typ: located], Auto)
+        ]
       ; location_type = [%typ: location]
       ; loc_varname = __loc__
   }]

@@ -4,11 +4,11 @@
 ][@@deriving quotation_test {
         test_types = [t7; t7']
       ; expand_types_per_type = {
-          t7' = {
-            t3a = Auto
-          }
-        ; t7 = {
-            t7 = Explicit [Types.A U]
-          }
+          t7' = [
+            ([%typ: t3a], Auto)
+          ]
+        ; t7 = [
+            ([%typ: t7], Explicit [Types.A U])
+          ]
         }
   }]

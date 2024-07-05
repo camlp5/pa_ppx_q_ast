@@ -4,17 +4,24 @@
 [@@deriving quotation_test {
         test_types = [t12]
       ; minimal_record_module_labels = true
-      ; expand_types = {
-          t12b = AddDel (
+      ; expand_types = [
+          ([%typ: t12b], AddDel (
                      [],
                      [Types.B1]
-                   )
-        ; t12d = Auto
-        }
+                   ))
+        ; ([%typ: t12d], Auto)
+        ]
       ; expand_types_per_constructor = [
-          (A2, { t12c = AddDel (
-                     [],
-                     [Types.C1]
-                   ) })
+          (A2, [ ([%typ: t12c], AddDel (
+                                    [],
+                                    [Types.C1]
+                 ))
+
+               ; ([%typ: t12b option], AddDel (
+                                    [],
+                                    [None]
+                 ))
+
+          ])
         ]
   }]
