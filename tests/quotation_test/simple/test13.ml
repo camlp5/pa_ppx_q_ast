@@ -1,5 +1,5 @@
 (**pp -syntax camlp5o -package pa_ppx.import *)
-[%%import: Types.t13
+[%%import: Types.T13.t13
 ]
 [@@deriving quotation_test {
         test_types = [t13]
@@ -15,4 +15,8 @@
              )
           )
         ]
+      ; type_module_map = {
+          t13 = T13
+        ; t13b = T13
+        }
   }]

@@ -588,7 +588,11 @@ and expr_of_cons_decl0 rc (tdname, modli, (loc, c, _, tl, rto, _)) = do {
     let tl = Pcaml.unvala tl in
     let tnl = name_of_vars rc (fun t -> t) tl in
     let exprs1 (t, tn) =
-      expr_list_of_type_gen loc rc ~{tdname} tn ((None, Some c), t) in
+      let modli = match t with [
+            <:ctyp< { $list:_$ } >> -> Some modli
+          | _ -> None
+          ] in
+      expr_list_of_type_gen loc rc ~{tdname} tn ((modli, Some c), t) in
     let ell = List.map exprs1 tnl in
     let el = expr_list_cross_product ell in
     let mkapp l =

@@ -39,5 +39,11 @@ and t12b = B1  | B2
 and t12c = C1  | C2
 and 'a t12d = { a : 'a option }
 
+module T13 = struct
 type t13 = A of t13b Ploc.vala option Ploc.vala * string
 and t13b = B1 | B2
+end
+
+module T14 = struct
+type t14 = A of { f1 : string ; f2 : string }
+end
