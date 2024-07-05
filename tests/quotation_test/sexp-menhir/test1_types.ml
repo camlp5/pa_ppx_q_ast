@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o -package pa_ppx.import *)
+(**pp -syntax camlp5o -package sexp_menhir_example.runtime,pa_ppx.import *)
 [%%import: Sexp.Pattern.sexp
 ][@@deriving quotation_test {
         target_is_pattern_ast = false

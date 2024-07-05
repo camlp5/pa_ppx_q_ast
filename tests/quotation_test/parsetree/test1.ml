@@ -63,12 +63,10 @@
           location_stack = []
         }
       ; expand_types = [
-          expression_desc
-        ; attributes
-        ; payload
-        ; generic_constructor
-        ; extension_constructor
-        ; type_extension
+          ([%typ: expression_desc], Auto)
+        ; ([%typ: attributes], Auto)
+        ; ([%typ: payload], Auto)
+        ; ([%typ: type_extension], Auto)
         ]
       }
   ]

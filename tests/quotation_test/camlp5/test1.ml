@@ -26,14 +26,14 @@
               ; class_str_item
               ; attribute_body
         ]
-      ; expand_types = {
-          attributes = Auto
-        ; payload = Auto
-        ; generic_constructor = Auto
-        ; extension_constructor = Auto
-        ; type_extension = Auto
-        ; class_infos = Auto
-        }
+      ; expand_types = [
+          ([%typ: attributes], Auto)
+        ; ([%typ: payload], Auto)
+        ; ([%typ: generic_constructor], Auto)
+        ; ([%typ: extension_constructor], Auto)
+        ; ([%typ: type_extension], Auto)
+        ; ([%typ: class_infos], Auto)
+        ]
       }
   ]
 

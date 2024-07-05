@@ -18,9 +18,13 @@ TESTDIRS = \
 	sexp3/lib sexp3/test \
 	sexp4/lib sexp4/test \
 	sexp5/lib sexp5/test \
-	sexp-menhir/lib sexp-menhir/test \
+	sexp-menhir/lib \
+	sexp-menhir/test \
+	quotation_test/sexp-menhir \
+	quotation_test/parsetree \
 
-test: all
+
+test:
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ../..; done
 
 all:
