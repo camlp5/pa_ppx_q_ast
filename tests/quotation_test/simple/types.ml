@@ -38,3 +38,6 @@ type t12 =
 and t12b = B1  | B2
 and t12c = C1  | C2
 and 'a t12d = { a : 'a option }
+
+type t13 = A of t13b Ploc.vala option Ploc.vala * string
+and t13b = B1 | B2

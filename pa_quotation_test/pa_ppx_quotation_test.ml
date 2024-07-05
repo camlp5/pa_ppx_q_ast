@@ -476,7 +476,8 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, n, ((modli,cid), x)) =
      let el = expr_list_of_type_gen loc rc ~{tdname} n ((modli_opt, cid), expanded) in
      apply_expand_instructions tl el
 
-  | ((<:ctyp< Ploc.vala >>, [t]), insns) ->
+  | (((<:ctyp< Ploc.vala >>, [t]) | (<:ctyp< Ploc.vala $t$ >>, [])),
+     insns) ->
      let n = name_of_type rc n x in
      let el = expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t) in
      let el = List.map (handle_vala loc rc) el in

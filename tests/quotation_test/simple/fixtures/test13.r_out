@@ -1,0 +1,5 @@
+[@@@"ocaml.text" "t13";];
+Types.A None s;
+Types.A (Some Types.B1) s;
+Types.A (Some Types.B2) s;
+[@@@"ocaml.text" "t13b";];
