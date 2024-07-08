@@ -2,9 +2,11 @@
 pa_ppx_q_ast Version 0.12
 -------------------
 
-* [26 Jun 2024] minor update for working with newer camlp5 8.03.00 (needed for OCaml 5.2.0 compat)
+* [26 Jun 2024] update for working with newer camlp5 8.03.00 (needed for OCaml 5.2.0 compat)
 
   but this version should still work with earlier versions of camlp5 and ocaml
+
+* This release has a ton of bugfixes for the quotation_test PPX rewriter
 
 pa_ppx_q_ast Version 0.11
 -------------------
