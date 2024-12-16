@@ -2,7 +2,7 @@ A PPX Rewriter for Q_ast
 
 ### Version
 
-This is ``pa_ppx_q_ast`` (alpha) version 0.12.
+This is ``pa_ppx_q_ast`` (alpha) version 0.13
 
 # Overview
 
