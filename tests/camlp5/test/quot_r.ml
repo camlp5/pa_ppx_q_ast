@@ -173,10 +173,8 @@ MLast.TyVrn loc lpv ools;
 (* exception *)
 <:patt< exception $p$ >> ;
 
-#ifdef OCAML_5_3_0
 (* effect *)
 <:patt< effect $p1$ , $p2$ >> ;
-#endif
 
 (* float *)
 <:patt< $flo:s$ >>;
