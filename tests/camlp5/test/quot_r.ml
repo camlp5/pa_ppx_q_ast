@@ -458,8 +458,9 @@ MLast.ExRec loc lpe oe;
 
 
 (* string *)
-<:expr< $str:s$ >>;
-<:expr< $_str:s$ >>;
+<:expr< $str:lsf2$ >>;
+<:expr< $_str:lsf2$ >>;
+<:expr< $_locstr:ls$ >>;
 
 (* try <a href="#expr_2">(2)</a> *)
 <:expr< try $e$ with [ $list:lx$ ] >>;
