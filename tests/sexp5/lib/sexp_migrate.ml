@@ -7,14 +7,15 @@ let migration_error feature =
 
 module Regular = struct
 
-[%%import: Sexp.sexp
-  [@with Ploc.vala := vala]
-  [@with Position.position := position]
-  [@add [%%import: 'a Sexp.Ploc.vala]]
-  [@add type position = [%import: Sexp.Position.position
-                                    [@with Ploc.vala := vala]
-                        ]
+[%%typedecls
+  [%%import: Sexp.sexp
+    [@with Ploc.vala := vala]
+    [@with Position.position := position]
   ]
+  [%%import: 'a Sexp.Ploc.vala]
+  type position = [%import: Sexp.Position.position
+                              [@with Ploc.vala := vala]
+                  ]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -102,14 +103,15 @@ let _migrate_vala __subrw_0 __dt__ = function
     migration_error "Sexp_migrate.ToNoVala: found an antiquotation (not permitted when converting to NoVala)"
   | Ploc.VaVal v_0 -> (__subrw_0 __dt__ v_0)
 
-[%%import: Sexp.sexp
-  [@with Ploc.vala := vala]
-  [@with Position.position := position]
-  [@add [%%import: 'a Sexp.Ploc.vala]]
-  [@add type position = [%import: Sexp.Position.position
-                                    [@with Ploc.vala := vala]
-                        ]
+[%%typedecls
+  [%%import: Sexp.sexp
+    [@with Ploc.vala := vala]
+    [@with Position.position := position]
   ]
+  [%%import: 'a Sexp.Ploc.vala]
+  type position = [%import: Sexp.Position.position
+                              [@with Ploc.vala := vala]
+                  ]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t

@@ -8,6 +8,8 @@ open Pa_ppx_utils ;;
 open Pa_ppx_base ;;
 open Ppxutil ;;
 
+exception Fail
+
 module Regular = struct
 
 let v0 = let loc = Ploc.dummy in <:expr< 0 >>
@@ -33,6 +35,17 @@ let rec copy = function
   | <:expr:< $e1$ - $e2$ >> -> <:expr:< $e1$ - $e2$ >>
   | <:expr:< $e1$ * $e2$ >> -> <:expr:< $e1$ * $e2$ >>
   | <:expr:< $e1$ / $e2$ >> -> <:expr:< $e1$ / $e2$ >>
+
+let patt_bound_vars p =
+  let rec patrec = function
+      <:patt< $lid:x$ >> -> [x]
+    | <:patt< $p1$ $p2$ >> -> (patrec p1)@(patrec p2)
+    | <:patt< ( $list:l$ ) >> -> List.concat (List.map patrec l)
+    | <:patt< $longid:_$ >> -> []
+  in
+  let bvs = (patrec p) in
+  if not (Std.distinct bvs) then raise Fail ;
+  bvs
 
 end ;;
 
@@ -94,8 +107,6 @@ let rec copy = function
   | <:hcexpr:< $e1$ * $e2$ >> -> <:hcexpr:< $e1$ * $e2$ >>
   | <:hcexpr:< $e1$ / $e2$ >> -> <:hcexpr:< $e1$ / $e2$ >>
  
-exception Fail
-
 module FVS0 = struct
   type t = string list
 

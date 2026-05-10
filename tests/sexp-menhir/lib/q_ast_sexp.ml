@@ -36,11 +36,11 @@ module MetaP = struct
                                Pp_MLast.pp_patt e))
 end
 
-
-[%%import: Sexp.Pattern.sexp
-  [@add type location = [%import: Location.t]
+[%%typedecls
+  [%%import: Sexp.Pattern.sexp
+    [@with Location.t := location]
   ]
-  [@with Location.t := location]
+  type location = [%import: Location.t]
 ]
 [@@deriving q_ast {
        default_data_source_module = Sexp.Normal

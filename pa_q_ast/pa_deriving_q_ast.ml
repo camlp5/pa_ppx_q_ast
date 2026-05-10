@@ -210,8 +210,10 @@ value generate_conversion arg rc rho in_patt (name, t) =
 
   | <:ctyp:< ( $list:l$ ) >> ->
       let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
+
       let argpat = <:patt< ( $list:List.map (to_labeled_patt loc) argvars$ ) >> in
-      let members = List.map (fun (v,(_, ty)) -> <:expr< C.tuple [C.node_no_loc "VaVal" [C.node_no_loc "None" []] ; $genrec ty$ $lid:v$] >>) argvars in
+      let members = List.map (fun (v,(_,ty)) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
+
       let tuplist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.tuple $tuplist$ >>
 
