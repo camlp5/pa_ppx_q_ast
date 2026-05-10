@@ -116,6 +116,12 @@ value build_context loc ctxt tdl =
 ;
 
 value to_patt loc (v, ty) = <:patt< ($lid:v$ : $ty$) >> ;
+value to_labeled_patt loc (v, (lab, ty)) =
+  match uv lab with [
+      None -> <:patt< ($lid:v$ : $ty$) >>
+    | Some <:vala< lab >> -> <:patt< ~{$lid:lab$ = ($lid:v$ : $ty$)} >>
+  ]
+;
 value to_expr loc (v, ty) = <:expr< ($lid:v$ : $ty$) >> ;
 
 value left_right_eval_list_expr loc el =
@@ -204,8 +210,8 @@ value generate_conversion arg rc rho in_patt (name, t) =
 
   | <:ctyp:< ( $list:l$ ) >> ->
       let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
-      let argpat = <:patt< ( $list:List.map (to_patt loc) argvars$ ) >> in
-      let members = List.map (fun (v,ty) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
+      let argpat = <:patt< ( $list:List.map (to_labeled_patt loc) argvars$ ) >> in
+      let members = List.map (fun (v,(_, ty)) -> <:expr< C.tuple [C.node_no_loc "VaVal" [C.node_no_loc "None" []] ; $genrec ty$ $lid:v$] >>) argvars in
       let tuplist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.tuple $tuplist$ >>
 

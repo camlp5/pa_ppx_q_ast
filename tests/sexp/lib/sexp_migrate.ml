@@ -1,4 +1,5 @@
 (**pp -syntax camlp5o -package hashcons,pa_ppx_migrate,pa_ppx.import,pa_ppx_unique.runtime *)
+
 exception Migration_error of string
 
 let migration_error feature =
@@ -7,9 +8,11 @@ let migration_error feature =
 
 module Regular = struct
 
-[%%import: Sexp.sexp
-  [@with Ploc.vala := vala]
-  [@add [%%import: 'a Sexp.Ploc.vala]]
+[%%typedecls
+  [%%import: Sexp.sexp
+    [@with Ploc.vala := vala]
+  ]
+  [%%import: 'a Sexp.Ploc.vala]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -172,9 +175,11 @@ end
 
 module HC = struct
 
-[%%import: Sexp_hashcons.HC.sexp
-  [@with Ploc.vala := vala]
-  [@add [%%import: 'a Sexp.Ploc.vala]]
+[%%typedecls
+  [%%import: Sexp_hashcons.HC.sexp
+    [@with Ploc.vala := vala]
+  ]
+  [%%import: 'a Sexp.Ploc.vala]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t
@@ -308,9 +313,11 @@ end
 
 module Unique = struct
 
-[%%import: Sexp_unique.UN.sexp
-  [@with Ploc.vala := vala]
-  [@add [%%import: 'a Sexp.Ploc.vala]]
+[%%typedecls
+  [%%import: Sexp_unique.UN.sexp
+    [@with Ploc.vala := vala]
+  ]
+  [%%import: 'a Sexp.Ploc.vala]
 ]
 [@@deriving migrate
     { dispatch_type = dispatch_table_t

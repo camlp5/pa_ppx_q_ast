@@ -264,7 +264,7 @@ value rec pfx rc short t =
   | <:ctyp< class_infos $t$ >> -> "ci" ^ pfx rc True t
   | <:ctyp< list $t$ >> -> "l" ^ pfx rc True t
   | <:ctyp< option $t$ >> -> pfx rc True t
-  | <:ctyp< ($list:tl$) >> -> String.concat "" (List.map (pfx rc True) tl)
+  | <:ctyp< ($list:tl$) >> -> String.concat "" (List.map (pfx rc True) (List.map snd tl))
   | _ -> "x" ]
 ;
 
@@ -501,8 +501,8 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, n, ((modli,cid), x)) =
      apply_expand_instructions insns el
 
   | ((<:ctyp< ( $list:l$ )>>, _), insns) -> 
-     let namel = name_of_tuple_types rc n l in
-     let ll = List.map2 (fun n t -> expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t)) namel l in
+     let namel = name_of_tuple_types rc n (List.map snd l) in
+     let ll = List.map2 (fun n t -> expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t)) namel (List.map snd l) in
     let ll = expr_list_cross_product ll in
     let el = List.map (fun l -> <:expr< ( $list:l$ ) >>) ll in
     apply_expand_instructions insns el
