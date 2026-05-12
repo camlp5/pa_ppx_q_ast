@@ -502,7 +502,13 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, n, ((modli,cid), x)) =
 
   | ((<:ctyp< ( $list:l$ )>>, _), insns) -> 
      let namel = name_of_tuple_types rc n (List.map snd l) in
-     let ll = List.map2 (fun n t -> expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t)) namel (List.map snd l) in
+     let ll = List.map2 (fun n (lab, t) ->
+         let el = expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t) in
+         match uv lab with [
+             None -> el
+           | Some <:vala< lab >> ->
+              List.map (fun e -> <:expr< ~{$lid:lab$ = $e$} >>) el
+                ]) namel l in
     let ll = expr_list_cross_product ll in
     let el = List.map (fun l -> <:expr< ( $list:l$ ) >>) ll in
     apply_expand_instructions insns el

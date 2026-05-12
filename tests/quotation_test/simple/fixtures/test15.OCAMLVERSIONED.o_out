@@ -1,0 +1,6 @@
+[@@@ocaml.text "t15"];;
+#if OCAML_VERSION >= (5,4,0)
+T15.A (~f1:ssf1, ssf2);;
+#else
+x;;
+#endif

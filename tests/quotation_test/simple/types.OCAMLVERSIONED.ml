@@ -47,3 +47,9 @@ end
 module T14 = struct
 type t14 = A of { f1 : string ; f2 : string }
 end
+
+#if OCAML_VERSION >= (5,4,0)
+module T15 = struct
+type t15 = A of ( f1 : string * string )
+end
+#endif
