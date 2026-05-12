@@ -1,3 +1,4 @@
+types.ml
 test15.ml
 fixtures/test15.o_out
 fixtures/test15.r_out

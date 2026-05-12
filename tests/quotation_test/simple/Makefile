@@ -33,9 +33,8 @@ all test: types.cmo $(TESTS)
 
 #.SECONDARY:
 
-%.TEST: %.r_out %.o_out fixtures/%.r_out fixtures/%.o_out
+%.TEST: %.r_out fixtures/%.r_out
 	$(DIFF) -I '#' -Bwiu fixtures/$*.r_out $*.r_out
-	$(DIFF) -I '#' -Bwiu fixtures/$*.o_out $*.o_out
 
 QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
 #QUOTPACKAGES=pa_ppx_q_ast_quotation_test
@@ -46,18 +45,12 @@ OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'
 .ml.r_out:
 	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(QUOTPACKAGES),camlp5.pr_r -syntax camlp5o $(RPPFLAGS) $< > $@
 
-.ml.o_out:
-	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(QUOTPACKAGES),camlp5.pr_o -syntax camlp5o $(OPPFLAGS) $< > $@
-
 fixtures/test15.r_out: fixtures/test15.OCAMLVERSIONED.r_out
 	cppo -V OCAML:$(ocamlVERSION) $< > $@.NEW && mv $@.NEW $@
 
-fixtures/test15.o_out: fixtures/test15.OCAMLVERSIONED.o_out
-	cppo -V OCAML:$(ocamlVERSION) $< > $@.NEW && mv $@.NEW $@
-
-.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .r_out .o_out .TEST
+.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .r_out .TEST
 
 .SECONDARY: types.ml
 
 clean::
-	rm -rf META *.cm* *.o *.*out types.ml fixtures/test15.o_out fixtures/test15.r_out
+	rm -rf META *.cm* *.o *.*out types.ml test15.ml fixtures/test15.r_out
