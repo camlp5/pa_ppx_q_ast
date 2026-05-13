@@ -2,3 +2,5 @@
 *.o
 calc
 calc.opt
+basic.ml
+pa_basic.ml
