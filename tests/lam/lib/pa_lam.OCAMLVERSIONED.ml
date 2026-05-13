@@ -11,13 +11,21 @@ open Lam;
 value lam_eoi = Grammar.Entry.create gram "lam_eoi";
 value lam_hashcons_eoi = Grammar.Entry.create gram "lam_hashcons_eoi";
 
+value app a b =
+#if OCAML_VERSION >= (5,4,0)
+  App (~{f=a},b)
+#else
+  App (a,b)
+#endif
+;
+
 EXTEND
   GLOBAL: lam_eoi lam_hashcons_eoi;
 
   lam: [
     "apply" LEFTA
     [ l = LIST1 (V (lam LEVEL "abs") "lam") ->
-      Pcaml.unvala (List.fold_left (fun lhs rhs -> <:vala< App lhs rhs >>) (List.hd l) (List.tl l)) ]
+      Pcaml.unvala (List.fold_left (fun lhs rhs -> <:vala< app lhs rhs >>) (List.hd l) (List.tl l)) ]
   | "abs"
     [ "[" ; id = V LIDENT "var" ; "]" ; e = V (lam LEVEL "abs") "lam" -> Lam id e ]
   |  "var" [ id = V LIDENT "var" -> Var id

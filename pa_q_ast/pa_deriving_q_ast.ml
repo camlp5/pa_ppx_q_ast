@@ -212,7 +212,11 @@ value generate_conversion arg rc rho in_patt (name, t) =
       let argvars = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
 
       let argpat = <:patt< ( $list:List.map (to_labeled_patt loc) argvars$ ) >> in
-      let members = List.map (fun (v,(_,ty)) -> <:expr< $genrec ty$ $lid:v$ >>) argvars in
+      let members = List.map (fun (v,(lab,ty)) ->
+                        match uv lab with [
+                            None -> <:expr< $genrec ty$ $lid:v$ >>
+                          | Some <:vala< lab >> -> <:expr< C.label $str:lab$ ($genrec ty$ $lid:v$) >>
+                      ]) argvars in
 
       let tuplist = left_right_eval_list_expr loc members in
       <:expr< fun $argpat$ -> C.tuple $tuplist$ >>

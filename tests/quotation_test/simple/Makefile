@@ -50,7 +50,7 @@ fixtures/test15.r_out: fixtures/test15.OCAMLVERSIONED.r_out
 
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .r_out .TEST
 
-.SECONDARY: types.ml
+.SECONDARY: types.ml test15.ml
 
 clean::
 	rm -rf META *.cm* *.o *.*out types.ml test15.ml fixtures/test15.r_out

@@ -33,7 +33,9 @@ local-install::
 .SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
 
 clean::
-	rm -rf META *.cm* *.o *.a
+	rm -rf META *.cm* *.o *.a lam.ml pa_lam.ml
+
+.SECONDARY: lam.ml pa_lam.ml
 
 lam_hashcons.cmo: lam.cmo lam.cmi
 lam_hashcons.cmx: lam.cmx lam.cmi

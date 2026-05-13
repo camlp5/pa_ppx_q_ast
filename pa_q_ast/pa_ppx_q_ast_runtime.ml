@@ -6,11 +6,13 @@ module MetaE = struct
     List.fold_left (fun e1 e2 -> <:expr< $e1$ $e2$ >>)
       <:expr< $longid:prefix$ . $lid:fid$ >> el
   ;
+  value label lab e = <:expr< ~{$lid:lab$ = $e$} >>;
 end
 ;
 
 module MetaP = struct
   include Q_ast_base.P_MetaSig ;
+  value label lab p = <:patt< ~{$lid:lab$ = $p$} >>;
 end
 ;
 
