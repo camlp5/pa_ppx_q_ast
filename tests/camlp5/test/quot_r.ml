@@ -109,6 +109,18 @@ MLast.TyVrn loc lpv ools;
 <:ctyp< [% $_extension:x$ ] >> ;
 <:ctyp< $longid:x$ . ( $t$ ) >> ;
 
+(* type-functor *)
+<:ctyp< (module $uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< (module $_uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $lid:s1$:(module $uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $lid:s1$:(module $_uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $_lid:s1$:(module $uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $_lid:s1$:(module $_uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $lidopt:os1$:(module $uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $lidopt:os1$:(module $_uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $_lidopt:os1$:(module $uid:s2$ : $mt$) -> $t$ >> ;
+<:ctyp< $_lidopt:os1$:(module $_uid:s2$ : $mt$) -> $t$ >> ;
+
 (* poly_variant: Polymorphic variants. *)
 [@@@"ocaml.text" "poly_variant";];
 
