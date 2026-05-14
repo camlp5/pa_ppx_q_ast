@@ -12,6 +12,8 @@ pa_ppx_q_ast Version 8.04.01
     Camlp5, since it is almost always the case that a Camlp5 AST
     change requires a new version of pa_ppx_q_ast.
 
+  * sync config/Makefile*
+
 pa_ppx_q_ast Version 0.12
 -------------------
 
