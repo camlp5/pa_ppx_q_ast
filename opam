@@ -1,4 +1,4 @@
-version: "8.04.01"
+version: "8.05.01"
 synopsis: "A PPX Rewriter for automating generation of data-conversion code for use with Camlp5's Q_ast"
 description:
 """
@@ -22,12 +22,12 @@ depends: [
   "conf-perl"
   "cppo" { >= "1.6.9" }
   "camlp5-buildscripts" { >= "0.01" }
-  "camlp5"      { >= "8.04.01" }
-  "pa_ppx"      { >= "8.04.01" }
-  "pa_ppx_migrate"      { with-test & >= "8.04.01" }
-  "pa_ppx_hashcons"      { >= "8.04.01" }
-  "pa_ppx_unique"      { >= "8.04.01" }
-  "pa_ppx_regexp"      { >= "8.04.01" }
+  "camlp5"      { >= "8.05.01" }
+  "pa_ppx"      { >= "8.05.01" }
+  "pa_ppx_migrate"      { with-test & >= "8.05.01" }
+  "pa_ppx_hashcons"      { >= "8.05.01" }
+  "pa_ppx_unique"      { >= "8.05.01" }
+  "pa_ppx_regexp"      { >= "8.05.01" }
   "not-ocamlfind" { >= "0.01" }
   "pcre2"
   "ounit" { >= "2.2.7" & with-test}

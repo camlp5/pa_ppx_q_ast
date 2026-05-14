@@ -1,12 +1,13 @@
-pa_ppx_q_ast Version 8.04.01
+pa_ppx_q_ast Version 8.05.01
 ----------------------------
 
 * [10 May 2026]
 
-  * update source to be compat with new camlp5 8.04.01, OCaml 5.4.0.
+  * update source to be compat with new camlp5 8.05.01, OCaml 5.5.0.
 
-    OCaml 5.4 introduces labeled-tuples.  This required changes to
-    support.
+    OCaml 5.4, 5.5 introduced introduced labeled-tuples,
+    structure-items in let, type-functors, and external types.  These
+    required changes to support.
 
   * Change version-numbering of pa_ppx_q_ast so it matches that of
     Camlp5, since it is almost always the case that a Camlp5 AST
