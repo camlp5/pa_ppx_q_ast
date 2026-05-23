@@ -88,7 +88,7 @@ module MetaP = Regular.MetaP
   ; loc_mode = CustomLoc { loc_varname = loc ; loc_type = [%typ: Ploc.t] ; loc_function_name = location }
   }]
 (*
-List.map (fun (n,f) -> Quotation.add n f)
+List.map (fun (n,f) -> Pcaml.QH.add n f)
 [
 #include "ok_quotations.tmp"
 ]
@@ -221,7 +221,7 @@ end
 (*
 let hc_apply_entry = Pa_ppx_q_ast_runtime.hc_apply_entry
 ;;
-List.map (fun (n,f) -> Quotation.add n f)
+List.map (fun (n,f) -> Pcaml.QH.add n f)
 [
 #include "hc_quotations.tmp"
 ]

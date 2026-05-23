@@ -356,7 +356,7 @@ value generate_entrypoint loc arg rc (ep : entrypoint_t) =
         None -> <:expr< None >>
       | Some e -> <:expr<  Some $e$ >>
       ] in
-  <:str_item< Quotation.add $str:ep.entry_name$
+  <:str_item< Pcaml.QH.add $str:ep.entry_name$
   ($apply_fun$ $grammar_entry$ $from_string$ E . $lid:ep.type_name$ P . $lid:ep.type_name$) >>
 ;
 

@@ -41,7 +41,7 @@ value parse_string grammar_entry from_string s =
   match (grammar_entry, from_string) with [
       (None, None) | (Some _, Some _) -> assert False
       | (Some e,_) ->
-         Ploc.call_with Plexer.force_antiquot_loc True
+         Ploc.call_with Pcaml.Lexer.force_antiquot_loc True
            (Grammar.Entry.parse e) (Stream.of_string s)
       | (None, Some pf) -> pf s
     ]
@@ -76,7 +76,7 @@ value apply_entry grammar_entry from_string me mp =
       | _ -> ast ]
     else ast
   in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 module Locate = struct
@@ -101,7 +101,7 @@ value customloc_apply_entry grammar_entry from_string me mp =
     let (s, locate) = separate_locate s in
     mp (Locate.mk locate) (f s)
   in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 value noloc_apply_entry grammar_entry from_string me mp =
@@ -114,7 +114,7 @@ value noloc_apply_entry grammar_entry from_string me mp =
     let (s, locate) = separate_locate s in
     mp () (f s)
   in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 value hc_apply_entry grammar_entry from_string me mp =
@@ -133,7 +133,7 @@ value hc_apply_entry grammar_entry from_string me mp =
     | (True, _) -> insert_loc_variable ast
     | (False, _) -> ast
     ] in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 value customloc_hc_apply_entry grammar_entry from_string me mp =
@@ -146,7 +146,7 @@ value customloc_hc_apply_entry grammar_entry from_string me mp =
     let (s, locate) = separate_locate s in
     mp (Locate.mk locate) (f s)
  in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 value unique_apply_entry grammar_entry from_string me mp =
@@ -165,7 +165,7 @@ value unique_apply_entry grammar_entry from_string me mp =
     | (True, _) -> insert_loc_variable ast
     | (False, _) -> ast
     ] in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;
 
 value customloc_unique_apply_entry grammar_entry from_string me mp =
@@ -178,5 +178,5 @@ value customloc_unique_apply_entry grammar_entry from_string me mp =
     let (s, locate) = separate_locate s in
     mp (Locate.mk locate) (f s)
   in
-  Quotation.ExAst (expr, patt)
+  Pcaml.QH.ExAst (expr, patt)
 ;

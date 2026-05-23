@@ -25,7 +25,7 @@ end
 module Regular2 = struct
 
 let parse_string s =
-  Ploc.call_with Plexer.force_antiquot_loc true
+  Ploc.call_with Pcaml.Lexer.force_antiquot_loc true
     (Grammar.Entry.parse Pa_basic.basic_eoi) (Stream.of_string s)
 
 [%%import: Basic.t]
