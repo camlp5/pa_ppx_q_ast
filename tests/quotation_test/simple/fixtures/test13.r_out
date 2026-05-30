@@ -2,4 +2,6 @@
 T13.A None s;
 T13.A (Some T13.B1) s;
 T13.A (Some T13.B2) s;
+T13.A (Some x) s;
+T13.A x s;
 [@@@"ocaml.text" "t13b";];

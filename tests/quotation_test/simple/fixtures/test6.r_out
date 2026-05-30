@@ -2,5 +2,4 @@
 Types.W None;
 Types.W (Some []);
 Types.W (Some lx);
-Types.W olx;
 [@@@"ocaml.text" "t4";];

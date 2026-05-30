@@ -331,6 +331,14 @@ value handle_vala loc rc e =
   else e
 ;
 
+value handle_vala loc rc (n, o_n) el =
+  let el = el @ [<:expr< $lid:n$ >>] in
+  if rc.target_is_pattern_ast then
+    (List.map (fun e -> <:expr< Ploc.VaVal $e$ >>) el) @
+      [<:expr< $lid:o_n$ >>]
+  else el
+;
+
 value do_expand_via_dict0 dict ty =
   let (rootty,args) = Ctyp.unapplist ty in
   let (tyargs, insns) = match (TypeMap.assoc_opt ty dict, TypeMap.assoc_opt rootty dict) with [
@@ -480,10 +488,7 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, n, ((modli,cid), x)) =
      insns) ->
      let n = name_of_type rc n x in
      let el = expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t) in
-     let el = List.map (handle_vala loc rc) el in
-     let el = el @
-                let n = add_o n t in
-                [<:expr< $lid:n$ >>] in
+     let el = handle_vala loc rc (n, add_o n t) el in
      apply_expand_instructions insns el
 
   | ((<:ctyp< bool >>, _), insns) ->
@@ -526,10 +531,14 @@ and expr_list_of_type_gen_uncurried rc (loc, tdname, n, ((modli,cid), x)) =
            | _ -> [] ] @
              (let el = expr_list_of_type_gen loc rc ~{tdname} n ((None, cid), t) in
               let el = List.map (fun e -> <:expr< Some $e$ >>) el in
-              el) @
-               let n = name_of_type rc n x in
+              el)
+(*
+             @
+               (let n = name_of_type rc n x in
                let n = add_o ("o" ^ n) t in
-               [<:expr< $lid:n$ >>] in
+               [<:expr< $lid:n$ >>])
+ *)
+     in
      apply_expand_instructions insns el
 
   | _ ->
