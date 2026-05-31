@@ -1,4 +1,3 @@
 [@@@"ocaml.text" "t4";];
 Types.U 1;
 Types.U 2;
-[@@@"ocaml.text" "num";];

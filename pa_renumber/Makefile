@@ -7,29 +7,24 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),pa_ppx.deriving,pa_ppx.deriving_plugins.show,pa_ppx.base,pa_ppx.utils
-TARGET_PACKAGE=pa_ppx_q_ast_quotation_test
+PACKAGES := $(PACKAGES),fmt,re,pcre2,pa_ppx.base,pa_ppx.deriving_plugins.std
+TARGET_PACKAGE = pa_ppx_q_ast_test_renumber
 TARGET = $(TARGET_PACKAGE).cma
 
-ML=\
-	pa_ppx_quotation_test.ml \
-
+ML = migrate_camlp5.ml pa_renumber.ml
 TOOLSML = mk_meta.ml
 ALLSRC=$(ML) $(TOOLSML)
 ALLPACKAGES=$(PACKAGES)
 
-OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_q_ast_quotation_test
+OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_q_ast_test_renumber
 
 all: $(TARGET) $(TARGET:.cma=.cmxa) META
-	$(MAKE) local-install
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
 TARGET_INSTALL_FILES= $(PACKED_ARCHIVE_TARGET_INSTALL_FILES)
 install:: default_install
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META mk_meta mk_meta.ml

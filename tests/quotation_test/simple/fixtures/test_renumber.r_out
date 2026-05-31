@@ -1,0 +1,11 @@
+[@@@"ocaml.text" "t2";];
+{Types.f1 = {Types.txt = x00; loc = __loc__}};
+[@@@"ocaml.text" "located";];
+[@@@"ocaml.text" "location";];
+{Types.f1 = {Types.txt = y00; loc = loc}};
+[@@@"ocaml.text" "t5";];
+Types.A (Types.U y00) (Types.U y01);
+Types.B (Types.U y00) (Types.V y01);
+[@@@"ocaml.text" "t5b";];
+Types.A y00 y01;
+Types.B y00 y01;

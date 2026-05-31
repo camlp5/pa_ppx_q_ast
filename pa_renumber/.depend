@@ -1,0 +1,9 @@
+migrate_camlp5.cmo pa_renumber.cmo migrate_camlp5.cmi pa_renumber.cmi migrate_camlp5.cmx pa_renumber.cmx: 
+migrate_camlp5.cmo :
+migrate_camlp5.cmx :
+pa_renumber.cmo : \
+    migrate_camlp5.cmo
+pa_renumber.cmx : \
+    migrate_camlp5.cmx
+mk_meta.cmo :
+mk_meta.cmx :

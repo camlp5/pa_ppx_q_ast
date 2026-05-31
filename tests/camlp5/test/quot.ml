@@ -5,6 +5,7 @@
 ][@@deriving quotation_test {
         target_is_pattern_ast = true
       ; location_type = [%typ: loc]
+      ; loc_varname = loc
       ; test_types = [
         	longid
               ; ctyp
@@ -32,6 +33,28 @@
         ; ([%typ: generic_constructor], Auto)
         ; ([%typ: extension_constructor], Auto)
         ; ([%typ: type_extension], Auto)
+        ]
+      ; per_constructor_expansion = [
+          (PaInt, Explicit [
+                      (MLast.PaInt (loc, Ploc.VaVal x, ""))
+                    ; (MLast.PaInt (loc, x, ""))
+                    ; (MLast.PaInt (loc, Ploc.VaVal x, "l"))
+                    ; (MLast.PaInt (loc, x, "l"))
+                    ; (MLast.PaInt (loc, Ploc.VaVal x, "L"))
+                    ; (MLast.PaInt (loc, x, "L"))
+                    ; (MLast.PaInt (loc, Ploc.VaVal x, "n"))
+                    ; (MLast.PaInt (loc, x, "n"))
+           ])
+        ; (ExInt, Explicit [
+                      (MLast.ExInt (loc, Ploc.VaVal x, ""))
+                    ; (MLast.ExInt (loc, x, ""))
+                    ; (MLast.ExInt (loc, Ploc.VaVal x, "l"))
+                    ; (MLast.ExInt (loc, x, "l"))
+                    ; (MLast.ExInt (loc, Ploc.VaVal x, "L"))
+                    ; (MLast.ExInt (loc, x, "L"))
+                    ; (MLast.ExInt (loc, Ploc.VaVal x, "n"))
+                    ; (MLast.ExInt (loc, x, "n"))
+           ])
         ]
       ; superfluous_constructors = [
           CeXtr

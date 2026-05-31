@@ -23,8 +23,9 @@ print_string "================ START ================\n";; flush stdout ;;
 Pa_ppx_import.add_include "." ;;
 #require "pa_ppx_q_ast_quotation_test";;
 #require "pa_ppx_q_ast_test_cleanup";;
+#require "pa_ppx_q_ast_test_renumber";;
 
-Pr_r.sep := Some ";\n";;
+Pcaml.inter_phrases := Some ";\n";;
 (*
 Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_test_cleanup.rewrite_str_item ;;
@@ -43,19 +44,30 @@ Pa_ppx_base.Pa_passthru.debug := true ;;
 #trace Pa_ppx_quotation_test.do_expand_per_type ;;
 #trace Pa_ppx_quotation_test.do_expand_type0 ;;
  *)
+(*
 #trace Pa_ppx_quotation_test.expr_list_of_type_decl ;;
-#trace Pa_ppx_quotation_test.expr_list_of_type_gen ;;
+#trace Pa_ppx_quotation_test.expr_list_of_type_gen_uncurried ;;
+#trace Pa_ppx_quotation_test.handle_vala ;;
 
 {|
-[%%import: Types.t10
-][@@deriving quotation_test {
-        test_types = [t10; s]
+type t6b = Types.t6b =
+ Z5 of string Ploc.vala option Ploc.vala
+and  t = Types.t = A | B
+[@@deriving quotation_test {
+        target_is_pattern_ast = true
+      ; test_types = [t6b]
+      ; expand_types = [
+          ([%typ: t], Auto)
+        ]
   }]
-
 |} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+ *)
 
 
-
+(*
+"test6b.ml" |> Fpath.v |> Bos.OS.File.read |> Result.get_ok
+ |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+ *)
 (*
 ;;; Local Variables: ***
 ;;; mode:tuareg ***

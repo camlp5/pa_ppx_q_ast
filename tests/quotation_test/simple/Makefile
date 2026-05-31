@@ -11,6 +11,7 @@ ML=\
 	types.ml \
 
 TESTS=\
+	test_renumber.TEST \
 	test1.TEST test1b.TEST test1c.TEST \
 	test2.TEST \
 	test3.TEST \
@@ -36,14 +37,14 @@ all test: types.cmo $(TESTS)
 %.TEST: %.r_out fixtures/%.r_out
 	$(DIFF) -I '#' -Bwiu fixtures/$*.r_out $*.r_out
 
-QUOTPACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
+QUOTPACKAGES=
 #QUOTPACKAGES=pa_ppx_q_ast_quotation_test
 #QUOTPACKAGES=
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'
 OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'
 
 .ml.r_out:
-	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(QUOTPACKAGES),camlp5.pr_r -syntax camlp5o $(RPPFLAGS) $< > $@
+	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(QUOTPACKAGES),camlp5.pr_r $(RPPFLAGS) $< > $@.NEW && mv $@.NEW $@
 
 fixtures/test15.r_out: fixtures/test15.OCAMLVERSIONED.r_out
 	cppo -V OCAML:$(ocamlVERSION) $< > $@.NEW && mv $@.NEW $@

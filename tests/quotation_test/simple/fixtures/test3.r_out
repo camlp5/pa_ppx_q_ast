@@ -1,8 +1,6 @@
-[@@@"ocaml.text" "t3a";];
 [@@@"ocaml.text" "t3b";];
 Types.X Types.U;
 Types.X Types.V;
-Types.Y x;
-Types.Z {Types.txt = Types.U; loc = x2};
-Types.Z {Types.txt = Types.V; loc = x2};
-[@@@"ocaml.text" "located";];
+Types.Y x00;
+Types.Z {Types.txt = Types.U; loc = x00};
+Types.Z {Types.txt = Types.V; loc = x00};

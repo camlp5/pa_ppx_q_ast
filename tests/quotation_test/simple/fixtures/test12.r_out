@@ -1,12 +1,9 @@
 [@@@"ocaml.text" "t12";];
 Types.A1 None None;
-Types.A1 None (Some x2);
+Types.A1 None (Some x00);
 Types.A1 (Some Types.B2) None;
-Types.A1 (Some Types.B2) (Some x2);
+Types.A1 (Some Types.B2) (Some x00);
 Types.A2 (Some Types.B2) None;
 Types.A2 (Some Types.B2) (Some Types.C2);
 Types.A3 {Types.a = None};
 Types.A3 {Types.a = Some Types.B2};
-[@@@"ocaml.text" "t12b";];
-[@@@"ocaml.text" "t12c";];
-[@@@"ocaml.text" "t12d";];

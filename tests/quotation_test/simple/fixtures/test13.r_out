@@ -1,7 +1,6 @@
 [@@@"ocaml.text" "t13";];
-T13.A None s;
-T13.A (Some T13.B1) s;
-T13.A (Some T13.B2) s;
-T13.A (Some x) s;
-T13.A x s;
-[@@@"ocaml.text" "t13b";];
+T13.A None x00;
+T13.A (Some T13.B1) x00;
+T13.A (Some T13.B2) x00;
+T13.A (Some x00) x01;
+T13.A x00 x01;

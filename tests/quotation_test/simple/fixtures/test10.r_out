@@ -1,6 +1,4 @@
 [@@@"ocaml.text" "t10";];
-(x, s1, ls, None);
-(x, s1, ls, Some s2);
-(x, s1, ls, s2);
-[@@@"ocaml.text" "loc";];
-[@@@"ocaml.text" "s";];
+(x00, x01, x02, None);
+(x00, x01, x02, Some x03);
+(x00, x01, x02, x03);

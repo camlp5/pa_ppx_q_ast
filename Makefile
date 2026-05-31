@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.top
 WD=$(shell pwd)
 DESTDIR=
 
-SYSDIRS= pa_q_ast pa_quotation_test pa_test_cleanup
+SYSDIRS= pa_q_ast pa_lreval pa_renumber pa_quotation_test pa_test_cleanup
 
 TESTDIRS= tests
 
@@ -37,6 +37,8 @@ META: sys
 		-wrap-subdir quotation_test:pa_quotation_test \
 		-rewrite pa_ppx_q_ast_test_cleanup:pa_ppx_q_ast.test_cleanup \
 		-wrap-subdir test_cleanup:pa_test_cleanup \
+		-rewrite pa_ppx_q_ast_test_renumber:pa_ppx_q_ast.test_renumber \
+		-wrap-subdir test_renumber:pa_test_renumber \
 		> META
 
 install: META

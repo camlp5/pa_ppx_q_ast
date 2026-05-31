@@ -1,5 +1,4 @@
 [@@@"ocaml.text" "t6";];
 Types.W None;
 Types.W (Some []);
-Types.W (Some lx);
-[@@@"ocaml.text" "t4";];
+Types.W (Some x00);

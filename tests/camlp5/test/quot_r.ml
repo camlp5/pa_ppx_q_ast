@@ -1,7 +1,6 @@
 (* quot_r.ml,v *)
 
 (* longid: Long identifiers for modules and module types *)
-[@@@"ocaml.text" "class_infos";];
 [@@@"ocaml.text" "longid";];
 <:extended_longident< $longid:x$ . $uid:s$ >> ;
 <:extended_longident< $longid:x$ . $_uid:s$ >> ;
@@ -477,7 +476,6 @@ MLast.PaUnp loc (Ploc.VaVal None) (Some mt);
 
 (* unreachable *)
 <:expr< . >> ;
-[@@@"ocaml.text" "case_branch";];
 [@@@"ocaml.text" "module_type";];
 
 (* access *)
@@ -523,7 +521,6 @@ MLast.MtFun loc (Ploc.VaVal (Some (Ploc.VaVal None, smtf2))) mt;
 
 <:module_type< $mt$ [@ $_attribute:x$ ] >> ;
 <:module_type< [% $_extension:x$ ] >> ;
-[@@@"ocaml.text" "functor_parameter";];
 [@@@"ocaml.text" "sig_item";];
 
 (* class *)
@@ -2661,8 +2658,6 @@ MLast.MeUnp loc e None (Some mt2);
 <:class_str_item< [%% $_extension:x$ ] >> ;
 
 (* PPX attribute body *)
-[@@@"ocaml.text" "longid_lident";];
-[@@@"ocaml.text" "payload";];
 [@@@"ocaml.text" "attribute_body";];
 
 <:attribute_body< $attrid:(loc, lsf2)$ $structure:lsi$ >>;
@@ -2703,8 +2698,3 @@ MLast.MeUnp loc e None (Some mt2);
 <:attribute_body< $_attrid:ls$ ? $_patt:p$ >>;
 <:attribute_body< $_attrid:ls$ ? $_patt:p$ when $expr:e$ >>;
 <:attribute_body< $_attrid:ls$ ? $_patt:p$ when $_expr:e$ >>;
-[@@@"ocaml.text" "attribute";];
-[@@@"ocaml.text" "attributes_no_anti";];
-[@@@"ocaml.text" "attributes";];
-[@@@"ocaml.text" "loc";];
-[@@@"ocaml.text" "type_var";];

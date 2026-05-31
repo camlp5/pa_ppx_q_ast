@@ -8,27 +8,36 @@ open Pa_passthru ;
 open Ppxutil ;
 open Pa_ppx_deriving ;
 
-value rec rewrite_str_item arg = fun [
-  <:str_item:< [@@@"end"] >> ->
-  <:str_item< declare end >>
+value rec rewrite_str_item0 arg = fun [
+  <:str_item:< [@@@"end"] >> -> []
 | <:str_item:< declare $list:l$ end >> ->
-  let l = List.map (rewrite_str_item arg) l in
-  <:str_item< declare $list:l$ end >>
-| <:str_item:< type $list:_$ >> ->
-  <:str_item< declare end >>
-| z -> z
+  List.concat_map (rewrite_str_item0 arg) l
+| <:str_item:< type $list:_$ >> -> []
+| z -> [z]
 ]
-;
+and rewrite_structure arg sil =
+  List.concat_map (rewrite_str_item0 arg) sil
 
+and rewrite_implem arg (si_loc_l, st) =
+  let sil = List.map fst si_loc_l in
+  let sil = rewrite_structure arg sil in
+  (List.map (fun si -> (si, MLast.loc_of_str_item si)) sil, st)
+;
 value install () = 
 let ef = EF.mk () in 
 let ef = EF.{ (ef) with
-            str_item = extfun ef.str_item with [
+            structure = extfun ef.structure with [
                 z ->
     fun arg fallback ->
-      Some (rewrite_str_item arg z)
+      Some (rewrite_structure arg z)
   ] } in
-  Pa_passthru.(install { name = "pa_test_cleanup"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving"] })
+let ef = EF.{ (ef) with
+            implem = extfun ef.implem with [
+                z ->
+    fun arg fallback ->
+      Some (rewrite_implem arg z)
+  ] } in
+  Pa_passthru.(install { name = "pa_test_cleanup"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving";"pa_quotation_test"] })
 ;
 
 install();

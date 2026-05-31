@@ -17,15 +17,15 @@ version = "%s"
 description = "pa_ppx_q_ast_quotation_test rewriter"
 
   requires(toploop) = "pa_ppx.base,pa_ppx.deriving,pa_ppx.params_runtime"
-  archive(toploop) = "pa_ppx_quotation_test.cmo"
+  archive(toploop) = "pa_ppx_q_ast_quotation_test.cma"
 
     requires(syntax,preprocessor) = "pa_ppx.base,pa_ppx.deriving,pa_ppx.params_runtime"
-    archive(syntax,preprocessor,-native) = "pa_ppx_quotation_test.cmo"
-    archive(syntax,preprocessor,native) = "pa_ppx_quotation_test.cmx"
+    archive(syntax,preprocessor,-native) = "pa_ppx_q_ast_quotation_test.cma"
+    archive(syntax,preprocessor,native) = "pa_ppx_q_ast_quotation_test.cmxa"
 
   package "link" (
   requires = "pa_ppx.base,pa_ppx.deriving.link"
-  archive(byte) = "pa_ppx_quotation_test.cmo"
-  archive(native) = "pa_ppx_quotation_test.cmx"
+  archive(byte) = "pa_ppx_q_ast_quotation_test.cma"
+  archive(native) = "pa_ppx_q_ast_quotation_test.cmxa"
   )
 |} version)

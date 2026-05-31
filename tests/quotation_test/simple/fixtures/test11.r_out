@@ -1,2 +1,2 @@
 [@@@"ocaml.text" "t11";];
-{Types.a = x; b = lt};
+{Types.a = x00; b = x01};

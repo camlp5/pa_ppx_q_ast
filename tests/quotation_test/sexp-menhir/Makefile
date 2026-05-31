@@ -11,7 +11,7 @@ ML=\
 
 all test: test1.TEST
 
-PACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup
+PACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber
 #PACKAGES=pa_ppx_q_ast_quotation_test
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'
 OPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt M -ppopt -sep -ppopt '\n'

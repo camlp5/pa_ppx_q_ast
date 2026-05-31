@@ -1,5 +1,3 @@
 [@@@"ocaml.text" "t5";];
-Types.A (Types.U x) (Types.U x);
-Types.B (Types.U x) (Types.V x);
-[@@@"ocaml.text" "t4";];
-[@@@"ocaml.text" "t4'";];
+Types.A (Types.U x00) (Types.U x01);
+Types.B (Types.U x00) (Types.V x01);
