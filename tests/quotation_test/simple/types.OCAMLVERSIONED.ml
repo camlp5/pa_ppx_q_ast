@@ -24,6 +24,7 @@ type t6b =
 | Z3 of string Ploc.vala
 | Z4 of string Ploc.vala option
 | Z5 of string Ploc.vala option Ploc.vala
+type t6c = W of string list Ploc.vala option Ploc.vala
 
 type t7 = A of t3a
 and t7' = B of t3a

@@ -17,7 +17,7 @@ TESTS=\
 	test3.TEST \
 	test4.TEST test4b.TEST \
 	test5.TEST test5b.TEST \
-	test6.TEST test6b.TEST \
+	test6.TEST test6b.TEST test6c.TEST \
 	test7.TEST \
 	test8.TEST \
 	test9.TEST \

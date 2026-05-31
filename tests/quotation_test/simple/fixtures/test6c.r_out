@@ -1,0 +1,13 @@
+[@@@"ocaml.text" "t6c";];
+Types.W (Ploc.VaVal None);
+Types.W (Ploc.VaVal (Some (Ploc.VaVal [])));
+Types.W (Ploc.VaVal (Some (Ploc.VaVal x00)));
+Types.W (Ploc.VaVal (Some x00));
+Types.W (Ploc.VaVal x00);
+Types.W x00;
+[@@@"ocaml.text" "not-pattern";];
+[@@@"ocaml.text" "t6c";];
+Types.W None;
+Types.W (Some []);
+Types.W (Some x00);
+Types.W x00;
