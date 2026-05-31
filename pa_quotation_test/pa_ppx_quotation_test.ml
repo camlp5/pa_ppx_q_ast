@@ -396,6 +396,8 @@ value rec pattmatch1 patt e =
   match (patt, e) with [
       (<:patt< _ >>, _) -> True
     | (<:patt< $lid:_$ >>, <:expr< $lid:_$ >>) -> True
+    | (<:patt< ( $p1$ | $p2$ ) >>, e) ->
+       pattmatch1 p1 e || pattmatch1 p2 e
     | (<:patt:< $longid:pli$ >>, <:expr< $longid:eli$ >>) -> Reloc.eq_longid pli eli
     | (<:patt< $_$ $_$  >>, <:expr< $_$ $_$ >>) ->
        let (pf, pargs) = Patt.unapplist patt in

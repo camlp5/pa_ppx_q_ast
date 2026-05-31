@@ -12,8 +12,7 @@
         ; ([%typ: t16],
 
            DelPatts([
-                 [%patt? Types.T16 (Types.U x00, Types.A, Some x01)]
-               ; [%patt? Types.T16 (Types.U x00, Types.A, x01)]
+                 [%patt? Types.T16 (Types.U x00, Types.A, (Some x01|x01))]
              ])
           )
         ]
