@@ -7,11 +7,11 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),pa_ppx.deriving,pa_ppx.deriving_plugins.show,pa_ppx.base,pa_ppx.utils
-TARGET_PACKAGE=pa_ppx_q_ast_quotation_test
+PACKAGES := camlp5
+TARGET_PACKAGE=pa_ppx_q_ast_quotation_test_full
 
 ML=\
-	pa_ppx_quotation_test.ml dummy.ml \
+	dummy.ml \
 
 TOOLSML = mk_meta.ml
 ALLSRC=$(ML) $(TOOLSML)

@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.top
 WD=$(shell pwd)
 DESTDIR=
 
-SYSDIRS= pa_q_ast pa_lreval pa_test_renumber pa_quotation_test pa_test_cleanup
+SYSDIRS= pa_q_ast pa_lreval pa_test_renumber pa_quotation_test pa_test_cleanup pa_full
 
 TESTDIRS= tests
 

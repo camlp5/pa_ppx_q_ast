@@ -28,7 +28,7 @@ all: $(CMO)
 test: all
 	$(MAKE) $(TESTS)
 
-MKTEST_PACKAGES=pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber
+MKTEST_PACKAGES=pa_ppx_q_ast_quotation_test.full
 RPPFLAGS=-ppopt -l -ppopt 400 -ppopt -flag -ppopt D -ppopt -sep -ppopt '\n'
 
 quot_r.out.ml: quot.ml

@@ -12,24 +12,10 @@ Arg.(parse [
      "mk_meta -destdir <dir>")
 ;;
 
-Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast_quotation_test" preprocessor:
+Fmt.(pf stdout {|# Specifications for the "pa_ppx_q_ast_quotation_test_full" preprocessor:
 version = "%s"
-description = "pa_ppx_q_ast_quotation_test rewriter"
+description = "pa_ppx_q_ast_quotation_test_full wrapper package"
 
-  requires(toploop) = "pa_ppx.base,pa_ppx.deriving,pa_ppx.params_runtime"
-  archive(toploop) = "pa_ppx_quotation_test.cmo"
-
-    requires(syntax,preprocessor) = "pa_ppx.base,pa_ppx.deriving,pa_ppx.params_runtime"
-    archive(syntax,preprocessor,-native) = "pa_ppx_quotation_test.cmo"
-    archive(syntax,preprocessor,native) = "pa_ppx_quotation_test.cmx"
-
-  package "link" (
-  requires = "pa_ppx.base,pa_ppx.deriving.link"
-  archive(byte) = "pa_ppx_quotation_test.cmo"
-  archive(native) = "pa_ppx_quotation_test.cmx"
-  )
-
-  package "full" (
 requires(syntax,preprocessor) = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber"
 archive(syntax,preprocessor,-native) = "dummy.cmo"
 archive(syntax,preprocessor,native) = "dummy.cmx"
@@ -37,5 +23,5 @@ archive(syntax,preprocessor,native) = "dummy.cmx"
 requires = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber"
 archive(byte) = "dummy.cmo"
 archive(native) = "dummy.cmx"
-  )
+
 |} version)
