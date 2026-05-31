@@ -1,0 +1,5 @@
+[@@@"ocaml.text" "t17";];
+{Types.a = Types.B; b = Types.A; c = Types.A; d = Types.A};
+{Types.a = Types.B; b = Types.A; c = Types.B; d = Types.A};
+{Types.a = Types.B; b = Types.B; c = Types.A; d = Types.A};
+{Types.a = Types.B; b = Types.B; c = Types.B; d = Types.A};

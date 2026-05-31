@@ -1,0 +1,2 @@
+[@@@"ocaml.text" "t16";];
+Types.T16 (Types.U x00) Types.B;

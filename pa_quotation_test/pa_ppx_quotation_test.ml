@@ -80,6 +80,7 @@ module Raw = struct
 type expand_op_t = [
     Auto
   | AddDel of list expr and list expr
+  | DelPatts of list patt
   | Explicit of list expr
   ] [@@deriving params;]
 ;
@@ -91,6 +92,7 @@ type expand_op_t = [
   | ExpandTo of ctyp
   | Explicit of list expr
   | AddDel of list expr and list expr
+  | DelPatts of list patt
   ] [@@deriving params;]
 ;
 
@@ -104,15 +106,20 @@ value rec compute_expansion type_decls (ty,insn) =
                        let (tyvars, tk) = extract_expansion (n, td) in
                        [Expand tyvars tk]
           ]
-    | ((<:ctyp< option >>, _), Raw.AddDel adds dels) ->
-       [AddDel adds dels]
-    | ((<:ctyp< list >>, _), Raw.AddDel adds dels) ->
-       [AddDel adds dels]
-    | ((<:ctyp< Ploc.vala >>, _), Raw.AddDel adds dels) ->
+
+    | (((<:ctyp< option >> | <:ctyp< list >> | <:ctyp< Ploc.vala >>),
+        _), Raw.AddDel adds dels) ->
        [AddDel adds dels]
     | (_, Raw.AddDel adds dels) ->
        let insns = compute_expansion type_decls (ty, Raw.Auto) in
        insns@[AddDel adds dels]
+
+    | (((<:ctyp< option >> | <:ctyp< list >> | <:ctyp< Ploc.vala >>),
+        _), Raw.DelPatts dels) ->
+       [DelPatts dels]
+    | (_, Raw.DelPatts dels) ->
+       let insns = compute_expansion type_decls (ty, Raw.Auto) in
+       insns@[DelPatts dels]
 
     | (_, Raw.Explicit el) ->
        [Explicit el]
@@ -359,10 +366,79 @@ value process_add_dels (adds,dels) l =
   Std.uniquize l
 ;
 
+value extract_field lel plab =
+  lel |> List.find_opt (fun (elab, e) -> Reloc.eq_patt plab elab) |> Option.map snd
+;
+
+value rec pattmatch1 patt e =
+  match (patt, e) with [
+      (<:patt< _ >>, _) -> True
+    | (<:patt< $lid:_$ >>, _) -> True
+    | (<:patt:< $longid:pli$ >>, <:expr< $longid:eli$ >>) -> Reloc.eq_longid pli eli
+    | (<:patt< $_$ $_$  >>, <:expr< $_$ $_$ >>) ->
+       let (pf, pargs) = Patt.unapplist patt in
+       let (f, args) = Expr.unapplist e in
+       List.length pargs = List.length args &&
+         (match (pf, f) with [
+              (<:patt:< $longid:pli$ >>, <:expr< $longid:eli$ >>)
+                   when Reloc.eq_longid pli eli -> True
+            | _ -> False
+         ]) &&
+           List.for_all2 pattmatch1 pargs args
+    | (<:patt< ( $list:pl$ ) >>, <:expr< ( $list:el$ ) >>) ->
+       List.length pl = List.length el &&
+         List.for_all2 labeled_pattmatch pl el
+
+    | (<:patt< { $list:lpl$ } >>, <:expr< { $list:lel$ } >>) ->
+       let lpl = List.map (fun (p1,p2) -> (Reloc.patt (fun _ -> Ploc.dummy) 0 p1,
+                                           Reloc.patt (fun _ -> Ploc.dummy) 0 p2)) lpl in
+       let lel = List.map (fun (p,e) -> (Reloc.patt (fun _ -> Ploc.dummy) 0 p,
+                                         Reloc.expr (fun _ -> Ploc.dummy) 0 e)) lel in
+       lpl |> List.for_all (fun (plab,p) ->
+                  match extract_field lel plab with [
+                      None -> False
+                    | Some e -> pattmatch1 p e
+                    ])
+
+    | _ -> False
+    ]
+and labeled_pattmatch p e =
+  let (plab, p) =
+    match p with [
+        <:patt< ~{$lid:n$ = $p$} >> -> (Some n,p)
+      | <:patt< ~{$lid:n$} >> -> (Some n, p)
+      | _ -> (None, p)
+      ] in
+  let (elab, e) =
+    match e with [
+        <:expr< ~{$lid:n$ = $e$} >> -> (Some n, e)
+      | <:expr:< ~{$lid:n$} >> -> (Some n, <:expr< $lid:n$ >>)
+      | _ -> (None, e)
+      ] in
+  plab = elab && pattmatch1 p e
+;
+
+value pattmatch p e = pattmatch1 p e ;
+
+value pattern_matches patts e =
+  List.exists (fun p -> pattmatch p e) patts
+;
+
+value except pred l =
+  List.filter (fun x -> not(pred x)) l
+;
+
+value process_del_patts patts l =
+  let patts = List.map (Reloc.patt (fun _ -> Ploc.dummy) 0) patts in
+  let l = List.map (Reloc.expr (fun _ -> Ploc.dummy) 0) l in
+  except (pattern_matches patts) l
+;
+
 value apply_expand_instructions insns el =
   List.fold_left (fun el -> fun [
       Cooked.Explicit el -> el
     | AddDel adds dels -> process_add_dels (adds,dels) el
+    | DelPatts dels -> process_del_patts dels el
     ]) el insns 
 ;
 
@@ -492,6 +568,9 @@ and expr_of_cons_decl rc ~{tdname} (modli, (loc, c, x, tl, rto, y)) =
     | AddDel adds dels ->
        let l = expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y)) in
        process_add_dels (adds,dels) l
+    | DelPatts dels ->
+       let l = expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y)) in
+       process_del_patts dels l
     ]
 
 and expr_of_cons_decl0 rc (tdname, modli, (loc, c, _, tl, rto, _)) = do {
