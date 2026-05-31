@@ -62,6 +62,6 @@ type t15 = A of ( f1 : string * string )
 end
 #endif
 
-type t16 = T16 of t4 * t
+type t16 = T16 of t4 * t * string Ploc.vala option Ploc.vala
 type t17 = { a: t ; b: t; c:t; d:t }
 

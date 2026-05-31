@@ -13,7 +13,10 @@ open Pa_ppx_params_runtime.Runtime ;
 
 value pp_str_item pps ty = Fmt.(pf pps "#<str_item< %s >>" (Eprinter.apply Pcaml.pr_str_item Pprintf.empty_pc ty)) ;
 
+value pp_ctyp pps ty = Fmt.(pf pps "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty)) ;
 value pp_expr pps ty = Fmt.(pf pps "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty)) ;
+
+value pp_patt pps ty = Fmt.(pf pps "#<patt< %s >>" (Eprinter.apply Pcaml.pr_patt Pprintf.empty_pc ty)) ;
 
 module TypeMap = struct
   type t 'a = list (ctyp * 'a) ;
@@ -82,7 +85,7 @@ type expand_op_t = [
   | AddDel of list expr and list expr
   | DelPatts of list patt
   | Explicit of list expr
-  ] [@@deriving params;]
+  ] [@@deriving (params, show);]
 ;
 end ;
 
@@ -96,7 +99,7 @@ type expand_op_t = [
   ] [@@deriving params;]
 ;
 
-value rec compute_expansion type_decls (ty,insn) =
+value rec compute_expansion1 stk type_decls (ty,insn) =
   match (Ctyp.unapplist ty, insn) with [
       ((<:ctyp:< $lid:n$ >>, []), Raw.Auto) ->
         match List.assoc n type_decls with [
@@ -111,19 +114,38 @@ value rec compute_expansion type_decls (ty,insn) =
         _), Raw.AddDel adds dels) ->
        [AddDel adds dels]
     | (_, Raw.AddDel adds dels) ->
-       let insns = compute_expansion type_decls (ty, Raw.Auto) in
+       let insns = compute_expansion1 [(ty,insn) :: stk] type_decls (ty, Raw.Auto) in
        insns@[AddDel adds dels]
 
     | (((<:ctyp< option >> | <:ctyp< list >> | <:ctyp< Ploc.vala >>),
         _), Raw.DelPatts dels) ->
        [DelPatts dels]
     | (_, Raw.DelPatts dels) ->
-       let insns = compute_expansion type_decls (ty, Raw.Auto) in
+       let insns = compute_expansion1 [(ty,insn) :: stk] type_decls (ty, Raw.Auto) in
        insns@[DelPatts dels]
 
     | (_, Raw.Explicit el) ->
        [Explicit el]
+
+    | _ -> do {
+        Fmt.(pf stderr "compute_expansion: internal error (unhandled case): stack is:@.%a@."
+               (list (pair pp_ctyp Raw.pp_expand_op_t)) stk
+        ) ;
+        Fmt.(raise_failwithf (MLast.loc_of_ctyp ty) "compute_expansion: unhandled case ty=%a insn=<<%a>>"
+               pp_ctyp ty
+               Raw.pp_expand_op_t insn
+        )
+      }
     ]
+;
+
+value compute_expansion type_decls (ty,insn) =
+  do {
+    Fmt.(pf stderr "compute_expansion: %a@."
+           (pair pp_ctyp Raw.pp_expand_op_t) (ty, insn)
+        ) ;
+  compute_expansion1 [] type_decls (ty,insn)
+  }
 ;
 
 end ;
@@ -373,7 +395,7 @@ value extract_field lel plab =
 value rec pattmatch1 patt e =
   match (patt, e) with [
       (<:patt< _ >>, _) -> True
-    | (<:patt< $lid:_$ >>, _) -> True
+    | (<:patt< $lid:_$ >>, <:expr< $lid:_$ >>) -> True
     | (<:patt:< $longid:pli$ >>, <:expr< $longid:eli$ >>) -> Reloc.eq_longid pli eli
     | (<:patt< $_$ $_$  >>, <:expr< $_$ $_$ >>) ->
        let (pf, pargs) = Patt.unapplist patt in

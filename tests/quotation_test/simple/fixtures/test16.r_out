@@ -1,2 +1,5 @@
 [@@@"ocaml.text" "t16";];
-Types.T16 (Types.U x00) Types.B;
+Types.T16 (Types.U x00) Types.A None;
+Types.T16 (Types.U x00) Types.B None;
+Types.T16 (Types.U x00) Types.B (Some x01);
+Types.T16 (Types.U x00) Types.B x01;
