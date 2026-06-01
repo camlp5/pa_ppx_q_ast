@@ -1,0 +1,5 @@
+[@@@"ocaml.text" "t19_a";];
+{Types.f1 = Types.A; f2 = x00};
+{Types.f1 = Types.B; f2 = x00};
+[@@@"ocaml.text" "t19_b";];
+Types.T19_B;

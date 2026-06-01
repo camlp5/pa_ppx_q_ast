@@ -75,3 +75,6 @@ and t18_signature_item =
     {
      psig_desc: t18_signature_item_desc;
     }
+
+type t19_a = { f1 : t ; f2 : t19_b }
+and t19_b = T19_A | T19_B

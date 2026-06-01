@@ -64,6 +64,10 @@ value expanded_types = ref [] ;
 value add_expanded_type s = expanded_types.val := [s :: expanded_types.val] ;
 value expanded_type n = List.mem n expanded_types.val ;
 
+value expanded_test_types = ref [] ;
+value add_expanded_test_type s = expanded_test_types.val := [s :: expanded_test_types.val] ;
+value expanded_test_type n = List.mem n expanded_test_types.val ;
+
 value extract_expansion (n,td) =
   let ty = match td.tdDef with [
         <:ctyp< $_$ == $ty$ >> -> ty
@@ -195,6 +199,11 @@ type t = {
 ; plugin_name : string [@default "";]
 ; type_decls : list (string * type_decl) [@computed type_decls;]
 ; test_types : list lident
+
+; expand_test_types : list (ctyp *  Raw.expand_op_t) [@default [];]
+; test_types_expansion_dict : alist ctyp (list Cooked.expand_op_t) [@computed compute_expansion_dict type_decls expand_test_types;]
+
+
 ; per_constructor_expansion : list (uident * Raw.expand_op_t) [@default [];]
 ; expand_types : list (ctyp *  Raw.expand_op_t) [@default [];]
 ; expansion_dict : alist ctyp (list Cooked.expand_op_t) [@computed compute_expansion_dict type_decls expand_types;]
@@ -237,11 +246,14 @@ value build_params_from_cmdline tdl =
     ) tdl in
   let loc = Ploc.dummy in
   let expand_types = expanded_types.val |> List.map (fun n -> (<:ctyp< n >>, Raw.Auto)) in
+  let expand_test_types = expanded_test_types.val |> List.map (fun n -> (<:ctyp< n >>, Raw.Auto)) in
   {
     optional = False
   ; plugin_name = "pa_quotation_test"
   ; type_decls = type_decls
   ; test_types = test_types.val
+  ; expand_test_types = expand_test_types
+  ; test_types_expansion_dict = compute_expansion_dict type_decls expand_test_types
   ; per_constructor_expansion = []
   ; expand_types = expand_types
   ; expand_types_per_constructor = []
@@ -368,6 +380,17 @@ value do_expand_type rc ~{tdname} cidopt x =
           [(fun x -> do_expand_per_constructor rc cidopt x);
            (fun x -> do_expand_per_type rc ~{tdname} x);
            (fun x -> do_expand_type0 rc x)] in
+  match rv with [
+      None -> ((x, []), [])
+    | Some x -> x
+    ]
+;
+
+value do_expand_test_type rc x =
+  let rv = List.find_map
+          (fun f -> f x)
+          [(fun x -> do_expand_via_dict rc.test_types_expansion_dict x)
+          ;(fun x -> do_expand_type0 rc x)] in
   match rv with [
       None -> ((x, []), [])
     | Some x -> x
@@ -686,7 +709,7 @@ value expr_list_of_type_decl loc rc td =
         ] in
 
     let x = <:ctyp< $lid:tname$ >> in
-    let (_, insns) = do_expand_type rc ~{tdname} None x in
+    let (_, insns) = do_expand_test_type rc x in
     let cid = None in
     let tdname = tname in
     match insns with [
@@ -762,12 +785,16 @@ Pcaml.add_option "-pa_ppx_q_ast.quotation_test-test-type" (Arg.String add_test_t
 Pcaml.add_option "-pa_ppx_q_ast.quotation_test-expand-type" (Arg.String add_expanded_type)
   "expand specified type";
 
+Pcaml.add_option "-pa_ppx_q_ast.quotation_test-expand-test-type" (Arg.String add_expanded_test_type)
+  "expand specified test type";
+
 Pa_deriving.(Registry.add PI.{
   name = "quotation_test"
 ; alternates = []
 ; options = [
     "optional"
   ; "test_types"
+  ; "expand_test_types"
   ; "expand_types"
   ; "expand_types_per_constructor"
   ; "expand_types_per_type"
@@ -784,6 +811,7 @@ Pa_deriving.(Registry.add PI.{
   ]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
+  ; ("expand_test_types", <:expr< [] >>)
   ; ("expand_types", <:expr< [] >>)
   ; ("expand_types_per_constructor", <:expr< [] >>)
   ; ("expand_types_per_type", <:expr< () >>)
