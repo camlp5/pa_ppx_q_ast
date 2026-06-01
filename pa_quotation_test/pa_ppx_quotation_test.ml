@@ -386,10 +386,11 @@ value do_expand_type rc ~{tdname} cidopt x =
     ]
 ;
 
-value do_expand_test_type rc x =
+value do_expand_test_type rc ~{tdname} x =
   let rv = List.find_map
           (fun f -> f x)
           [(fun x -> do_expand_via_dict rc.test_types_expansion_dict x)
+          ;(fun x -> do_expand_per_type rc ~{tdname} x)
           ;(fun x -> do_expand_type0 rc x)] in
   match rv with [
       None -> ((x, []), [])
@@ -709,7 +710,7 @@ value expr_list_of_type_decl loc rc td =
         ] in
 
     let x = <:ctyp< $lid:tname$ >> in
-    let (_, insns) = do_expand_test_type rc x in
+    let (_, insns) = do_expand_test_type rc ~{tdname} x in
     let cid = None in
     let tdname = tname in
     match insns with [
