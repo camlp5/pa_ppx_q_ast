@@ -65,7 +65,13 @@ end
 type t16 = T16 of t4 * t * string Ploc.vala option Ploc.vala
 type t17 = { a: t ; b: t; c:t; d:t }
 
-type t18 =
+type t18_value_description =
     {
      pval_prim: string list Ploc.vala;
+    }
+and t18_signature_item_desc =
+  Psig_value of t18_value_description
+and t18_signature_item =
+    {
+     psig_desc: t18_signature_item_desc;
     }

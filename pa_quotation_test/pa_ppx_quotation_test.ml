@@ -96,7 +96,7 @@ type expand_op_t = [
   | Explicit of list expr
   | AddDel of list expr and list expr
   | DelPatts of list patt
-  ] [@@deriving params;]
+  ] [@@deriving (params, show);]
 ;
 
 value rec compute_expansion1 stk type_decls (ty,insn) =
@@ -140,14 +140,7 @@ value rec compute_expansion1 stk type_decls (ty,insn) =
 ;
 
 value compute_expansion type_decls (ty,insn) =
-  do {
-    if Pa_ppx_base.Pa_passthru.debug.val then
-      Fmt.(pf stderr "compute_expansion: %a@."
-             (pair pp_ctyp Raw.pp_expand_op_t) (ty, insn)
-      )
-    else ();
-    compute_expansion1 [] type_decls (ty,insn)
-  }
+  compute_expansion1 [] type_decls (ty,insn)
 ;
 
 end ;
