@@ -65,3 +65,7 @@ end
 type t16 = T16 of t4 * t * string Ploc.vala option Ploc.vala
 type t17 = { a: t ; b: t; c:t; d:t }
 
+type t18 =
+    {
+     pval_prim: string list Ploc.vala;
+    }

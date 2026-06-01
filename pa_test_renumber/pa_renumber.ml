@@ -160,7 +160,7 @@ let ef = EF.{ (ef) with
     fun arg fallback ->
       Some (renumber_implem arg z)
   ] } in
-  Pa_passthru.(install { name = "pa_renumber"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving"; "pa_test_cleanup";"pa_quotation_test"] })
+  Pa_passthru.(install { name = "pa_test_renumber"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving"; "pa_test_cleanup";"pa_quotation_test"] })
 ;;
 
 install();;

@@ -141,10 +141,12 @@ value rec compute_expansion1 stk type_decls (ty,insn) =
 
 value compute_expansion type_decls (ty,insn) =
   do {
-    Fmt.(pf stderr "compute_expansion: %a@."
-           (pair pp_ctyp Raw.pp_expand_op_t) (ty, insn)
-        ) ;
-  compute_expansion1 [] type_decls (ty,insn)
+    if Pa_ppx_base.Pa_passthru.debug.val then
+      Fmt.(pf stderr "compute_expansion: %a@."
+             (pair pp_ctyp Raw.pp_expand_op_t) (ty, insn)
+      )
+    else ();
+    compute_expansion1 [] type_decls (ty,insn)
   }
 ;
 
@@ -452,6 +454,20 @@ value except pred l =
   List.filter (fun x -> not(pred x)) l
 ;
 
+value drop_duplicates el =
+  let ht = Hashtbl.create 23 in
+  let canon e = Reloc.expr (fun _ -> Ploc.dummy) 0 e in
+  let rec drec acc = fun [
+        [] -> List.rev acc
+      | [h::tl] when Hashtbl.mem ht (canon h) -> drec acc tl
+      | [h::tl] -> do {
+          Hashtbl.add ht (canon h) () ;
+          drec [h::acc] tl
+        }
+      ]
+  in drec [] el
+;
+
 value process_del_patts patts l =
   let patts = List.map (Reloc.patt (fun _ -> Ploc.dummy) 0) patts in
   let l = List.map (Reloc.expr (fun _ -> Ploc.dummy) 0) l in
@@ -461,8 +477,8 @@ value process_del_patts patts l =
 value apply_expand_instructions insns el =
   List.fold_left (fun el -> fun [
       Cooked.Explicit el -> el
-    | AddDel adds dels -> process_add_dels (adds,dels) el
-    | DelPatts dels -> process_del_patts dels el
+    | AddDel adds dels -> el |> drop_duplicates |> process_add_dels (adds,dels)
+    | DelPatts dels -> el |> drop_duplicates |> process_del_patts dels
     ]) el insns 
 ;
 
@@ -591,10 +607,10 @@ and expr_of_cons_decl rc ~{tdname} (modli, (loc, c, x, tl, rto, y)) =
     | Explicit l -> l
     | AddDel adds dels ->
        let l = expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y)) in
-       process_add_dels (adds,dels) l
+       l |> drop_duplicates |> process_add_dels (adds,dels)
     | DelPatts dels ->
        let l = expr_of_cons_decl0 rc (tdname, modli, (loc, c, x, tl, rto, y)) in
-       process_del_patts dels l
+       l |> drop_duplicates |> process_del_patts dels
     ]
 
 and expr_of_cons_decl0 rc (tdname, modli, (loc, c, _, tl, rto, _)) = do {
@@ -691,20 +707,6 @@ value expr_list_of_type_decl loc rc td =
          Some (expr_list_of_type_gen loc rc ~{tdname=tname} ((modli_opt, None), ty))
       ]
   else None
-;
-
-value drop_duplicates el =
-  let ht = Hashtbl.create 23 in
-  let canon e = Reloc.expr (fun _ -> Ploc.dummy) 0 e in
-  let rec drec acc = fun [
-        [] -> List.rev acc
-      | [h::tl] when Hashtbl.mem ht (canon h) -> drec acc tl
-      | [h::tl] -> do {
-          Hashtbl.add ht (canon h) () ;
-          drec [h::acc] tl
-        }
-      ]
-  in drec [] el
 ;
 
 value type_decl_gen_ast loc rc td =

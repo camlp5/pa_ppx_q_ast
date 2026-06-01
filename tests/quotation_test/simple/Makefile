@@ -29,6 +29,7 @@ TESTS=\
 	test15.TEST \
 	test16.TEST \
 	test17.TEST \
+	test18.TEST \
 
 $(TESTS:.TEST=.ml): types.cmo
 

@@ -30,11 +30,11 @@ description = "pa_ppx_q_ast_quotation_test rewriter"
   )
 
   package "full" (
-requires(syntax,preprocessor) = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber"
+requires(syntax,preprocessor) = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber,pa_ppx_q_ast_test_dedup"
 archive(syntax,preprocessor,-native) = "dummy.cmo"
 archive(syntax,preprocessor,native) = "dummy.cmx"
 
-requires = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber"
+requires = "pa_ppx_q_ast_quotation_test,pa_ppx_q_ast_test_cleanup,pa_ppx_q_ast_test_renumber,pa_ppx_q_ast_test_dedup"
 archive(byte) = "dummy.cmo"
 archive(native) = "dummy.cmx"
   )

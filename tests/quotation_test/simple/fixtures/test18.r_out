@@ -1,0 +1,3 @@
+[@@@"ocaml.text" "t18";];
+{Types.pval_prim = x00};
+{Types.pval_prim = []};
