@@ -2,5 +2,5 @@
 #if OCAML_VERSION >= (5,4,0)
 T15.A (~{f1 = x00}, x01);
 #else
-x;
+x00;
 #endif
