@@ -15,6 +15,7 @@ undef $/ ;
     $s =~ s,.*: added to search path.*\n,,g ;
     $s =~ s,.*: loaded.*\n,,g ;
     $s =~ s,.*Cannot read directory.*stublibs.*\n,,g ;
+    $s =~ s,.*Interface.*occurs in several directories.*\n,,g ;
 
     $s =~ s,#<\|(?:[^\|]|\|[^>])*\|>\n?,,gs ;
 
