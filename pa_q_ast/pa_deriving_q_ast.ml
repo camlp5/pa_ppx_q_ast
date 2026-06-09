@@ -1,4 +1,4 @@
-(**pp -syntax camlp5r -package pa_ppx.deriving_plugins.params *)
+(**pp -syntax camlp5r -package pa_ppx.deriving_plugins.params,camlp5.parser_quotations *)
 (* camlp5r *)
 (* pa_deriving_q_ast.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
@@ -70,7 +70,8 @@ and custom_t = {
 ; function_name : lident
 }
 and t = {
-  optional : bool
+  loc : (Ploc.t[@printer fun fmt _ -> Format.fprintf fmt "<loc>";]) [@computed (MLast.loc_of_expr __arg__);]
+; optional : bool
 ; plugin_name : string
 ; default_data_source_module : longid
 ; default_quotation_source_module : longid
@@ -96,11 +97,11 @@ and t = {
     }
   ; validators = { t = fun params ->
       if params.hashconsed && params.uniqified then
-        Result.Error "at most one of hashconsed and uniqified can be true"
+        Result.Error (params.loc, "at most one of hashconsed and uniqified can be true")
       else if params.entrypoints
               |> List.exists (fun ep -> None = ep.grammar_entry && None = ep.from_string ||
                                           None <> ep.grammar_entry && None <> ep.from_string) then
-        Result.Error "exactly one of grammar_entry and from_string can be specified"
+        Result.Error (params.loc, "exactly one of grammar_entry and from_string can be specified")
       else Result.Ok True }
   };]
 ;

@@ -1,0 +1,14 @@
+
+.PRECIOUS: %.asciidoc.corrected %.asciidoc.corrected.CLEANED
+
+%.asciidoc.corrected: %.asciidoc
+	$(LAUNCH) ocaml-mdx test -o $@ $<
+
+%.asciidoc.TEST: %.asciidoc.corrected.CLEANED %.asciidoc
+	diff -Bwiu $^
+
+%.asciidoc.corrected.CLEANED: %.asciidoc.corrected
+	$(TOP)/tools/clean-ocaml-mdx-output $< > $@.NEW && mv $@.NEW $@
+
+clean::
+	$(RM) -f fixtures/*.cm* *.cm* *.byte *.log *.cache *.ppo tools/*.byte tools/*.opt link* *.NEW *.corrected *.corrected.CLEANED

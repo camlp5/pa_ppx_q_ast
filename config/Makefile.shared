@@ -40,9 +40,11 @@ default_install:: META $(TARGET_INSTALL_FILES) $(DEFAULT_INSTALL_FILES)
 default_uninstall::
 	$(NOT_OCAMLFIND) remove $(TARGET_PACKAGE) -destdir $(DESTDIR)/lib
 
+OCAMLCFLAGS_PREPROCESS=$(OCAMLCFLAGS)
+
 ifdef DEBUG_PREPROCESS
 .mli.cmi:
-	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.mli
+	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS_PREPROCESS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.mli
 	perl -p -i -e 's,^\s*# ,# ,' $*_ppo.mli
 	perl -n -i -e 'print unless m,^#.*,' $*_ppo.mli
 	perl -p -i -e 's,-syntax camlp5r,-syntax camlp5o,' $*_ppo.mli
@@ -51,7 +53,7 @@ ifdef DEBUG_PREPROCESS
 	$(LAUNCH) $(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<
 
 .ml.cmo:
-	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
+	$(LAUNCH) $(YAWRAP) $(NOT_OCAMLFIND) preprocess $(OCAMLCFLAGS_PREPROCESS) -package $(PACKAGES),$(PRPACKAGE) $< > $*_ppo.ml
 	perl -p -i -e 's,^\s*# ,# ,' $*_ppo.ml
 	perl -n -i -e 'print unless m,^#.*,' $*_ppo.ml
 	perl -p -i -e 's,-syntax camlp5r,-syntax camlp5o,' $*_ppo.ml
@@ -86,16 +88,6 @@ endif
 	@mkdir -p .cmt
 	$(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_dock -bin-annot -c $< -o .cmt/$*.cmi
 	cp .cmt/$*.cmti $*.cmti
-
-.PRECIOUS: %.asciidoc.corrected
-
-%.asciidoc.corrected: %.asciidoc
-	$(LAUNCH) ocaml-mdx test -o $@ $<
-
-%.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
-	perl -n -i -e 'print unless (s,.*: added to search path.*,,)' $<
-	perl -n -i -e 'print unless (s,.*: loaded.*,,)' $<
-	diff -Bwiu $^
 
 toplevel::
 	$(LAUNCH) ocaml -nopromptcont
