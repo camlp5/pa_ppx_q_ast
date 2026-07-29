@@ -117,7 +117,7 @@ let lreval e =
          pel
          |> List.mapi (fun i (p,e) ->
                 let (bopt, newe) = to_binding_newe i (dt.migrate_expr dt e) in
-                (bopt, (p,e))) in
+                (bopt, (p,newe))) in
        let bindings = List.filter_map fst bindings_newpel in
        let newpel = List.map snd bindings_newpel in
        let body = <:expr< $uid:cid$ { $list:newpel$ } >> in
@@ -129,7 +129,7 @@ let lreval e =
          pel
          |> List.mapi (fun i (p,e) ->
                 let (bopt, newe) = to_binding_newe i (dt.migrate_expr dt e) in
-                (bopt, (p,e))) in
+                (bopt, (p,newe))) in
        let bindings = List.filter_map fst bindings_newpel in
        let newpel = List.map snd bindings_newpel in
        let body = <:expr< { $list:newpel$ } >> in
