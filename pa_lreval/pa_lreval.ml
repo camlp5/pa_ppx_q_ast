@@ -102,18 +102,24 @@ let lreval e =
 
     | <:expr:< $_$ $_$ >> as e ->
        let (f, args) = Expr.unapplist e in
-       let vars_args =
-         List.mapi (fun i e ->
-             let v = Printf.sprintf "__v%02d__" i in
-             (v,e)) args in
-       let bindings =
-         List.map (fun (v, e) ->
-             (<:patt< $lid:v$ >>, e, <:vala< [] >>)
-           ) vars_args in
-       let newargs =
-         List.map (fun (v, _) -> <:expr< $lid:v$ >>) vars_args in
+
+       let bindings_newargs =
+         args
+         |> List.mapi (fun i e ->
+                match e with
+                  <:expr:< $lid:_$ >> -> (None, e)
+                | _ ->
+                   let v = Printf.sprintf "__v%02d__" i in
+                   (Some (<:patt< $lid:v$ >>, e, <:vala< [] >>),
+                    <:expr< $lid:v$ >>)
+              ) in
+
+       let bindings = List.filter_map fst bindings_newargs in
+       let newargs = List.map snd bindings_newargs in
        let body = Expr.applist f newargs in
        <:expr< let $list:bindings$ in $body$ >>
+
+
     | e ->  old_migrate_expr dt e
   in
   let dt = { (dt) with migrate_expr = migrate_expr } in
