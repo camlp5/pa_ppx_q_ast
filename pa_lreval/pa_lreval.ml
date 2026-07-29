@@ -96,7 +96,11 @@ let lreval e =
   let dt = make_dt() in
   let old_migrate_expr = dt.migrate_expr in
   let migrate_expr dt = function
-      <:expr:< $_$ $_$ >> as e ->
+      <:expr:< $uid:cid$ {$list:l$} >> ->
+      let l = l |> List.map (fun (p, e) -> (p, dt.migrate_expr dt e)) in
+      <:expr:< $uid:cid$ {$list:l$} >>
+
+    | <:expr:< $_$ $_$ >> as e ->
        let (f, args) = Expr.unapplist e in
        let vars_args =
          List.mapi (fun i e ->
