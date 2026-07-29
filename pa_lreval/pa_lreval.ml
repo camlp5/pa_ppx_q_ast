@@ -92,27 +92,73 @@ let _migrate_list subrw0 __dt__ l =
     }
 ]
 
+let is_constant_expr = function
+    <:expr< $lid:_$ >> -> true
+  | <:expr< $uid:_$ >> -> true
+  | <:expr< fun [ $list:__$ ] >> -> true
+  | _ -> false
+
+let to_binding_newe i e =
+  if is_constant_expr e then
+    (None, e)
+  else
+    let loc = MLast.loc_of_expr e in
+    let v = Printf.sprintf "__v%02d__" i in
+    (Some (<:patt< $lid:v$ >>, e, <:vala< [] >>),
+     <:expr< $lid:v$ >>)
+
 let lreval e =
   let dt = make_dt() in
   let old_migrate_expr = dt.migrate_expr in
   let migrate_expr dt = function
-      <:expr:< $uid:cid$ {$list:l$} >> ->
-      let l = l |> List.map (fun (p, e) -> (p, dt.migrate_expr dt e)) in
-      <:expr:< $uid:cid$ {$list:l$} >>
+      <:expr:< $uid:cid$ {$list:pel$} >> ->
+       let bindings_newpel =
+         pel
+         |> List.mapi (fun i (p,e) ->
+                let (bopt, newe) = to_binding_newe i (dt.migrate_expr dt e) in
+                (bopt, (p,e))) in
+       let bindings = List.filter_map fst bindings_newpel in
+       let newpel = List.map snd bindings_newpel in
+       let body = <:expr< $uid:cid$ { $list:newpel$ } >> in
+       if bindings = [] then body else
+       <:expr< let $list:bindings$ in $body$ >>
+
+    | <:expr:< {$list:pel$} >> ->
+       let bindings_newpel =
+         pel
+         |> List.mapi (fun i (p,e) ->
+                let (bopt, newe) = to_binding_newe i (dt.migrate_expr dt e) in
+                (bopt, (p,e))) in
+       let bindings = List.filter_map fst bindings_newpel in
+       let newpel = List.map snd bindings_newpel in
+       let body = <:expr< { $list:newpel$ } >> in
+       if bindings = [] then body else
+       <:expr< let $list:bindings$ in $body$ >>
+
+    | <:expr:< ( $list:el$ ) >> ->
+       let bindings_newel =
+         el
+         |> List.mapi (fun i e ->
+                match e with
+                  <:expr:< ~{$lid:lab$ = $e$} >> ->
+                  let (bopt, newe) = to_binding_newe i (dt.migrate_expr dt e) in
+                  (bopt, <:expr< ~{$lid:lab$ = $newe$} >>)
+                | _ ->
+                   to_binding_newe i (dt.migrate_expr dt e)
+              ) in
+       let bindings = List.filter_map fst bindings_newel in
+       let newel = List.map snd bindings_newel in
+       let body = <:expr< ( $list:newel$ ) >> in
+       if bindings = [] then body else
+       <:expr< let $list:bindings$ in $body$ >>
 
     | <:expr:< $_$ $_$ >> as e ->
        let (f, args) = Expr.unapplist e in
 
        let bindings_newargs =
          args
-         |> List.mapi (fun i e ->
-                match e with
-                  <:expr:< $lid:_$ >> -> (None, e)
-                | _ ->
-                   let v = Printf.sprintf "__v%02d__" i in
-                   (Some (<:patt< $lid:v$ >>, e, <:vala< [] >>),
-                    <:expr< $lid:v$ >>)
-              ) in
+         |> List.map (dt.migrate_expr dt)
+         |> List.mapi to_binding_newe in
 
        let bindings = List.filter_map fst bindings_newargs in
        let newargs = List.map snd bindings_newargs in
