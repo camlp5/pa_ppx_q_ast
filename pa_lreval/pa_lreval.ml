@@ -180,7 +180,15 @@ let ef = EF.{ (ef) with
     z ->
     fun arg fallback ->
       Some (lreval z)
-  ] } in
+              ]
+ } in
+let ef = EF.{ (ef) with
+            attribute_body = extfun ef.attribute_body with [
+    z ->
+    fun arg fallback ->
+      Some z
+              ]
+ } in
   Pa_passthru.(install { name = "pa_lefteval"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving"] })
 ;;
 
