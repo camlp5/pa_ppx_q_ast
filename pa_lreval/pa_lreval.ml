@@ -117,6 +117,7 @@ let lreval e =
        let bindings = List.filter_map fst bindings_newargs in
        let newargs = List.map snd bindings_newargs in
        let body = Expr.applist f newargs in
+       if bindings = [] then body else
        <:expr< let $list:bindings$ in $body$ >>
 
 
