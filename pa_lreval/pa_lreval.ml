@@ -109,6 +109,7 @@ let to_binding_newe i e =
 
 let lreval e =
   let dt = make_dt() in
+  let migrate_attribute dt a = a in
   let old_migrate_expr = dt.migrate_expr in
   let migrate_expr dt = function
       <:expr:< $uid:cid$ {$list:pel$} >> ->
@@ -169,7 +170,7 @@ let lreval e =
 
     | e ->  old_migrate_expr dt e
   in
-  let dt = { (dt) with migrate_expr = migrate_expr } in
+  let dt = { (dt) with migrate_expr = migrate_expr; migrate_attribute = migrate_attribute } in
   dt.migrate_expr dt e
 
 let install () = 
